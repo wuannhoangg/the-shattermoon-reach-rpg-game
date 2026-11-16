@@ -186,16 +186,82 @@
       c.show(d.title,
         `<div class="codex-detail"><article class="card codex-hero">${iconOf(id, d.title, 'item-slot codex-big')}<h2>${esc(d.title)}</h2><div class="codex-chips">${chips(d)}</div><p class="codex-own">Đang có: <b>${n}</b></p>${d.price ? `<p>Giá gốc: <b>${num(d.price)}</b> tro vàng</p>` : ''}</article>` +
         `<div><div class="lore"><b>Tác dụng</b><p>${esc(d.summary || '')}</p>${d.effects.length ? `<ul class="codex-list">${d.effects.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}</div>` +
+        actionsHtml(id) +
         (d.where.length ? `<div class="lore"><b>Nơi có được</b><ul class="codex-list">${d.where.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : '') +
         (d.lore ? `<div class="lore"><b>Lai lịch</b><p>${esc(d.lore)}</p></div>` : '') +
-        `<div class="row">${sp ? c.button('Xem hồ sơ ' + (monster(sp)?.name || 'sinh linh'), 'monster', sp) : ''}${c.button('Về Bảo Vật Chí', 'items-codex')}</div></div></div>`);
+        `<div class="row">${sp ? c.button('Xem hồ sơ ' + (monster(sp)?.name || 'sinh linh'), 'monster', sp) : ''}${(c.canBack && c.canBack() ? c.button('← Quay lại', 'back') : c.button('Về Bảo Vật Chí', 'items-codex'))}</div></div></div>`);
     }
 
+
+    /* ---- what the player can DO with this thing (use, feed, wear, forge, socket) ---- */
+    const creative = () => !!c.state().admin?.creative;
+    const forgeCost = (plus, s) => creative() ? 0 : Math.round((plus + 1) * 100 * (s.hero.raceId === 'R-03' ? .8 : 1));
+    function equipRefs(id, s) {
+      const h = s.hero, spec = by('equipment', id);
+      const worn = spec && h.equipment[spec.slot] && h.equipment[spec.slot].id === id ? h.equipment[spec.slot] : null;
+      const owned = (h.ownedEquipment || []).map((e, i) => ({e, i})).filter(x => x.e.id === id);
+      return {spec, worn, owned};
+    }
+    function actionsHtml(id) {
+      const s = c.state(), h = s.hero;
+      const it = by('items', id);
+      if (it) {
+        const n = h.bag[id] || 0, btns = [];
+        if (['heal', 'mp', 'food', 'candle', 'cleanse'].includes(it.kind)) btns.push(c.button('Sử dụng', 'use', id, n < 1));
+        if (['exp', 'level'].includes(it.kind)) btns.push(c.button(it.kind === 'level' ? 'Tăng 1 cấp cho…' : 'Cho ăn…', 'growth', id, n < 1));
+        if (it.kind === 'gem') btns.push('<span class="small">Khảm ngọc ở trang chi tiết của từng món trang bị.</span>');
+        if (it.kind === 'material') btns.push(c.button('Chế di vật · 2 nguyên liệu', 'craft', id, n < 2));
+        if (it.kind === 'capture') btns.push('<span class="small">Dùng trong trận với sinh linh hoang dã, mục Khế hồn.</span>');
+        return btns.length ? `<div class="lore"><b>Thao tác</b><div class="row">${btns.join('')}</div></div>` : '';
+      }
+      const {spec, worn, owned} = equipRefs(id, s);
+      if (!spec) return '';
+      const gems = h.bag.gem || 0, rows = [];
+      const inst = (e, label, wearIdx) => {
+        const plus = e.plus || 0, g2 = e.gems || 0, cost = forgeCost(plus, s);
+        return `<div class="cx-inst"><div><strong>${label}</strong><small>Rèn +${plus}/10 · Ngọc ${g2}/3</small></div><div class="row">${wearIdx !== null ? c.button('Mặc', 'cx-wear', id + '|' + wearIdx) : ''}${c.button(plus >= 10 ? 'Đã rèn tối đa' : 'Rèn +1 · ' + (cost ? cost + ' vàng' : 'miễn phí'), 'cx-upgrade', id + '|' + (wearIdx === null ? 'worn' : wearIdx), plus >= 10 || (!cost ? false : h.gold < cost))}${c.button('Khảm ngọc (' + gems + ')', 'cx-socket', id + '|' + (wearIdx === null ? 'worn' : wearIdx), (g2 >= 3 && !creative()) || (gems < 1 && !creative()))}</div></div>`;
+      };
+      if (worn) rows.push(inst(worn, 'Đang mặc', null));
+      owned.forEach((x, k) => rows.push(inst(x.e, 'Trong hành trang' + (owned.length > 1 ? ' · bản ' + (k + 1) : ''), x.i)));
+      if (!rows.length) rows.push('<p class="small">Bạn chưa có món này. Mua ở Thương Hội & Lò Rèn' + (c.state().admin?.enabled ? ', hoặc nhận trong Quản trị.' : '.') + '</p>');
+      return `<div class="lore"><b>Trang bị của bạn</b>${rows.join('')}</div>`;
+    }
+    function equipAction(action, id) {
+      const s = c.state(), h = s.hero, [eid, ref] = String(id).split('|'), spec = by('equipment', eid);
+      if (!spec) return true;
+      const get = () => ref === 'worn' ? h.equipment[spec.slot] : (h.ownedEquipment || [])[Number(ref)];
+      if (action === 'cx-wear') {
+        const i = Number(ref), eq = (h.ownedEquipment || [])[i];
+        if (!eq) return true;
+        const old = h.equipment[spec.slot];
+        if (old && by('equipment', old.id).curse && !s.flags['cleansed_' + old.id]) { c.toast('Món đang mặc bị nguyền: hãy giải nguyền trước khi thay.'); return true; }
+        const st = R.heroStats(s), lacking = Object.entries(spec.requirements || {}).filter(([k, v]) => (st[k] || 0) < v);
+        if (lacking.length && !creative()) { c.toast('Chưa đủ yêu cầu: ' + lacking.map(([k, v]) => (STAT[k] || k) + ' ' + v).join(', ') + '.'); return true; }
+        h.ownedEquipment.splice(i, 1); if (old) h.ownedEquipment.push(old); h.equipment[spec.slot] = eq;
+        c.save(); c.hud(); c.toast('Đã mặc ' + spec.name + '.'); detail(eid); return true;
+      }
+      const eq = get();
+      if (!eq) return true;
+      if (action === 'cx-upgrade') {
+        const cost = forgeCost(eq.plus || 0, s);
+        if ((eq.plus || 0) >= 10) { c.toast('Đã rèn tối đa.'); return true; }
+        if (h.gold < cost) { c.toast('Cần ' + cost + ' vàng để rèn.'); return true; }
+        h.gold -= cost; eq.plus = (eq.plus || 0) + 1; c.save(); c.hud(); c.toast(spec.name + ' lên +' + eq.plus + '.'); detail(eid); return true;
+      }
+      if (action === 'cx-socket') {
+        if ((eq.gems || 0) >= 3 && !creative()) { c.toast('Đã đủ 3 ngọc.'); return true; }
+        if (!(h.bag.gem > 0) && !creative()) { c.toast('Bạn không có Ngọc khắc hồn.'); return true; }
+        if (!creative()) h.bag.gem--;
+        eq.gems = Math.min(3, (eq.gems || 0) + 1); c.save(); c.hud(); c.toast('Đã khảm một Ngọc khắc hồn.'); detail(eid); return true;
+      }
+      return false;
+    }
     function handle(action, id) {
       if (action === 'items-codex') { menu(); return true; }
       if (action === 'items-codex-tab') { tab = id; page = 0; menu(); return true; }
       if (action === 'items-codex-page') { page = Math.max(0, Number(id) || 0); menu(); return true; }
       if (action === 'item-detail') { detail(id); return true; }
+      if (['cx-wear', 'cx-upgrade', 'cx-socket'].includes(action)) return equipAction(action, id);
       return false;
     }
     document.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target?.classList?.contains('codex-card')) { e.preventDefault(); detail(e.target.dataset.id); } });
