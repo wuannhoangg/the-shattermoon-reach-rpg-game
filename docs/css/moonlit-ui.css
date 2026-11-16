@@ -716,12 +716,12 @@ body[data-screen='battle'] .battle-item-grid button{min-height:44px;text-align:l
 
 /* ---- battle UX: item info, help, skill reasons, tutorial, defeat ---- */
 .battle-item-cell{position:relative;display:flex;min-width:0}.battle-item-cell>button:first-child{flex:1 1 auto;min-width:0;padding-right:30px!important}
-.battle-info-button{position:absolute;top:4px;right:4px;width:24px;height:24px;min-height:24px!important;padding:0!important;border-radius:50%;border:1px solid #8ea4bd;background:#1a2432;color:#e8e1d5;font:700 13px/1 Georgia,serif;font-style:italic;cursor:pointer;display:grid;place-items:center}
+.battle-info-button{position:absolute;top:4px;right:4px;width:24px;height:24px;min-height:24px!important;padding:0!important;border-radius:50%;border:1px solid #8ea4bd;background:#1a2432;color:#e8e1d5;font:700 13px/1 var(--vtn-ui,'VTN UI',system-ui,sans-serif);cursor:pointer;display:grid;place-items:center}
 .battle-info-button:hover,.battle-info-button:focus-visible{border-color:#e0b85b;color:#ffe08a}
 .battle-item-info{display:flex;gap:12px;align-items:flex-start;padding:8px 2px;overflow:auto;max-height:calc(100% - 110px)}.battle-item-info p{margin:0 0 6px}.battle-item-info ul{margin:4px 0 0 18px;padding:0}.battle-item-info li{margin:2px 0;font-size:12px}
 .battle-item-info-icon{flex:0 0 auto}
 .skill-reason{display:block;font-style:normal;font-size:10px;color:#e6a07a;margin-top:1px}
-.battle-help-button{flex:0 0 auto;width:34px;min-height:34px;padding:0;border:1px solid #556579;background:#1a212c;color:#e8e1d5;font:700 16px/1 Georgia,serif;border-radius:50%;cursor:pointer}.battle-help-button:hover,.battle-help-button:focus-visible{border-color:#e0b85b;color:#ffe08a}
+.battle-help-button{flex:0 0 auto;width:34px;min-height:34px;padding:0;border:1px solid #556579;background:#1a212c;color:#e8e1d5;font:700 16px/1 var(--vtn-ui,'VTN UI',system-ui,sans-serif);border-radius:50%;cursor:pointer}.battle-help-button:hover,.battle-help-button:focus-visible{border-color:#e0b85b;color:#ffe08a}
 .battle-help{overflow:auto;max-height:calc(100% - 52px);padding:4px 2px;font-size:12px}.battle-help ul{margin:0 0 8px 16px;padding:0}.battle-help li{margin:3px 0}
 .tutorial .tut-steps{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}.tutorial .tut-steps button{width:30px;height:30px;border-radius:50%;border:1px solid #556579;background:#1a212c;color:#e8e1d5;cursor:pointer}.tutorial .tut-steps button.is-active{border-color:#e0b85b;background:#3a2f18;color:#ffe08a}
 .tutorial .tut-page h2{margin:2px 0 8px}.tutorial .tut-page small{color:#93a6bd}.tutorial .tut-page ul{margin:6px 0 6px 18px;padding:0}.tutorial .tut-page li{margin:6px 0;line-height:1.5}.tutorial kbd{border:1px solid #556579;border-radius:4px;padding:0 5px;background:#1a212c;font-size:.9em}
@@ -729,7 +729,7 @@ body[data-screen='battle'] .battle-item-grid button{min-height:44px;text-align:l
 .defeat-card h2{color:#e07a6a}.defeat-card p{margin:8px 0;line-height:1.55}
 
 /* ---- guided tutorial (coach marks) ---- */
-#coach{position:fixed;inset:0;z-index:100000;pointer-events:none}#coach[hidden]{display:none}
+#coach{position:fixed;inset:0;z-index:100000;pointer-events:none;font-family:var(--vtn-ui,'VTN UI',system-ui,sans-serif)}#coach[hidden]{display:none}
 .coach-block{position:fixed;background:rgba(5,6,12,.8);pointer-events:auto}.coach-block[data-b="c"]{background:transparent}
 .coach-ring{position:fixed;pointer-events:none;border:3px solid #ffd978;box-shadow:0 0 0 2px rgba(0,0,0,.55),0 0 20px 5px rgba(255,217,120,.6);transition:left .22s ease,top .22s ease,width .22s ease,height .22s ease;animation:coachPulse 1.15s ease-in-out infinite}
 .coach-ring::after{content:'';position:absolute;inset:-7px;border:2px solid rgba(255,217,120,.75);border-radius:inherit;animation:coachRipple 1.5s ease-out infinite}
@@ -738,11 +738,11 @@ body[data-screen='battle'] .battle-item-grid button{min-height:44px;text-align:l
 @keyframes coachRipple{0%{transform:scale(1);opacity:.9}100%{transform:scale(1.28);opacity:0}}
 .coach-card{position:fixed;pointer-events:auto;width:max-content;max-width:380px;box-sizing:border-box;padding:13px 15px 12px;background:#151a28;border:1px solid #e0b85b;border-radius:10px;color:#e8e1d5;font-size:14px;line-height:1.5;box-shadow:0 10px 34px rgba(0,0,0,.65)}
 .coach-count{display:block;color:#93a6bd;font-size:11px;letter-spacing:.04em;margin-bottom:2px}
-.coach-title{margin:0 0 4px;color:#ffd978;font-size:17px;font-family:Georgia,'Times New Roman',serif}
+.coach-title{margin:0 0 4px;color:#ffd978;font-size:20px;font-weight:700;font-family:var(--vtn-title,'VTN Title',Georgia,serif)}
 .coach-text{margin:0}.coach-text kbd{border:1px solid #556579;border-radius:4px;padding:0 5px;background:#1d2535;font-size:.9em}
 .coach-hint{margin:7px 0 0;color:#ffd978;font-size:12px}
 .coach-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:11px}
-.coach-btn{min-height:34px;padding:5px 14px;border:1px solid #556579;border-radius:8px;background:#1d2535;color:#e8e1d5;font:inherit;font-size:13px;cursor:pointer}
+.coach-btn{min-height:34px;padding:5px 14px;border:1px solid #556579;border-radius:8px;background:#1d2535;color:#e8e1d5;font-family:inherit;font-size:13px;cursor:pointer}
 .coach-btn.primary{border-color:#e0b85b;background:#3a2f18;color:#ffe08a;font-weight:700}.coach-btn.ghost{border-color:transparent;background:transparent;color:#93a6bd;text-decoration:underline}
 .coach-btn:hover,.coach-btn:focus-visible{border-color:#ffd978;outline:none}
 .coach-arrow{position:absolute;width:14px;height:14px;background:#151a28;border:1px solid #e0b85b;transform:rotate(45deg)}

@@ -38,7 +38,7 @@
   root.addEventListener('click',event=>{const target=event.target.closest?.('[data-story-advance],[data-story-choice],[data-story-back],[data-story-skip],[data-story-cancel]');if(!target)return;event.preventDefault();event.stopPropagation();if(target.matches('[data-story-advance]'))advance();else if(target.matches('[data-story-choice]'))choose(target.dataset.storyChoice);else if(target.matches('[data-story-back]'))showConfirm();else if(target.matches('[data-story-skip]'))skip();else cancelConfirm();});
  }
  function hide(){if(!root)return;root.classList.remove('is-active');root.querySelector('[data-story-confirm]').hidden=true;g.document.body.classList.remove('story-mode');confirming=false;clearInterval(typeTimer);typing=false;}
- function showConfirm(){if(!active||typing)return;confirming=true;root.querySelector('[data-story-confirm]').hidden=false;root.querySelector('[data-story-cancel]').focus();}
+ function showConfirm(){if(!active)return;if(typing)completeTyping();confirming=true;root.querySelector('[data-story-confirm]').hidden=false;root.querySelector('[data-story-cancel]').focus();}
  function cancelConfirm(){if(!root)return;confirming=false;root.querySelector('[data-story-confirm]').hidden=true;root.querySelector('[data-story-advance]')?.focus();}
  function skip(){const s=state();if(s){s.flags??={};s.flags.prologueDone=true;}active=null;hide();game()?.finishPrologue?.();}
  function currentScene(){return scene(active?.sceneId);}
