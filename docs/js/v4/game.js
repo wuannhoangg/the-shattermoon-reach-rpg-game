@@ -803,10 +803,11 @@ setInterval(()=>{if(S&&!B&&S.started)save();},12000);window.addEventListener('pa
     if(action==='coach-start'){if(!S)return;if(B&&id!=='battle'){toast('Hãy kết thúc trận đấu trước.');return;}if(!B)close();setTimeout(()=>{if(id==='battle'){startLesson();}else g.VTNCoach.start(id);},120);return;}
     if(action==='tutorial-skip'||action==='coach-decline'){S.flags.tutorialAsked=true;save();close();return;}
     if(action==='coach-accept'){S.flags.tutorialAsked=true;S.flags.coachChain=true;save();close();setTimeout(()=>g.VTNCoach.start('first'),150);return;}
+    if(action==='turn'&&B&&B.infoAt&&Date.now()-B.infoAt<450&&/^(item|capture):/.test(String(id)))return;
     if(action==='battle-target'&&B){const index=Number(id);if(!B.acted&&Number.isInteger(index)&&B.enemies[index]?.hp>0){B.index=index;battleUI();}return;}
     if(action==='battle-settings'&&B){B.panel='settings';battleUI();return;}
     if(action==='battle-help'&&B){B.panel=B.panel==='help'?'root':'help';battleUI();return;}
-    if(action==='battle-item-info'&&B){B.infoItem=id;B.infoFrom=B.panel==='capture'?'capture':'items';B.panel='iteminfo';battleUI();return;}
+    if(action==='battle-item-info'&&B){B.infoItem=id;B.infoFrom=B.panel==='capture'?'capture':'items';B.panel='iteminfo';B.infoAt=Date.now();battleUI();return;}
     if(action==='battle-exit'&&B){B.panel='exit';battleUI();return;}
     if(action==='battle-option'&&B){
       if(id==='root'){B.panel='root';battleUI();return;}

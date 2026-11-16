@@ -164,11 +164,16 @@
     drawStep(st, rect, run.shownIdx(), run.total);
   }
   function onClick(e) {
-    if (!run || !run.cur || run.cur.mode !== 'click') return;
+    if (!run || !run.cur || run.cur.mode !== 'click' || !run.shown) return;
+    if (e.target?.closest?.('#coach')) return;
     const st = run.cur, r = rectOf(st.target);
     if (!r) return;
-    const inside = r.el ? (r.el === e.target || r.el.contains(e.target)) : (e.clientX >= r.x && e.clientX <= r.x + r.w && e.clientY >= r.y && e.clientY <= r.y + r.h);
-    if (inside && !st.done) run.clicked = now();
+    const px = e.clientX, py = e.clientY, hasPoint = px || py;
+    const onTarget = r.el ? (r.el === e.target || r.el.contains(e.target)) : (px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h);
+    // the spotlight hole is a little bigger than the thing to press: a tap in that margin must never reach what is underneath
+    const pad = st.pad ?? 7, inHole = hasPoint && px >= r.x - pad && px <= r.x + r.w + pad && py >= r.y - pad && py <= r.y + r.h + pad;
+    if (!onTarget) { if (inHole) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); nudge(); } return; }
+    if (!st.done) run.clicked = now();
   }
   function onKey(e) {
     if (!run || !run.cur) return;

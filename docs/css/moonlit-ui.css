@@ -715,8 +715,8 @@ body[data-screen='battle'] .battle-item-grid button{min-height:44px;text-align:l
 @media (max-width:700px){.mg-head{grid-template-columns:1fr}.mg-slots{grid-template-columns:repeat(2,minmax(0,1fr))}.mg-vitals{grid-template-columns:1fr}}
 
 /* ---- battle UX: item info, help, skill reasons, tutorial, defeat ---- */
-.battle-item-cell{position:relative;display:flex;min-width:0}.battle-item-cell>button:first-child{flex:1 1 auto;min-width:0;padding-right:30px!important}
-.battle-info-button{position:absolute;top:4px;right:4px;width:24px;height:24px;min-height:24px!important;padding:0!important;border-radius:50%;border:1px solid #8ea4bd;background:#1a2432;color:#e8e1d5;font:700 13px/1 var(--vtn-ui,'VTN UI',system-ui,sans-serif);cursor:pointer;display:grid;place-items:center}
+.battle-item-cell{position:relative;display:flex;min-width:0}.battle-item-cell>button:first-child{flex:1 1 auto;min-width:0;padding-right:38px!important}
+.battle-info-button{position:absolute;top:3px;right:3px;width:30px;height:30px;min-height:30px!important;padding:0!important;border-radius:50%;border:1px solid #8ea4bd;background:#1a2432;color:#e8e1d5;font:700 13px/1 var(--vtn-ui,'VTN UI',system-ui,sans-serif);cursor:pointer;display:grid;place-items:center}
 .battle-info-button:hover,.battle-info-button:focus-visible{border-color:#e0b85b;color:#ffe08a}
 .battle-item-info{display:flex;gap:12px;align-items:flex-start;padding:8px 2px;overflow:auto;max-height:calc(100% - 110px)}.battle-item-info p{margin:0 0 6px}.battle-item-info ul{margin:4px 0 0 18px;padding:0}.battle-item-info li{margin:2px 0;font-size:12px}
 .battle-item-info-icon{flex:0 0 auto}
