@@ -257,8 +257,8 @@
             click('.battle-command-row [data-id="capture"]', 'Khế Hồn', 'Bấm <b>Khế Hồn</b> để thu phục kẻ địch.', {enter: () => c.battleRoot(), ready: () => heroTurn() && B()?.panel === 'root', done: () => B()?.panel === 'capture'}),
             info('.battle-item-grid', 'Phong ấn', 'Tỉ lệ thành công ghi trên mỗi nút. Quái ít máu hoặc hợp hệ phong ấn thì dễ hơn.', {ready: () => B()?.panel === 'capture', place: 't'}),
             click('.battle-item-cell > button:first-child:not(:disabled)', 'Thu phục', () => B()?.practice ? 'Bấm một phong ấn. Trận này chắc chắn thành công.' : 'Bấm một phong ấn để ném.', {ready: () => B()?.panel === 'capture', place: 't', done: () => !B()}),
-            info('#content .collectible', 'Thu phục thành công', 'Khế thú mới đã vào đội.', {ready: () => modalOpen() && !!q('#content .collectible'), place: 'l', timeout: 7000}),
-            click('#content [data-act="close"]', null, 'Bấm <b>Tiếp tục hành trình</b>.', {ready: () => modalOpen(), done: () => !modalOpen(), fallback: () => c.act('close')}),
+            info('#content .collectible', 'Thu phục thành công', 'Khế thú mới đã vào đội.', {skipIf: () => !!B() || !(modalOpen() && q('#content .collectible')), ready: () => modalOpen() && !!q('#content .collectible'), place: 'l', timeout: 4000}),
+            click('#content [data-act="close"]', null, 'Bấm <b>Tiếp tục hành trình</b>.', {skipIf: () => !!B() || !modalOpen(), ready: () => modalOpen(), done: () => !modalOpen(), fallback: () => c.act('close')}),
             {mode: 'info', title: 'Hoàn tất', text: 'Còn <b>Đổi vị trí</b>, <b>Phòng thủ</b> và <b>Thêm</b> (Quan sát, Bỏ chạy). Nút <b>?</b> trong trận nhắc lại cách chơi.', target: null, nextLabel: 'Xong', noSkip: true},
           ];
           const cut = list.findIndex(x => x.title === 'Thu phục thành công');
