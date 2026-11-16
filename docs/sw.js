@@ -4,7 +4,7 @@
  * - Code and data are "network first, cache as fallback" so players get updates as soon as they are online.
  * - Images and fonts are "cache first". Music is served with Range support, which iOS Safari requires.
  * Bump VERSION when publishing (tools/build_pages.py stamps it automatically). */
-const VERSION = 'vtn-20261116-172057';
+const VERSION = 'vtn-20261116-173017';
 const CORE = ['./', 'index.html', 'manifest.webmanifest', 'data/bundle.js', 'css/v4.css', 'css/theme-v2.css', 'css/ui-system.css', 'css/ui-skin.css', 'css/moonlit-ui.css',
   'assets/pwa/icon-192.png', 'assets/pwa/apple-touch-icon.png'];
 

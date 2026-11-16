@@ -158,7 +158,7 @@
       return;
     }
     run.lostAt = null;
-    if (st.silent) { hideUi(); run.shown = false; return; }
+    if (st.silent) { hideUi(); run.shown = false; if (st.maxWait && t - run.t0 > st.maxWait) advance(); return; }
     run.lastSeen = t; run.shown = true;
     if (rect?.el && !run.scrolled) { run.scrolled = true; try { rect.el.scrollIntoView({block: 'nearest', inline: 'nearest'}); } catch {} }
     drawStep(st, rect, run.shownIdx(), run.total);
@@ -213,7 +213,7 @@
     return {
       basics: {
         title: 'Cơ bản', blurb: 'Di chuyển, nhiệm vụ, đội hình, menu.', steps: c => [
-          {mode: 'info', title: 'Hướng dẫn cơ bản', text: 'Di chuyển, nhiệm vụ, đội hình và menu.', target: null,
+          {mode: 'info', title: 'Hướng dẫn cơ bản', text: 'Di chuyển, nhiệm vụ, đội hình và menu.', target: null, skipIf: () => c.chain(),
             buttons: [{label: 'Bắt đầu', primary: true, run: () => advance()}, {label: 'Để sau', run: () => stop('skipped')}], noSkip: true},
           info('#objective', 'Nhiệm vụ', 'Nhiệm vụ hiện tại. Bấm <b>Tự tìm đường</b> để nhân vật tự đi tới đó.', {pad: 10, target: () => q('#objective')?.closest('section')}),
           {mode: 'wait', target: () => c.heroRect(), dimless: true, title: 'Di chuyển', text: 'Bấm vào mặt đất hoặc dùng <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> để đi.', place: 't',
@@ -227,13 +227,15 @@
           info('#hunt-card', 'Khu săn', 'Quái trong vùng và tỉ lệ gặp. Bấm nút tự tìm để đi săn.', {skipIf: () => !exists('#hunt-card'), place: 'l'}),
           more('Lưu và thoát'),
           info(navTarget('saves'), 'Lưu và thoát', 'Trò chơi tự lưu. <b>Lưu / Tải</b> để lưu thủ công, <b>Thoát</b> để về menu chính.'),
-          {mode: 'info', title: 'Trận luyện tập', text: 'Học ra đòn, dùng vật phẩm và thu phục trong một trận không thể thua.', target: null, noSkip: true,
+          {mode: 'info', title: 'Trận luyện tập', text: 'Học ra đòn, dùng vật phẩm và thu phục trong một trận không thể thua.', target: null, noSkip: true, skipIf: () => c.chain(),
             buttons: [{label: 'Bắt đầu', primary: true, run: () => { stop('done'); setTimeout(() => c.startLesson(), 60); }}, {label: 'Để sau', run: () => stop('done')}]},
         ]
       },
       find: {
         hidden: true, title: 'Tìm quái', blurb: '', steps: c => [
-          info('#hunt-card', 'Tìm quái', 'Quái xuất hiện ở vùng cỏ, rừng, nước. Chọn một loài rồi bấm nút tự tìm.', {place: 'l', nextLabel: 'Đã hiểu', fallbackCenter: true, timeout: 2500}),
+          info('#hunt-card', 'Khu săn', 'Quái trong vùng và tỉ lệ gặp. Quái chỉ xuất hiện ở vùng cỏ, rừng, nước.', {place: 'l', skipIf: () => !exists('#hunt-card'), nextLabel: 'Tiếp →'}),
+          click('#hunt-card [data-hunt="toggle"]', 'Tự tìm quái', 'Bấm <b>Bật auto tìm</b> để nhân vật tự đi tìm quái. Bạn cũng có thể tự đi vào vùng cỏ.', {place: 'l', skipIf: () => !exists('#hunt-card [data-hunt="toggle"]'), done: () => !!c.B() || /Dừng/.test(q('#hunt-card [data-hunt="toggle"]')?.textContent || '')}),
+          {mode: 'wait', target: null, silent: true, ready: () => true, done: () => !!c.B(), maxWait: 240000, text: '', dimless: true},
         ]
       },
       battle: {
@@ -295,11 +297,12 @@
           click(navTarget('items-codex'), 'Bảo Vật Chí', 'Bấm <b>Bảo Vật Chí</b>.', {fallback: fallbackAct('items-codex'), timeout: 3500, done: () => modalOpen() && /Bảo Vật/i.test(modalTitle())}),
           info('#content .codex-card', 'Chi tiết vật phẩm', 'Bấm một thẻ để xem tác dụng. Trang bị có thể mặc, rèn, khảm ngọc.', {ready: () => modalOpen(), place: 'b'}),
           click('#close-modal', null, 'Bấm <b>Đóng</b>.', {fallback: () => c.act('close'), timeout: 3000, done: () => !modalOpen()}),
+          {mode: 'info', title: 'Hoàn tất hướng dẫn', text: 'Mở lại bất cứ lúc nào ở <b>☰ Thêm → Hướng dẫn</b>.', target: null, nextLabel: 'Xong', noSkip: true, skipIf: () => !c.chain()},
         ]
       },
     };
   }
   const list = () => Object.entries(chapters()).filter(([, ch]) => !ch.hidden).map(([id, ch]) => ({id, title: ch.title, blurb: ch.blurb, practice: !!ch.practice}));
   function init(c) { ctx = c; d.addEventListener('click', onClick, true); d.addEventListener('keydown', onKey, true); }
-  g.VTNCoach = {init, start, stop, active, list};
+  g.VTNCoach = {init, start, stop, active, list, current: () => run?.id || null};
 })(window);
