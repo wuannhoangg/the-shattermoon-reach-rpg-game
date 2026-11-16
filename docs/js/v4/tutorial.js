@@ -78,8 +78,8 @@
         <li><b>Hành trình</b> (<kbd>J</kbd>): nhiệm vụ, manh mối, lộ trình. <b>Vạn Tộc Chí</b> (<kbd>R</kbd>): các chủng tộc. <b>Album Khế Hồn:</b> bộ sưu tập các dạng quái bạn đã có.</li>
         <li><b>Lưu / Tải:</b> có ô tự động và ba ô thủ công.</li>
         <li><b>Cài đặt:</b> nhạc và âm thanh, tốc độ trận, độ khó, bố cục hiển thị trên điện thoại.</li>
-        <li><b>Thoát:</b> nút <b>Thoát</b> ở thanh phía trên đưa bạn về menu chính. Tiến trình đã được tự lưu. Bạn có thể quay lại bằng <b>Tiếp tục</b>.</li>
-        <li>Bạn có thể mở lại hướng dẫn này bất cứ lúc nào bằng nút <b>Hướng dẫn</b> ở thanh phía trên, hoặc nút <b>?</b> trong trận.</li>
+        <li><b>Thoát:</b> mở <b>☰ Thêm</b> ở thanh bên trái rồi bấm <b>Thoát</b> để về menu chính. Tiến trình đã được tự lưu. Bạn có thể quay lại bằng <b>Tiếp tục</b>.</li>
+        <li>Bạn có thể mở lại hướng dẫn này bất cứ lúc nào bằng nút <b>Hướng dẫn</b> trong <b>☰ Thêm</b> (có các chương cầm tay chỉ việc), hoặc nút <b>?</b> trong trận.</li>
       </ul>`},
   ];
   const esc = v => String(v ?? '').replace(/[&<>"']/g, k => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[k]));

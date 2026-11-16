@@ -727,3 +727,31 @@ body[data-screen='battle'] .battle-item-grid button{min-height:44px;text-align:l
 .tutorial .tut-page h2{margin:2px 0 8px}.tutorial .tut-page small{color:#93a6bd}.tutorial .tut-page ul{margin:6px 0 6px 18px;padding:0}.tutorial .tut-page li{margin:6px 0;line-height:1.5}.tutorial kbd{border:1px solid #556579;border-radius:4px;padding:0 5px;background:#1a212c;font-size:.9em}
 .tutorial .tut-actions{display:flex;justify-content:space-between;gap:8px;margin-top:12px}
 .defeat-card h2{color:#e07a6a}.defeat-card p{margin:8px 0;line-height:1.55}
+
+/* ---- guided tutorial (coach marks) ---- */
+#coach{position:fixed;inset:0;z-index:100000;pointer-events:none}#coach[hidden]{display:none}
+.coach-block{position:fixed;background:rgba(5,6,12,.8);pointer-events:auto}.coach-block[data-b="c"]{background:transparent}
+.coach-ring{position:fixed;pointer-events:none;border:3px solid #ffd978;box-shadow:0 0 0 2px rgba(0,0,0,.55),0 0 20px 5px rgba(255,217,120,.6);transition:left .22s ease,top .22s ease,width .22s ease,height .22s ease;animation:coachPulse 1.15s ease-in-out infinite}
+.coach-ring::after{content:'';position:absolute;inset:-7px;border:2px solid rgba(255,217,120,.75);border-radius:inherit;animation:coachRipple 1.5s ease-out infinite}
+.coach-ring.no-dim{border-style:dashed}
+@keyframes coachPulse{0%,100%{box-shadow:0 0 0 2px rgba(0,0,0,.55),0 0 10px 2px rgba(255,217,120,.45)}50%{box-shadow:0 0 0 2px rgba(0,0,0,.55),0 0 26px 8px rgba(255,217,120,.85)}}
+@keyframes coachRipple{0%{transform:scale(1);opacity:.9}100%{transform:scale(1.28);opacity:0}}
+.coach-card{position:fixed;pointer-events:auto;width:max-content;max-width:380px;box-sizing:border-box;padding:13px 15px 12px;background:#151a28;border:1px solid #e0b85b;border-radius:10px;color:#e8e1d5;font-size:14px;line-height:1.5;box-shadow:0 10px 34px rgba(0,0,0,.65)}
+.coach-count{display:block;color:#93a6bd;font-size:11px;letter-spacing:.04em;margin-bottom:2px}
+.coach-title{margin:0 0 4px;color:#ffd978;font-size:17px;font-family:Georgia,'Times New Roman',serif}
+.coach-text{margin:0}.coach-text kbd{border:1px solid #556579;border-radius:4px;padding:0 5px;background:#1d2535;font-size:.9em}
+.coach-hint{margin:7px 0 0;color:#ffd978;font-size:12px}
+.coach-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:11px}
+.coach-btn{min-height:34px;padding:5px 14px;border:1px solid #556579;border-radius:8px;background:#1d2535;color:#e8e1d5;font:inherit;font-size:13px;cursor:pointer}
+.coach-btn.primary{border-color:#e0b85b;background:#3a2f18;color:#ffe08a;font-weight:700}.coach-btn.ghost{border-color:transparent;background:transparent;color:#93a6bd;text-decoration:underline}
+.coach-btn:hover,.coach-btn:focus-visible{border-color:#ffd978;outline:none}
+.coach-arrow{position:absolute;width:14px;height:14px;background:#151a28;border:1px solid #e0b85b;transform:rotate(45deg)}
+.coach-arrow[data-side="b"]{top:-8px;margin-left:-7px;border-right:0;border-bottom:0;animation:coachBobY .9s ease-in-out infinite}
+.coach-arrow[data-side="t"]{bottom:-8px;margin-left:-7px;border-left:0;border-top:0;animation:coachBobYr .9s ease-in-out infinite}
+.coach-arrow[data-side="r"]{left:-8px;margin-top:-7px;border-right:0;border-top:0;animation:coachBobX .9s ease-in-out infinite}
+.coach-arrow[data-side="l"]{right:-8px;margin-top:-7px;border-left:0;border-bottom:0;animation:coachBobXr .9s ease-in-out infinite}
+@keyframes coachBobY{50%{margin-top:-4px}}@keyframes coachBobYr{50%{margin-bottom:-4px}}@keyframes coachBobX{50%{margin-left:-4px}}@keyframes coachBobXr{50%{margin-right:-4px}}
+.coach-card.is-nudge{animation:coachShake .38s}@keyframes coachShake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.coach-menu{display:grid;gap:10px;margin:10px 0}.coach-chapter{display:flex;justify-content:space-between;align-items:center;gap:12px}.coach-chapter small{display:block;color:#93a6bd}.coach-chapter p{margin:3px 0 0}
+@media (max-width:700px){.coach-card{font-size:13px;padding:10px 12px}.coach-title{font-size:15px}}
+@media (prefers-reduced-motion:reduce){.coach-ring,.coach-ring::after,.coach-arrow{animation:none!important}}
