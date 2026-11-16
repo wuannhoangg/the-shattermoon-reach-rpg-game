@@ -29,7 +29,7 @@
       <section class="set-group"><h3>Khám phá và giao diện</h3>
         ${row('Tốc độ tự tìm đường', `<select data-pref="pathSpeed">${opt('slow', 'Chậm', p.pathSpeed)}${opt('normal', 'Vừa', p.pathSpeed)}${opt('fast', 'Nhanh', p.pathSpeed)}</select>`)}
         ${row('Tốc độ chữ hội thoại', `<select data-pref="textSpeed" data-num="1">${[1, 2, 3].map(v => opt(v, 'Nhịp ' + v, p.textSpeed)).join('')}</select>`)}
-        ${row('Chuyển động nền menu', `<select data-pref="motion">${opt('full', 'Đầy đủ', p.motion)}${opt('reduced', 'Giảm chuyển động', p.motion)}</select>`)}
+        ${row('Bố cục hiển thị', `<select data-pref="layout">${opt('auto', 'Tự động theo màn hình', p.layout)}${opt('desktop', 'Máy tính · bố cục rộng', p.layout)}${opt('phone', 'Điện thoại · bố cục gọn', p.layout)}</select>`, 'Áp dụng trên điện thoại và máy tính bảng. Trên máy tính, bố cục tự đổi theo kích thước cửa sổ trình duyệt.')}${row('Chuyển động nền menu', `<select data-pref="motion">${opt('full', 'Đầy đủ', p.motion)}${opt('reduced', 'Giảm chuyển động', p.motion)}</select>`)}
       </section>
     </div>`;
   }

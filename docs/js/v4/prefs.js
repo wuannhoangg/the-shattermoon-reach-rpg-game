@@ -8,7 +8,7 @@
     difficulty: 'normal',
     textSpeed: 1, battleSpeed: 1,
     vfx: 'full', shake: true, numbers: true,
-    pathSpeed: 'normal', motion: 'full'
+    pathSpeed: 'normal', motion: 'full', layout: 'auto'
   };
   const DIFFICULTY = {
     easy:      {name: 'Dễ',        note: 'Địch yếu hơn, bạn đánh mạnh hơn. Hợp để theo dõi cốt truyện.', foe: .65, hero: 1.25},
@@ -28,14 +28,22 @@
     const next = {...DEFAULTS, ...incoming}, patch = {};
     for (const k of Object.keys(next)) if (next[k] !== value[k]) patch[k] = next[k];
     if (!Object.keys(patch).length) return;
-    value = next; listeners.forEach(fn => { try { fn(value, patch); } catch (err) { console.error(err); } });
+    value = next; if ('layout' in patch) applyLayout(); listeners.forEach(fn => { try { fn(value, patch); } catch (err) { console.error(err); } });
   });
+  /* Layout mode: on phones and tablets the viewport width decides which layout the page uses. */
+  const VIEWPORT = {auto: 'width=device-width,initial-scale=1,viewport-fit=cover', desktop: 'width=1180,viewport-fit=cover', phone: 'width=640,viewport-fit=cover'};
+  function applyLayout() {
+    const mode = VIEWPORT[value.layout] ? value.layout : 'auto', meta = g.document && g.document.querySelector('meta[name=viewport]');
+    if (meta) meta.setAttribute('content', VIEWPORT[mode]);
+    if (g.document && g.document.documentElement) g.document.documentElement.dataset.layout = mode;
+  }
   g.VTNPrefs = {
     DEFAULTS, DIFFICULTY, PATH_SPEED,
     get: () => value,
-    set(patch) { value = {...value, ...patch}; save(); listeners.forEach(fn => { try { fn(value, patch); } catch (e) { console.error(e); } }); return value; },
+    set(patch) { value = {...value, ...patch}; save(); if ('layout' in patch) applyLayout(); listeners.forEach(fn => { try { fn(value, patch); } catch (e) { console.error(e); } }); return value; },
     onChange(fn) { listeners.add(fn); return () => listeners.delete(fn); },
     difficulty: () => DIFFICULTY[value.difficulty] || DIFFICULTY.normal,
     pathFactor: () => PATH_SPEED[value.pathSpeed] || PATH_SPEED.normal
   };
+  applyLayout();
 })(window);
