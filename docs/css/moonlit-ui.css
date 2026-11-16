@@ -713,3 +713,17 @@ body[data-screen='battle'] .battle-item-grid button{min-height:44px;text-align:l
 .mg-admin h3{color:#e07a6e}
 .mg-admin-row,.mg-admin-skills{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0}
 @media (max-width:700px){.mg-head{grid-template-columns:1fr}.mg-slots{grid-template-columns:repeat(2,minmax(0,1fr))}.mg-vitals{grid-template-columns:1fr}}
+
+/* ---- battle UX: item info, help, skill reasons, tutorial, defeat ---- */
+.battle-item-cell{position:relative;display:flex;min-width:0}.battle-item-cell>button:first-child{flex:1 1 auto;min-width:0;padding-right:30px!important}
+.battle-info-button{position:absolute;top:4px;right:4px;width:24px;height:24px;min-height:24px!important;padding:0!important;border-radius:50%;border:1px solid #8ea4bd;background:#1a2432;color:#e8e1d5;font:700 13px/1 Georgia,serif;font-style:italic;cursor:pointer;display:grid;place-items:center}
+.battle-info-button:hover,.battle-info-button:focus-visible{border-color:#e0b85b;color:#ffe08a}
+.battle-item-info{display:flex;gap:12px;align-items:flex-start;padding:8px 2px;overflow:auto;max-height:calc(100% - 110px)}.battle-item-info p{margin:0 0 6px}.battle-item-info ul{margin:4px 0 0 18px;padding:0}.battle-item-info li{margin:2px 0;font-size:12px}
+.battle-item-info-icon{flex:0 0 auto}
+.skill-reason{display:block;font-style:normal;font-size:10px;color:#e6a07a;margin-top:1px}
+.battle-help-button{flex:0 0 auto;width:34px;min-height:34px;padding:0;border:1px solid #556579;background:#1a212c;color:#e8e1d5;font:700 16px/1 Georgia,serif;border-radius:50%;cursor:pointer}.battle-help-button:hover,.battle-help-button:focus-visible{border-color:#e0b85b;color:#ffe08a}
+.battle-help{overflow:auto;max-height:calc(100% - 52px);padding:4px 2px;font-size:12px}.battle-help ul{margin:0 0 8px 16px;padding:0}.battle-help li{margin:3px 0}
+.tutorial .tut-steps{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}.tutorial .tut-steps button{width:30px;height:30px;border-radius:50%;border:1px solid #556579;background:#1a212c;color:#e8e1d5;cursor:pointer}.tutorial .tut-steps button.is-active{border-color:#e0b85b;background:#3a2f18;color:#ffe08a}
+.tutorial .tut-page h2{margin:2px 0 8px}.tutorial .tut-page small{color:#93a6bd}.tutorial .tut-page ul{margin:6px 0 6px 18px;padding:0}.tutorial .tut-page li{margin:6px 0;line-height:1.5}.tutorial kbd{border:1px solid #556579;border-radius:4px;padding:0 5px;background:#1a212c;font-size:.9em}
+.tutorial .tut-actions{display:flex;justify-content:space-between;gap:8px;margin-top:12px}
+.defeat-card h2{color:#e07a6a}.defeat-card p{margin:8px 0;line-height:1.55}
