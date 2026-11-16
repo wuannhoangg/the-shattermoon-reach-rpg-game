@@ -44,7 +44,7 @@
       const b = e.target.closest('button'); if (!b || !run) return;
       e.stopPropagation();
       const a = b.dataset.coach;
-      if (a === 'next') advance();
+      if (a === 'next') { try { run.cur.onNext?.(); } catch (er) { console.error(er); } advance(); }
       else if (a === 'skip') stop('skipped');
       else if (a === 'custom') { const st = run.cur, fn = st.buttons?.[Number(b.dataset.i)]?.run; if (fn) fn(); }
     });
@@ -231,11 +231,22 @@
             buttons: [{label: 'Bắt đầu', primary: true, run: () => { stop('done'); setTimeout(() => c.startLesson(), 60); }}, {label: 'Để sau', run: () => stop('done')}]},
         ]
       },
-      find: {
-        hidden: true, title: 'Tìm quái', blurb: '', steps: c => [
-          info('#hunt-card', 'Khu săn', 'Quái trong vùng và tỉ lệ gặp. Quái chỉ xuất hiện ở vùng cỏ, rừng, nước.', {place: 'l', skipIf: () => !exists('#hunt-card'), nextLabel: 'Tiếp →'}),
-          click('#hunt-card [data-hunt="toggle"]', 'Tự tìm quái', 'Bấm <b>Bật auto tìm</b> để nhân vật tự đi tìm quái. Bạn cũng có thể tự đi vào vùng cỏ.', {place: 'l', skipIf: () => !exists('#hunt-card [data-hunt="toggle"]'), done: () => !!c.B() || /Dừng/.test(q('#hunt-card [data-hunt="toggle"]')?.textContent || '')}),
-          {mode: 'wait', target: null, silent: true, ready: () => true, done: () => !!c.B(), maxWait: 240000, text: '', dimless: true},
+      first: {
+        hidden: true, title: 'Trận đầu tiên', blurb: '', steps: c => [
+          {mode: 'info', title: 'Trận đầu tiên', text: 'Một sinh linh mất tim chặn đường. Hãy lập <b>Khế Hồn</b> để trả lại trái tim cho nó.', target: null,
+            buttons: [{label: 'Chiến đấu', primary: true, run: () => { stop('done'); setTimeout(() => c.startLesson(), 60); }}]},
+        ]
+      },
+      tour: {
+        hidden: true, title: 'Làm quen', blurb: '', steps: c => [
+          info('#objective', 'Nhiệm vụ', 'Nhiệm vụ hiện tại. Bấm <b>Tự tìm đường</b> để nhân vật tự đi tới đó.', {pad: 10, target: () => q('#objective')?.closest('section')}),
+          {mode: 'wait', target: () => c.heroRect(), dimless: true, title: 'Di chuyển', text: 'Bấm vào mặt đất hoặc dùng <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> để đi.', place: 't',
+            enter() { const s = c.S(); this.x0 = s.x; this.y0 = s.y; this.m0 = s.mapId; }, done() { const s = c.S(); return s.mapId !== this.m0 || Math.abs(s.x - this.x0) + Math.abs(s.y - this.y0) >= 3; }, timeout: 8000},
+          click(navTarget('party'), 'Đội hình', 'Bấm <b>Đội hình</b> để xem khế thú vừa thu phục.', {fallback: fallbackAct('party'), timeout: 3500, done: () => modalOpen() && /Đội hình/i.test(modalTitle())}),
+          info('#content [data-act="manage"]', 'Quản lý khế thú', 'Xem chỉ số, đổi kỹ năng, cho ăn, tiến hóa.', {ready: () => modalOpen(), nextLabel: 'Tiếp →', onNext: () => c.act('close')}),
+          more('Lưu và thoát'),
+          info(navTarget('saves'), 'Lưu và thoát', 'Trò chơi tự lưu. <b>Lưu / Tải</b> để lưu thủ công, <b>Thoát</b> để về menu chính.'),
+          {mode: 'info', title: 'Hoàn tất', text: 'Hướng dẫn chi tiết hơn ở <b>☰ Thêm → Hướng dẫn</b>.', target: null, nextLabel: 'Xong', noSkip: true},
         ]
       },
       battle: {
@@ -243,25 +254,18 @@
           const B = () => c.B(), mine = () => B() && !B().acted && B().waitingUid && B().panel !== 'iteminfo';
           const heroTurn = () => mine() && B().waitingUid === 'hero';
           const list = [
-            {mode: 'info', title: 'Trận luyện tập', text: 'Không ai gục trong trận này.', target: null, ready: () => B() && mine(), skipIf: () => !B()?.practice},
-            info('.battle-turn-strip', 'Thứ tự ra đòn', 'Ô đầu tiên là người đang tới lượt. SPD càng cao càng đi sớm.', {ready: () => !!B() && !!q('.battle-turn-strip'), place: 'b'}),
-            info('.battle-party-panel', 'Đội hình', 'Bấm một thẻ để chọn người ra đòn. Từ hai đối thủ trở lên, cả đội đều được đi.', {place: 'r'}),
+            info('.battle-party-panel', 'Đội hình', 'Bấm một thẻ để chọn người ra đòn. Từ hai đối thủ trở lên, cả đội đều được đi.', {ready: () => B() && mine() && !!q('.battle-party-panel'), place: 'r'}),
             click('.battle-command-row [data-id="skills"]', 'Tấn công', 'Bấm <b>Tấn công</b>.', {ready: mine, done: () => B()?.panel === 'skills'}),
-            info('.battle-targets', 'Mục tiêu', 'Bấm tên kẻ địch để chọn mục tiêu.', {ready: () => B()?.panel === 'skills', place: 'b'}),
             click(() => q('.battle-skill-card:not(.is-empty):not(.is-disabled):not(.battle-basic-strike)') || q('.battle-basic-strike'), 'Kỹ năng', 'Chọn một kỹ năng. <b>Hiệu quả ×2</b> là khắc hệ. <b>Đòn thường</b> không tốn MP.', {ready: () => B()?.panel === 'skills' && mine(), place: 't'}),
             {mode: 'wait', target: null, silent: true, ready: () => true, done: () => mine() || !B(), timeout: 9000, text: '', dimless: true},
             click('.battle-party-card[data-id="actor|hero"]', 'Chọn nhân vật', 'Bấm thẻ nhân vật. Chỉ nhân vật dùng được vật phẩm và Khế Hồn.', {skipIf: () => !B() || B().waitingUid === 'hero', ready: () => mine(), done: () => B()?.waitingUid === 'hero' || !B()}),
             click('.battle-command-row [data-id="items"]', 'Vật phẩm', 'Bấm <b>Vật phẩm</b>.', {enter: () => c.battleRoot(), ready: heroTurn, done: () => B()?.panel === 'items'}),
             click('.battle-info-button', 'Chi tiết', 'Bấm <b>i</b> để xem tác dụng.', {ready: () => B()?.panel === 'items', done: () => B()?.panel === 'iteminfo'}),
-            info('.battle-item-info', 'Mô tả vật phẩm', 'Tác dụng, số lượng và nút Dùng.', {ready: () => B()?.panel === 'iteminfo', place: 't'}),
-            click('.battle-console .battle-back-button', null, 'Bấm <b>Quay lại</b>.', {ready: () => B()?.panel === 'iteminfo', done: () => B()?.panel !== 'iteminfo'}),
-            click('.battle-back-button', null, 'Bấm <b>Quay lại</b>.', {skipIf: () => B()?.panel === 'root', ready: () => B()?.panel === 'items', done: () => B()?.panel === 'root'}),
+            info('.battle-item-info', 'Mô tả vật phẩm', 'Tác dụng, số lượng và nút Dùng.', {ready: () => B()?.panel === 'iteminfo', place: 't', nextLabel: 'Tiếp →', onNext: () => c.battleRoot()}),
             click('.battle-command-row [data-id="capture"]', 'Khế Hồn', 'Bấm <b>Khế Hồn</b> để thu phục kẻ địch.', {enter: () => c.battleRoot(), ready: () => heroTurn() && B()?.panel === 'root', done: () => B()?.panel === 'capture'}),
-            info('.battle-item-grid', 'Phong ấn', 'Tỉ lệ thành công ghi trên mỗi nút. Quái ít máu hoặc hợp hệ phong ấn thì dễ hơn.', {ready: () => B()?.panel === 'capture', place: 't'}),
-            click('.battle-item-cell > button:first-child:not(:disabled)', 'Thu phục', () => B()?.practice ? 'Bấm một phong ấn. Trận này chắc chắn thành công.' : 'Bấm một phong ấn để ném.', {ready: () => B()?.panel === 'capture', place: 't', done: () => !B()}),
-            info('#content .collectible', 'Thu phục thành công', 'Khế thú mới đã vào đội.', {skipIf: () => !!B() || !(modalOpen() && q('#content .collectible')), ready: () => modalOpen() && !!q('#content .collectible'), place: 'l', timeout: 4000}),
-            click('#content [data-act="close"]', null, 'Bấm <b>Tiếp tục hành trình</b>.', {skipIf: () => !!B() || !modalOpen(), ready: () => modalOpen(), done: () => !modalOpen(), fallback: () => c.act('close')}),
-            {mode: 'info', title: 'Hoàn tất', text: 'Còn <b>Đổi vị trí</b>, <b>Phòng thủ</b> và <b>Thêm</b> (Quan sát, Bỏ chạy). Nút <b>?</b> trong trận nhắc lại cách chơi.', target: null, nextLabel: 'Xong', noSkip: true},
+            click('.battle-item-cell > button:first-child:not(:disabled)', 'Phong ấn', () => B()?.practice ? 'Tỉ lệ thành công ghi trên mỗi nút. Lần này chắc chắn thành công, hãy bấm một phong ấn.' : 'Tỉ lệ thành công ghi trên mỗi nút. Bấm một phong ấn để ném.', {ready: () => B()?.panel === 'capture', place: 't', done: () => !B()}),
+            info('#content .collectible', 'Thu phục thành công', 'Khế thú mới đã vào đội.', {skipIf: () => !!B() || !(modalOpen() && q('#content .collectible')), ready: () => modalOpen() && !!q('#content .collectible'), place: 'l', timeout: 4000, nextLabel: 'Tiếp →', onNext: () => c.act('close')}),
+            {mode: 'info', title: 'Hoàn tất', text: 'Còn <b>Đổi vị trí</b>, <b>Phòng thủ</b> và <b>Thêm</b> (Quan sát, Bỏ chạy). Nút <b>?</b> trong trận nhắc lại cách chơi.', target: null, nextLabel: 'Xong', noSkip: true, skipIf: () => c.chain()},
           ];
           const cut = list.findIndex(x => x.title === 'Thu phục thành công');
           list.forEach((x, i) => { if (i < cut) { const o = x.skipIf; x.skipIf = o ? () => !B() || o() : () => !B(); } });
