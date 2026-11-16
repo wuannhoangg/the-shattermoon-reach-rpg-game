@@ -175,10 +175,11 @@ if (cast) for (const [key, spec] of Object.entries(cast)) {
   if (!spec?.walk) continue;
   const i = new Image(); i.src = spec.walk; castWalkImg[key] = i;
 }
-const classSprites = window.VTN_CLASS_SPRITES || null, classWalkImg = {};
+const classSprites = window.VTN_CLASS_SPRITES || null, classWalkImg = {}, classWalkImgF = {};
 if (classSprites?.classes) for (const [k, spec] of Object.entries(classSprites.classes)) {
   if (!spec?.walk) continue;
   const i = new Image(); i.src = spec.walk; classWalkImg[k] = i;
+  if (spec.walkF) { const f = new Image(); f.src = spec.walkF; classWalkImgF[k] = f; }
 }
 const raceSprites = window.VTN_RACE_SPRITES || null, raceWalkImg = {}, raceBattleAltImg = {};
 if (raceSprites?.races) for (const [k, spec] of Object.entries(raceSprites.races)) {
@@ -202,14 +203,14 @@ let lastHeroSprite = null;
 let lastNpcSprites = [];
 function classPerson(ctx, state, dir, frame, dx, dy){
   if (state?.hero?.corruption >= 60) return false;
-  const id = state?.hero?.classId, spec = classSprites?.classes?.[id], sheet = classSprites?.walk, image = classWalkImg[id];
+  const id = state?.hero?.classId, spec = classSprites?.classes?.[id], sheet = classSprites?.walk, female = (state?.hero?.gender || String(state?.hero?.storyLook || '')[0]) === 'f', image = (female && classWalkImgF[id]?.complete && classWalkImgF[id].naturalWidth) ? classWalkImgF[id] : classWalkImg[id];
   if (!spec?.walk || !sheet?.w || !sheet?.h || !sheet?.frames || !image || !image.complete || !image.naturalWidth) return false;
   const row = Math.max(0, sheet.dirs.indexOf(facingRow(dir))), fr = Math.max(0, Math.min(sheet.frames - 1, frame));
   const targetW=scaled(sheet.w),targetH=scaled(sheet.h),footX = dx + T / 2, footY = dy + T, drawX = Math.round(footX - targetW / 2), drawY = Math.round(footY - targetH);
   ctx.fillStyle = 'rgba(0,0,0,0.38)';
   ctx.beginPath(); ctx.ellipse(footX, footY - 2, 8, 2.5, 0, 0, Math.PI * 2); ctx.fill();
   ctx.drawImage(image, fr * sheet.w, row * sheet.h, sheet.w, sheet.h, drawX, drawY, targetW, targetH);
-  lastHeroSprite = { kind: 'class-walk', classId: id, path: spec.walk, source: image.src, dir:facingRow(dir), frame: fr, sourceW: sheet.w, sourceH: sheet.h, w: targetW, h: targetH, scale:ACTOR_SCALE, left: drawX, top: drawY, right: drawX + targetW, bottom: drawY + targetH, feetX:footX, feetY:footY };
+  lastHeroSprite = { kind: 'class-walk', classId: id, gender: image === classWalkImgF[id] ? 'f' : 'm', path: image === classWalkImgF[id] ? spec.walkF : spec.walk, source: image.src, dir:facingRow(dir), frame: fr, sourceW: sheet.w, sourceH: sheet.h, w: targetW, h: targetH, scale:ACTOR_SCALE, left: drawX, top: drawY, right: drawX + targetW, bottom: drawY + targetH, feetX:footX, feetY:footY };
   return true;
 }
 function racePerson(ctx, point, frame, dx, dy, state){
