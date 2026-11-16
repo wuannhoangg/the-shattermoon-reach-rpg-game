@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "set": "abyss",
+  "tileSize": 32,
+  "sourceDirectory": "assets/world/abyss/tiles",
+  "cleanDirectory": "assets/world/abyss/tiles_clean",
+  "tiles": [
+    {
+      "source": "assets/world/abyss/tiles/g_abyss_TichHo_00.png",
+      "file": "assets/world/abyss/tiles_clean/g_abyss_TichHo_00.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.2037,
+      "grid_score": 0.51549,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.13161,
+        "grid_score": 0.41133,
+        "ground_eligible": true
+      }
+    },
+    {
+      "source": "assets/world/abyss/tiles/g_abyss_TichHo_01.png",
+      "file": "assets/world/abyss/tiles_clean/g_abyss_TichHo_01.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.22685,
+      "grid_score": 0.49231,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.15741,
+        "grid_score": 0.43995,
+        "ground_eligible": true
+      }
+    },
+    {
+      "source": "assets/world/abyss/tiles/g_abyss_TichHo_02.png",
+      "file": "assets/world/abyss/tiles_clean/g_abyss_TichHo_02.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.15476,
+      "grid_score": 0.46839,
+      "ground_eligible": true,
+      "output_metrics": {
+        "edge_density": 0.09325,
+        "grid_score": 0.23484,
+        "ground_eligible": true
+      }
+    },
+    {
+      "source": "assets/world/abyss/tiles/g_abyss_TichHo_03.png",
+      "file": "assets/world/abyss/tiles_clean/g_abyss_TichHo_03.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.24405,
+      "grid_score": 0.36896,
+      "ground_eligible": true,
+      "output_metrics": {
+        "edge_density": 0.15146,
+        "grid_score": 0.26608,
+        "ground_eligible": true
+      }
+    },
+    {
+      "source": "assets/world/abyss/tiles/g_abyss_TichHo_04.png",
+      "file": "assets/world/abyss/tiles_clean/g_abyss_TichHo_04.png",
+      "crop": {
+        "top": 1,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.20437,
+      "grid_score": 0.61378,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.16071,
+        "grid_score": 0.39287,
+        "ground_eligible": true
+      }
+    }
+  ]
+}

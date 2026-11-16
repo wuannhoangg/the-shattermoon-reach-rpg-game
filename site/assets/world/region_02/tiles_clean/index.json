@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "set": "region_02",
+  "tileSize": 32,
+  "sourceDirectory": "assets/world/region_02/tiles",
+  "cleanDirectory": "assets/world/region_02/tiles_clean",
+  "tiles": [
+    {
+      "source": "assets/world/region_02/tiles/g_r02_TichHo_00.png",
+      "file": "assets/world/region_02/tiles_clean/g_r02_TichHo_00.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.30357,
+      "grid_score": 0.75696,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.23743,
+        "grid_score": 0.47415,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_02/tiles/g_r02_TichHo_01.png",
+      "file": "assets/world/region_02/tiles_clean/g_r02_TichHo_01.png",
+      "crop": {
+        "top": 2,
+        "right": 0,
+        "bottom": 3,
+        "left": 0
+      },
+      "edge_density": 0.21759,
+      "grid_score": 0.32738,
+      "ground_eligible": true,
+      "output_metrics": {
+        "edge_density": 0.17857,
+        "grid_score": 0.47539,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_02/tiles/g_r02_TichHo_02.png",
+      "file": "assets/world/region_02/tiles_clean/g_r02_TichHo_02.png",
+      "crop": {
+        "top": 0,
+        "right": 3,
+        "bottom": 0,
+        "left": 2
+      },
+      "edge_density": 0.26852,
+      "grid_score": 0.72236,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.18519,
+        "grid_score": 0.50761,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_02/tiles/g_r02_TichHo_03.png",
+      "file": "assets/world/region_02/tiles_clean/g_r02_TichHo_03.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.37831,
+      "grid_score": 0.65576,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.26257,
+        "grid_score": 0.63432,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_02/tiles/g_r02_TichHo_04.png",
+      "file": "assets/world/region_02/tiles_clean/g_r02_TichHo_04.png",
+      "crop": {
+        "top": 3,
+        "right": 2,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.36177,
+      "grid_score": 0.58336,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.26124,
+        "grid_score": 0.58378,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_02/tiles/g_r02_TichHo_05.png",
+      "file": "assets/world/region_02/tiles_clean/g_r02_TichHo_05.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 3,
+        "left": 0
+      },
+      "edge_density": 0.31085,
+      "grid_score": 0.51542,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.29696,
+        "grid_score": 0.42742,
+        "ground_eligible": true
+      }
+    }
+  ]
+}

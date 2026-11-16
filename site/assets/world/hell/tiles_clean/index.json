@@ -1,0 +1,189 @@
+{
+  "version": 1,
+  "set": "hell",
+  "tileSize": 32,
+  "sourceDirectory": "assets/world/hell/tiles",
+  "cleanDirectory": "assets/world/hell/tiles_clean",
+  "tiles": [
+    {
+      "source": "assets/world/hell/tiles/B231.png",
+      "file": "assets/world/hell/tiles_clean/B231.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.34722,
+      "grid_score": 0.77358,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.25132,
+        "grid_score": 0.44761,
+        "ground_eligible": true
+      }
+    },
+    {
+      "source": "assets/world/hell/tiles/B232.png",
+      "file": "assets/world/hell/tiles_clean/B232.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.4881,
+      "grid_score": 0.79891,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.32275,
+        "grid_score": 0.53444,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/hell/tiles/B233.png",
+      "file": "assets/world/hell/tiles_clean/B233.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.54762,
+      "grid_score": 0.68973,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.40542,
+        "grid_score": 0.62272,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/hell/tiles/B234.png",
+      "file": "assets/world/hell/tiles_clean/B234.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.30754,
+      "grid_score": 0.52068,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.19114,
+        "grid_score": 0.38272,
+        "ground_eligible": true
+      }
+    },
+    {
+      "source": "assets/world/hell/tiles/B245.png",
+      "file": "assets/world/hell/tiles_clean/B245.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.29696,
+      "grid_score": 0.74374,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.19444,
+        "grid_score": 0.4868,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/hell/tiles/B246.png",
+      "file": "assets/world/hell/tiles_clean/B246.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.3578,
+      "grid_score": 0.55364,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.22751,
+        "grid_score": 0.59565,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/hell/tiles/B247.png",
+      "file": "assets/world/hell/tiles_clean/B247.png",
+      "crop": {
+        "top": 3,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.28505,
+      "grid_score": 0.66055,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.20635,
+        "grid_score": 0.50381,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/hell/tiles/B262.png",
+      "file": "assets/world/hell/tiles_clean/B262.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.44444,
+      "grid_score": 0.78196,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.30291,
+        "grid_score": 0.56664,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/hell/tiles/B263.png",
+      "file": "assets/world/hell/tiles_clean/B263.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.59127,
+      "grid_score": 0.60416,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.41336,
+        "grid_score": 0.65459,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/hell/tiles/B264.png",
+      "file": "assets/world/hell/tiles_clean/B264.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.38294,
+      "grid_score": 0.72182,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.28307,
+        "grid_score": 0.49952,
+        "ground_eligible": false
+      }
+    }
+  ]
+}

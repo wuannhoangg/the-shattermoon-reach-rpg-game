@@ -1,0 +1,1358 @@
+(function (g) {
+  'use strict';
+
+  // P9-D uses the approved native library for the world layer.  The old
+  // generated tilesets remain in scene.js and are deliberately used while a
+  // library set is loading or if a hand-edited override points at a missing
+  // file.
+  const TILE = 32;
+  const CHUNK_TILES = 16;
+  const CHUNK_PX = TILE * CHUNK_TILES;
+  const library = g.VTN_WORLD || {};
+  const imageCache = new Map();
+  const plans = new Map();
+  const metadataByFile = new Map();
+  const opaqueMaskCache = new Map();
+  const GROUND_EDGE_THRESHOLD = 34;
+  const DITHER_4 = [
+    [0, 8, 2, 10],
+    [12, 4, 14, 6],
+    [3, 11, 1, 9],
+    [15, 7, 13, 5]
+  ];
+  let blendScratch = null;
+  let lastDebug = {
+    worldLibrary: false,
+    worldLibraryState: 'idle',
+    worldImagesTotal: 0,
+    worldImagesLoaded: 0,
+    worldImagesMissing: 0,
+    staticChunks: 0,
+    buildingsPlaced: 0,
+    propsPlaced: 0,
+    tallPlaced: 0,
+    sharedPropRatio: 0,
+    pathTiles: 0,
+    liquidPathTiles: 0,
+    groundEdgeContrast: { threshold: GROUND_EDGE_THRESHOLD, borders: 0, highContrast: 0, ratio: 0 },
+    collisionProps: 0,
+    doorsClear: true,
+    frameRenderMs: 0
+  };
+  let cameraState = { mapId: null, x: 0, y: 0, vx: 0, vy: 0, lastAt: 0, renderX: null, renderY: null };
+
+  for (const [setName, set] of Object.entries(library)) {
+    for (const kind of ['buildings', 'props', 'tiles']) {
+      for (const asset of set?.[kind] || []) {
+        if (asset?.file) metadataByFile.set(asset.file, { ...asset, set: setName, kind });
+      }
+    }
+  }
+
+  const terrainData = () => g.VTN_DATA?.world_terrain || {};
+  const setForMap = map => {
+    if (map?.layout === 'abyss_cave') return 'abyss';
+    if (map?.architecture === 'hell' || String(map?.id || '').startsWith('hell_')) return 'hell';
+    return map?.regionId || 'region_01';
+  };
+  const configForMap = map => {
+    const data = terrainData();
+    const special = data.special?.[setForMap(map)];
+    if (special) return special;
+    return data.regions?.[map?.regionId] || data.regions?.region_01 || null;
+  };
+  const mapSize = map => ({
+    width: Number(map?.width) || (map?.kind === 'region' ? 80 : 40),
+    height: Number(map?.height) || (map?.kind === 'region' ? 60 : 30)
+  });
+  const key = (x, y) => `${x},${y}`;
+  const hash = value => {
+    let h = 2166136261;
+    for (const char of String(value ?? '')) h = Math.imul(h ^ char.charCodeAt(0), 16777619);
+    return h >>> 0;
+  };
+  const unit = value => hash(value) / 4294967296;
+  const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+  const boxesOverlap = (a, b) => !!a && !!b && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+  const distance = (a, b) => Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
+  const inside = (x, y, width, height) => x >= 0 && y >= 0 && x < width && y < height;
+  const walkable = tile => tile === 0 || tile === 2;
+  const isSharedProp = prop => prop?.sourceSet === 'shared' || prop?.sourceSet === 'shared_wet';
+
+  function assetMeta(file) {
+    return metadataByFile.get(file) || { file, w: TILE, h: TILE, shape: 'small' };
+  }
+
+  function imageFor(file) {
+    if (!file) return null;
+    let entry = imageCache.get(file);
+    if (entry) return entry;
+    entry = { file, status: 'loading', image: null };
+    if (typeof Image !== 'undefined') {
+      const image = new Image();
+      entry.image = image;
+      image.onload = () => { entry.status = 'ready'; };
+      image.onerror = () => { entry.status = 'missing'; };
+      image.src = file;
+    } else {
+      entry.status = 'missing';
+    }
+    imageCache.set(file, entry);
+    return entry;
+  }
+
+  function imageReady(entry) {
+    return !!entry && entry.status === 'ready' && entry.image?.complete && entry.image.naturalWidth > 0;
+  }
+
+  function setNamesForMap(map, config) {
+    const names = [config?.set || setForMap(map), ...(config?.sharedSets || ['shared'])];
+    if (['region_01', 'region_02', 'region_03'].includes(map?.regionId) && !names.includes('shared_wet')) names.push('shared_wet');
+    return [...new Set(names)].filter(name => library[name]);
+  }
+
+  function filesForConfig(config) {
+    const tiles = config?.tiles || {};
+    return [...(tiles.ground || []), ...(tiles.path || []), ...(tiles.plaza || []), tiles.liquid, tiles.wild, tiles.cliff].filter(Boolean);
+  }
+
+  function oldPropsCounts(regionId) {
+    const props = g.VTN_PROPS?.[regionId] || {};
+    return { tall: (props.tall || []).length, prop: (props.prop || []).length };
+  }
+
+  // Smooth value noise is intentionally coarse.  It avoids the visible
+  // checkerboard that a per-cell random tile choice creates in pixel art.
+  function valueNoise(x, y, seed, scale = 8) {
+    const gx = Math.floor(x / scale), gy = Math.floor(y / scale);
+    const tx = (x - gx * scale) / scale, ty = (y - gy * scale) / scale;
+    const fade = value => value * value * (3 - 2 * value);
+    const v = (ix, iy) => unit(`${seed}|${ix}|${iy}`);
+    const a = v(gx, gy), b = v(gx + 1, gy), c = v(gx, gy + 1), d = v(gx + 1, gy + 1);
+    const sx = fade(tx), sy = fade(ty);
+    return (a * (1 - sx) + b * sx) * (1 - sy) + (c * (1 - sx) + d * sx) * sy;
+  }
+
+  function smoothstep(edge0, edge1, value) {
+    const t = clamp((value - edge0) / Math.max(0.0001, edge1 - edge0), 0, 1);
+    return t * t * (3 - 2 * t);
+  }
+
+  function colorFromHex(value, fallback) {
+    const raw = String(value || '').trim().replace('#', '');
+    if (!/^[0-9a-f]{6}$/i.test(raw)) return fallback.slice();
+    return [parseInt(raw.slice(0, 2), 16), parseInt(raw.slice(2, 4), 16), parseInt(raw.slice(4, 6), 16)];
+  }
+
+  function mixColor(a, b, amount) {
+    const t = clamp(amount, 0, 1);
+    return [
+      Math.round(a[0] * (1 - t) + b[0] * t),
+      Math.round(a[1] * (1 - t) + b[1] * t),
+      Math.round(a[2] * (1 - t) + b[2] * t)
+    ];
+  }
+
+  function toneColors(tone, fallback) {
+    if (Array.isArray(tone)) {
+      const colors = tone.map(color => colorFromHex(color, fallback));
+      return { shadow: colors[0] || fallback, base: colors[1] || colors[0] || fallback, light: colors[2] || colors[1] || fallback };
+    }
+    const safe = tone || {};
+    return {
+      shadow: colorFromHex(safe.shadow, fallback),
+      base: colorFromHex(safe.base, fallback),
+      light: colorFromHex(safe.light, fallback)
+    };
+  }
+
+  function tintedTile(file, tone, mode = 'ground') {
+    const key = `${file}|native-pixel-tile|${mode}`;
+    if (imageCache.has(`canvas:${key}`)) return imageCache.get(`canvas:${key}`);
+    const resource = imageFor(file);
+    if (!imageReady(resource) || typeof document === 'undefined') return resource?.image || null;
+    const canvas = document.createElement('canvas');
+    canvas.width = mode==='ground'?Math.max(TILE,resource.image.naturalWidth):TILE;
+    canvas.height = mode==='ground'?Math.max(TILE,resource.image.naturalHeight):TILE;
+    const context = canvas.getContext('2d');
+    context.imageSmoothingEnabled = false;
+    // The P9-F palette composite made the cleaned source sheets look foggy and
+    // flattened.  Keep the source pixels and contrast intact; region palette
+    // values are reserved for borders/decals, never for averaging the art.
+    context.drawImage(resource.image, 0, 0, canvas.width, canvas.height);
+    imageCache.set(`canvas:${key}`, canvas);
+    return canvas;
+  }
+
+  const materialPatches=new WeakMap();
+  function materialPatch(texture,x,y){
+    if(!texture||texture.width<=TILE)return texture;
+    let cache=materialPatches.get(texture);if(!cache){cache=new Map();materialPatches.set(texture,cache);}
+    const cols=Math.max(1,Math.floor(texture.width/TILE)),rows=Math.max(1,Math.floor(texture.height/TILE)),sx=((x%cols)+cols)%cols,sy=((y%rows)+rows)%rows,key=sx+','+sy;
+    if(cache.has(key))return cache.get(key);
+    const patch=document.createElement('canvas');patch.width=TILE;patch.height=TILE;patch.getContext('2d').drawImage(texture,sx*TILE,sy*TILE,TILE,TILE,0,0,TILE,TILE);cache.set(key,patch);return patch;
+  }
+  function scratch() {
+    if (blendScratch || typeof document === 'undefined') return blendScratch;
+    const make = () => { const canvas = document.createElement('canvas'); canvas.width = TILE; canvas.height = TILE; return canvas; };
+    blendScratch = { mask: make(), layer: make() };
+    blendScratch.maskContext = blendScratch.mask.getContext('2d');
+    blendScratch.layerContext = blendScratch.layer.getContext('2d');
+    blendScratch.maskContext.imageSmoothingEnabled = false;
+    blendScratch.layerContext.imageSmoothingEnabled = false;
+    return blendScratch;
+  }
+
+  function drawDithered(context, texture, x, y, amountAt, seed) {
+    if (!texture) return;
+    let allVisible = true, anyVisible = false;
+    const mask = new Uint8ClampedArray(TILE * TILE * 4);
+    for (let py = 0; py < TILE; py++) for (let px = 0; px < TILE; px++) {
+      const amount = clamp(Number(amountAt(px, py)) || 0, 0, 1);
+      // A hashed threshold keeps the seam dither organic at game scale; a
+      // pure 4x4 Bayer pattern would itself read as another square grid.
+      const threshold = unit(`${seed}|${px}|${py}`) * .78 + ((DITHER_4[py & 3][px & 3] + .5) / 16) * .22;
+      const visible = amount >= .995 || (amount > .01 && threshold < amount);
+      if (visible) { anyVisible = true; mask[(py * TILE + px) * 4 + 3] = 255; }
+      else allVisible = false;
+    }
+    if (!anyVisible) return;
+    if (allVisible) { context.drawImage(texture, x, y); return; }
+    const state = scratch();
+    state.maskContext.putImageData(new ImageData(mask, TILE, TILE), 0, 0);
+    state.layerContext.clearRect(0, 0, TILE, TILE);
+    state.layerContext.globalCompositeOperation = 'source-over';
+    state.layerContext.drawImage(texture, 0, 0);
+    state.layerContext.globalCompositeOperation = 'destination-in';
+    state.layerContext.drawImage(state.mask, 0, 0);
+    state.layerContext.globalCompositeOperation = 'source-over';
+    context.drawImage(state.layer, x, y);
+  }
+
+  function edgeFade(value) {
+    return clamp((value + 2) / 8, 0, 1);
+  }
+
+  function softCellMask(grid, x, y, isActive, neighborActive, px, py) {
+    if (!isActive) return 0;
+    let amount = 1;
+    if (!neighborActive.top) amount = Math.min(amount, edgeFade(py));
+    if (!neighborActive.bottom) amount = Math.min(amount, edgeFade(TILE - 1 - py));
+    if (!neighborActive.left) amount = Math.min(amount, edgeFade(px));
+    if (!neighborActive.right) amount = Math.min(amount, edgeFade(TILE - 1 - px));
+    return amount;
+  }
+
+  function adjacent(grid, x, y, predicate) {
+    return {
+      top: !!predicate(grid[y - 1]?.[x]),
+      bottom: !!predicate(grid[y + 1]?.[x]),
+      left: !!predicate(grid[y]?.[x - 1]),
+      right: !!predicate(grid[y]?.[x + 1])
+    };
+  }
+
+  function priorityQueuePush(queue, item) {
+    queue.push(item);
+    let i = queue.length - 1;
+    while (i > 0) {
+      const parent = (i - 1) >> 1;
+      if (queue[parent][0] <= item[0]) break;
+      queue[i] = queue[parent];
+      i = parent;
+      queue[i] = item;
+    }
+  }
+
+  function priorityQueuePop(queue) {
+    if (!queue.length) return null;
+    const first = queue[0], last = queue.pop();
+    if (queue.length) {
+      let i = 0;
+      while (true) {
+        const left = i * 2 + 1, right = left + 1;
+        let small = i;
+        if (left < queue.length && queue[left][0] < queue[small][0]) small = left;
+        if (right < queue.length && queue[right][0] < queue[small][0]) small = right;
+        if (small === i) break;
+        queue[i] = queue[small];
+        i = small;
+      }
+      queue[i] = last;
+    }
+    return first;
+  }
+
+  function routePath(grid, start, goal) {
+    const height = grid.length, width = grid[0]?.length || 0;
+    if (!width || !height) return [];
+    const valid = point => inside(point.x, point.y, width, height);
+    if (!valid(start) || !valid(goal)) return [];
+    const startKey = key(start.x, start.y), goalKey = key(goal.x, goal.y);
+    const dist = new Map([[startKey, 0]]), previous = new Map(), queue = [];
+    priorityQueuePush(queue, [0, start.x, start.y]);
+    const dirs = [[1, 0], [0, 1], [-1, 0], [0, -1]];
+    while (queue.length) {
+      const [cost, x, y] = priorityQueuePop(queue), current = key(x, y);
+      if (cost !== dist.get(current)) continue;
+      if (current === goalKey) break;
+      for (const [dx, dy] of dirs) {
+        const nx = x + dx, ny = y + dy;
+        if (!inside(nx, ny, width, height)) continue;
+        const tile = grid[ny][nx], step = tile === 1 ? 14 : tile === 3 ? 5 : 1;
+        const next = cost + step, nextKey = key(nx, ny);
+        if (next < (dist.get(nextKey) ?? Infinity)) {
+          dist.set(nextKey, next);
+          previous.set(nextKey, current);
+          priorityQueuePush(queue, [next, nx, ny]);
+        }
+      }
+    }
+    if (!dist.has(goalKey)) return [];
+    const path = [];
+    let current = goalKey;
+    while (current) {
+      const [x, y] = current.split(',').map(Number);
+      path.push({ x, y });
+      if (current === startKey) break;
+      current = previous.get(current);
+    }
+    return path.reverse();
+  }
+
+  function pathNetwork(map, grid, points, buildings) {
+    const layout = g.VTN_MAP_LAYOUTS;
+    if (layout?.zoneModel) {
+      const zoneModel = layout.zoneModel(map, grid, points, {
+        extraEndpoints: (buildings || []).map(building => building.door),
+        plazaSources: buildings || [],
+        carveRoads: true
+      });
+      return {
+        cells: new Set(zoneModel.roadCells),
+        renderCells: new Set(zoneModel.roadCells),
+        routes: zoneModel.routes,
+        zones: zoneModel
+      };
+    }
+    const spawn = map?.spawn || { x: 8, y: 8 };
+    const endpoints = [];
+    const add = point => {
+      const x = clamp(Math.round(Number(point?.x)), 1, (grid[0]?.length || 2) - 2);
+      const y = clamp(Math.round(Number(point?.y)), 1, grid.length - 2);
+      if (!endpoints.some(other => other.x === x && other.y === y)) endpoints.push({ x, y });
+    };
+    add(spawn);
+    for (const point of points || []) {
+      if (point.type === 'npc' || point.type === 'rival') continue;
+      add(point);
+    }
+    for (const building of buildings) add(building.door);
+    const routes = [];
+    let from = endpoints[0] || { x: 8, y: 8 };
+    for (const endpoint of endpoints.slice(1)) {
+      const route = routePath(grid, from, endpoint);
+      if (route.length) routes.push(route);
+      from = endpoint;
+    }
+    const cells = new Set();
+    for (const route of routes) for (const cell of route) if (grid[cell.y]?.[cell.x] !== 2) cells.add(key(cell.x, cell.y));
+
+    // The route itself remains the gameplay/pathing contract.  The visual
+    // ribbon is widened to two or three cells only on non-encounter terrain,
+    // so encounter coverage and walkability are unchanged.
+    const renderCells = new Set(cells);
+    for (const route of routes) for (let i = 0; i < route.length; i++) {
+      const cell = route[i], previous = route[Math.max(0, i - 1)], next = route[Math.min(route.length - 1, i + 1)];
+      const horizontal = Math.abs(next.x - previous.x) >= Math.abs(next.y - previous.y);
+      const offsets = horizontal ? [[0, -1], [0, 0], [0, 1]] : [[-1, 0], [0, 0], [1, 0]];
+      const turn = previous.x !== next.x && previous.y !== next.y;
+      if (turn) offsets.push([-1, -1], [-1, 1], [1, -1], [1, 1]);
+      for (const [dx, dy] of offsets) {
+        const x = cell.x + dx, y = cell.y + dy, value = grid[y]?.[x];
+        if (value === 0 || value === 3) renderCells.add(key(x, y));
+      }
+    }
+    return { cells, renderCells, routes };
+  }
+
+  function gateOverride(map, config, lot) {
+    const list = terrainData().gateOverrides || [];
+    const entry = list.find(value => value.regionId === map?.regionId && value.lot === lot?.name);
+    if (entry?.file) return entry;
+    if (config?.gate?.lot === lot?.name && config.gate.file) return config.gate;
+    return null;
+  }
+
+  function buildingScore(asset, lot) {
+    const targetW = Math.max(TILE * 2, Number(lot?.w || 6) * TILE * 0.88);
+    const targetH = Math.max(TILE * 2, Number(lot?.h || 5) * TILE * 0.72);
+    const foot = asset.foot || [0, Math.max(0, asset.h - 12), asset.w, 12];
+    const widthCost = Math.abs(Number(foot[2]) - targetW) / targetW;
+    const heightCost = Math.abs(Number(foot[3]) - targetH) / targetH;
+    const oversize = Number(foot[2]) > Number(lot?.w || 6) * TILE * 1.35 ? 0.45 : 0;
+    return widthCost + heightCost + oversize;
+  }
+
+  function chooseBuilding(setName, lot, map, config, used) {
+    const override = lot?.kind === 'gate' ? gateOverride(map, config, lot) : null;
+    const candidates = (library[setName]?.buildings || []).slice();
+    if (override?.file) {
+      const exact = candidates.find(asset => asset.file === override.file) || metadataByFile.get(override.file);
+      if (exact) return { ...exact, gate: true, override: true };
+    }
+    if (!candidates.length) return null;
+    const ranked = candidates
+      .filter(asset => !used.has(asset.file) || candidates.length < 12)
+      .sort((a, b) => buildingScore(a, lot) - buildingScore(b, lot) || hash(`${map?.id}|${a.file}`) - hash(`${map?.id}|${b.file}`));
+    const choice = ranked[Math.min(ranked.length - 1, hash(`${map?.id}|${lot?.name}`) % Math.min(4, ranked.length))] || ranked[0];
+    if (choice) used.add(choice.file);
+    return choice ? { ...choice, gate: lot?.kind === 'gate' } : null;
+  }
+
+  function generatedLots(map, grid, points) {
+    if (map?.architecture === 'hell' || map?.id?.startsWith('hell_')) return [];
+    const { width, height } = mapSize(map);
+    if (map?.kind === 'region') return g.VTN_DATA?.buildings?.regions?.[map.regionId]?.lots || [];
+    const count = map?.layout === 'abyss_cave' ? 2 : map?.kind === 'area' ? 3 : map?.kind === 'realm' ? 2 : 2;
+    const out = [];
+    const candidates = [
+      [5, 5, 7, 5], [15, 4, 8, 5], [25, 7, 7, 5], [6, 16, 8, 5], [20, 17, 9, 5], [width - 12, height - 9, 8, 6]
+    ];
+    for (let i = 0; i < candidates.length && out.length < count; i++) {
+      const [x0, y0, w, h] = candidates[(hash(`${map?.id}|lot|${i}`) + i) % candidates.length];
+      const x = clamp(x0, 2, Math.max(2, width - w - 2)), y = clamp(y0, 2, Math.max(2, height - h - 2));
+      const door = { x: x + Math.floor(w / 2), y: y + h - 1 };
+      if ((points || []).some(point => distance(point, door) <= 2)) continue;
+      if (out.some(lot => Math.abs(lot.x - x) < w && Math.abs(lot.y - y) < h)) continue;
+      out.push({ name: `${map?.id || 'map'}_structure_${out.length + 1}`, x, y, w, h, door: [door.x, door.y] });
+    }
+    return out;
+  }
+
+  function buildingName(point) {
+    const lot = point?.lot || point;
+    const raw = String(lot?.name || point?.name || '').toLowerCase();
+    if (point?.type === 'boss-gate' || lot?.kind === 'gate' || raw.includes('gate')) return 'Cổng Luyện Ngục';
+    if (/shop|market|caravan|dock|boathouse|inn|tavern/.test(raw)) return raw.includes('market') || raw.includes('shop') ? 'Chợ vùng' : 'Quán trọ';
+    if (/shrine|temple|chapel|altar|bell|pact|tide/.test(raw)) return 'Miếu';
+    if (/tower|lighthouse|observatory|watch/.test(raw)) return 'Tháp canh';
+    if (/smithy|forge|workshop/.test(raw)) return 'Xưởng';
+    if (/hall|court|theater|archive|palace|castle|seventh/.test(raw)) return 'Đại sảnh';
+    if (/hut|house|home|shelter|camp|shed/.test(raw)) return 'Nhà dân';
+    return 'Công trình';
+  }
+
+  const lotIsLandmark = lot => /shrine|temple|chapel|altar|tower|lighthouse|observatory|watch|archive|hall|palace|theater|court|forge|smithy|bell|pact|mirror|seventh/.test(String(lot?.name || '').toLowerCase());
+
+  function makeBuildings(map, grid, points, config) {
+    const setName = config?.set || setForMap(map), lots = generatedLots(map, grid, points), used = new Set(), buildings = [];
+    for (const lot of lots) {
+      const asset = chooseBuilding(setName, lot, map, config, used);
+      if (!asset) continue;
+      const door = Array.isArray(lot.door) ? { x: Number(lot.door[0]), y: Number(lot.door[1]) } : { x: Number(lot.x) + Math.floor(Number(lot.w || 6) / 2), y: Number(lot.y) + Number(lot.h || 5) - 1 };
+      const assetDoor = asset.door || [asset.w / 2, asset.h - 1];
+      const drawX = Math.round((door.x + 0.5) * TILE - Number(assetDoor[0]));
+      const drawY = Math.round((door.y + 1) * TILE - Number(assetDoor[1]));
+      const foot = asset.foot || [0, Math.max(0, asset.h - 12), asset.w, 12];
+      const fullBox = { left: drawX, top: drawY, right: drawX + asset.w, bottom: drawY + asset.h };
+      const footBox = { left: drawX + foot[0], top: drawY + foot[1], right: drawX + foot[0] + foot[2], bottom: drawY + foot[1] + foot[3] };
+      buildings.push({
+        id: lot.name,
+        lot,
+        asset,
+        image: imageFor(asset.file),
+        drawX,
+        drawY,
+        door,
+        name: buildingName({ lot, type: lot.kind === 'gate' ? 'boss-gate' : 'building' }),
+        fullBox,
+        footBox,
+        sortY: footBox.bottom,
+        gate: !!asset.gate || lot.kind === 'gate',
+        district: asset.district || (map.regionId === 'region_06' && Number(lot.x) >= 48 && Number(lot.y) <= 13 ? 'night' : null),
+        landmark: lotIsLandmark(lot)
+      });
+    }
+
+    // A few POIs become proper landmark buildings instead of the old generic
+    // altar silhouette.  Their door remains the original interaction tile.
+    const landmarks = (points || []).filter(point => ['boss', 'shrine', 'puzzle', 'arena'].includes(point.type));
+    for (const point of landmarks.slice(0, map?.kind === 'region' ? 3 : 1)) {
+      if (buildings.some(building => distance(building.door, point) <= 5)) continue;
+      const lot = {
+        name: `${map?.id || 'map'}|landmark|${point.id || point.type}`,
+        x: clamp(Number(point.x) - 4, 2, Math.max(2, mapSize(map).width - 11)),
+        y: clamp(Number(point.y) - 6, 2, Math.max(2, mapSize(map).height - 9)),
+        w: 9,
+        h: 7,
+        door: [Number(point.x), Number(point.y)]
+      };
+      const asset = chooseBuilding(setName, lot, map, config, used);
+      if (!asset) continue;
+      const assetDoor = asset.door || [asset.w / 2, asset.h - 1];
+      const drawX = Math.round((lot.door[0] + 0.5) * TILE - Number(assetDoor[0]));
+      const drawY = Math.round((lot.door[1] + 1) * TILE - Number(assetDoor[1]));
+      const foot = asset.foot || [0, Math.max(0, asset.h - 12), asset.w, 12];
+      const fullBox = { left: drawX, top: drawY, right: drawX + asset.w, bottom: drawY + asset.h };
+      const footBox = { left: drawX + foot[0], top: drawY + foot[1], right: drawX + foot[0] + foot[2], bottom: drawY + foot[1] + foot[3] };
+      buildings.push({ id: lot.name, lot, asset, image: imageFor(asset.file), drawX, drawY, door: { x: lot.door[0], y: lot.door[1] }, name: point.name || buildingName(lot), fullBox, footBox, sortY: footBox.bottom, gate: false, district: asset.district || null, landmark: true, pointId: point.id });
+    }
+    const markedLandmarks = buildings.filter(building => building.landmark);
+    for (const building of markedLandmarks.slice(4)) building.landmark = false;
+    return buildings;
+  }
+
+  function propCandidates(map, config, seed) {
+    const names = setNamesForMap(map, config), all = [];
+    for (const setName of names) {
+      for (const prop of library[setName]?.props || []) all.push({ ...prop, sourceSet: setName });
+    }
+    const byShape = shape => all.filter(prop => prop.shape === shape).sort((a, b) => hash(`${seed}|${shape}|${a.file}`) - hash(`${seed}|${shape}|${b.file}`));
+    const pools = {};
+    for (const shape of ['tall', 'wide', 'medium', 'small']) pools[shape] = byShape(shape);
+    // Keep the pool small enough that entering a map never starts hundreds of
+    // image requests, but retain several silhouettes for handmade variety.
+    return Object.fromEntries(Object.entries(pools).map(([shape, values]) => [shape, values.slice(0, shape === 'tall' ? 16 : 24)]));
+  }
+
+  function chooseProp(pool, shape, seed, index) {
+    const values = pool[shape] || pool.medium || pool.small || [];
+    if (!values.length) return null;
+    return values[hash(`${seed}|prop|${shape}|${index}`) % values.length];
+  }
+
+  function makePropPlacement(prop, cell, index, buildings, points, state) {
+    if (!prop || !cell) return null;
+    const w = Number(prop.w) || TILE, h = Number(prop.h) || TILE;
+    const drawX = Math.round((cell.x + 0.5) * TILE - w / 2), drawY = Math.round((cell.y + 1) * TILE - h);
+    const box = { left: drawX, top: drawY, right: drawX + w, bottom: drawY + h };
+    if (state.boxes.some(other => boxesOverlap(box, other))) return null;
+    if (buildings.some(building => boxesOverlap(box, building.fullBox))) return null;
+    if ((points || []).some(point => distance(point, cell) <= 1)) return null;
+    if (state.pathCells.has(key(cell.x, cell.y)) || state.encounterCells.has(key(cell.x, cell.y))) return null;
+    if (prop.shape === 'tall' && state.tallCells.some(other => distance(other, cell) < 3)) return null;
+    if (isSharedProp(prop) && state.placed > 0 && (state.sharedPlaced + 1) / (state.placed + 1) > (terrainData().sharedPropLimit || 0.3)) return null;
+    state.boxes.push(box);
+    state.placed++;
+    if (isSharedProp(prop)) state.sharedPlaced++;
+    if (prop.shape === 'tall') state.tallCells.push(cell);
+    const collision = h > 48 && !state.pathCells.has(key(cell.x, cell.y)) && !state.encounterCells.has(key(cell.x, cell.y));
+    if (collision) state.collisionCells.add(key(cell.x, cell.y));
+    const placement = { id: `${prop.file}|${index}`, prop, image: imageFor(prop.file), cell, drawX, drawY, box, sortY: drawY + h, dynamic: prop.shape === 'tall' || h > 48, collision };
+    state.placements.push(placement);
+    return placement;
+  }
+
+  function makeProps(map, grid, points, buildings, config, path) {
+    const seed = `${map?.id || 'map'}|${config?.set || setForMap(map)}`, pool = propCandidates(map, config, seed);
+    const state = {
+      pathCells: new Set([...(path.cells || []), ...(path.renderCells || [])]),
+      encounterCells: new Set(),
+      boxes: [],
+      tallCells: [],
+      placements: [],
+      collisionCells: new Set(),
+      placed: 0,
+      sharedPlaced: 0
+    };
+    for (let y = 0; y < grid.length; y++) for (let x = 0; x < (grid[0]?.length || 0); x++) if (grid[y][x] === 2) state.encounterCells.add(key(x, y));
+    let index = 0;
+    const add = (shape, x, y) => {
+      const width = grid[0]?.length || 0, height = grid.length;
+      if (!inside(x, y, width, height) || grid[y][x] === 1 || grid[y][x] === 2 || path.cells.has(key(x, y))) return null;
+      return makePropPlacement(chooseProp(pool, shape, seed, index), { x, y }, index++, buildings, points, state);
+    };
+
+    // Tall silhouettes flank routes at a deliberately irregular 5–9 tile
+    // cadence, then recur in small wild clusters.
+    for (const route of path.routes) {
+      for (let i = 3; i < route.length; i += 5 + (hash(`${seed}|route|${i}`) % 5)) {
+        const current = route[i], previous = route[Math.max(0, i - 1)], next = route[Math.min(route.length - 1, i + 1)];
+        const dx = Math.sign(next.x - previous.x), dy = Math.sign(next.y - previous.y);
+        const choices = Math.abs(dx) > Math.abs(dy) ? [[0, -1], [0, 1]] : [[-1, 0], [1, 0]];
+        const side = choices[hash(`${seed}|side|${i}`) % choices.length];
+        add('tall', current.x + side[0], current.y + side[1]);
+      }
+    }
+    for (let y = 1; y < grid.length - 1; y++) for (let x = 1; x < (grid[0]?.length || 1) - 1; x++) {
+      if (grid[y][x] !== 2) continue;
+      if (unit(`${seed}|wild|${x}|${y}`) < 0.035) add('tall', x + (hash(`${seed}|wx|${x}|${y}`) % 3) - 1, y + (hash(`${seed}|wy|${x}|${y}`) % 3) - 1);
+      if (unit(`${seed}|clutter|${x}|${y}`) < 0.02) add('medium', x - 1, y);
+    }
+
+    // A bridge is a wide prop centered on a one-to-three-tile liquid crossing.
+    for (const route of path.routes) {
+      let run = [];
+      const flush = () => {
+        if (run.length && run.length <= 3) add('wide', run[Math.floor(run.length / 2)].x, run[Math.floor(run.length / 2)].y);
+        run = [];
+      };
+      for (const cell of route) {
+        if (grid[cell.y]?.[cell.x] === 3) run.push(cell); else flush();
+      }
+      flush();
+    }
+    // Wide silhouettes read as settlement fences, railings, and cliff edging.
+    // Keep the cadence sparse so they frame routes without turning into walls.
+    for (const building of buildings) {
+      const lot = building.lot || {};
+      const candidates = [
+        [Number(lot.x) - 1, Number(lot.y) + Math.floor(Number(lot.h || 5) / 2)],
+        [Number(lot.x) + Number(lot.w || 6), Number(lot.y) + Math.floor(Number(lot.h || 5) / 2)],
+        [Number(lot.x) + Math.floor(Number(lot.w || 6) / 2), Number(lot.y) - 1],
+        [Number(lot.x) + Math.floor(Number(lot.w || 6) / 2), Number(lot.y) + Number(lot.h || 5)]
+      ];
+      for (const [x, y] of candidates) if (unit(`${seed}|settlement-edge|${building.id}|${x}|${y}`) < 0.72) add('wide', x, y);
+    }
+    for (let y = 1; y < grid.length - 1; y++) for (let x = 1; x < (grid[0]?.length || 1) - 1; x++) {
+      if (grid[y][x] !== 0) continue;
+      const nearLiquid = grid[y - 1]?.[x] === 3 || grid[y + 1]?.[x] === 3 || grid[y]?.[x - 1] === 3 || grid[y]?.[x + 1] === 3;
+      if (nearLiquid && unit(`${seed}|liquid-edge|${x}|${y}`) < 0.22) add('wide', x, y);
+    }
+    for (const building of buildings) {
+      const door = building.door;
+      const offsets = [[-2, 0], [2, 0], [0, -2], [0, 2], [-1, -1], [1, -1]];
+      for (let i = 0; i < offsets.length; i++) {
+        const [dx, dy] = offsets[(hash(`${seed}|door|${building.id}|${i}`) % offsets.length)];
+        if (add(i % 3 === 0 ? 'small' : 'medium', door.x + dx, door.y + dy)) break;
+      }
+    }
+    const spawn = map?.spawn || { x: 8, y: 8 };
+    for (const [dx, dy] of [[-2, -1], [2, -1], [-2, 2], [2, 2]]) add('small', spawn.x + dx, spawn.y + dy);
+
+    const cap = Math.min(120, Math.max(14, Math.floor(state.placed + ((grid.length * (grid[0]?.length || 0)) / 170))));
+    for (let y = 1; y < grid.length - 1 && state.placed < cap; y++) for (let x = 1; x < (grid[0]?.length || 1) - 1 && state.placed < cap; x++) {
+      if (grid[y][x] !== 0 || path.cells.has(key(x, y))) continue;
+      if (unit(`${seed}|filler|${x}|${y}`) < 0.025) add(unit(`${seed}|filler-shape|${x}|${y}`) < 0.65 ? 'small' : 'medium', x, y);
+    }
+    return { placements: state.placements, collisionCells: state.collisionCells, sharedPlaced: state.sharedPlaced, placed: state.placed, tallPlaced: state.tallCells.length, cap };
+  }
+
+  function drawTile(ctx, file, x, y, alpha = 1) {
+    const resource = imageFor(file);
+    if (!imageReady(resource)) return false;
+    if (alpha !== 1) ctx.globalAlpha = alpha;
+    ctx.drawImage(resource.image, x, y);
+    if (alpha !== 1) ctx.globalAlpha = 1;
+    return true;
+  }
+
+  const zoneNames = () => g.VTN_MAP_LAYOUTS?.ZONES || { ROAD: 'ROAD', PLAZA: 'PLAZA', GROUND: 'GROUND', WILD: 'WILD', SHORE: 'SHORE', LIQUID: 'LIQUID', WALL: 'WALL' };
+  const planZone = (plan, x, y) => plan.zoneGrid?.[y]?.[x] || zoneNames().WALL;
+  const roadNeighbor = (plan, x, y) => planZone(plan, x, y) === zoneNames().ROAD;
+  function roadMask(plan, x, y) {
+    return (roadNeighbor(plan, x, y - 1) ? 1 : 0) | (roadNeighbor(plan, x + 1, y) ? 2 : 0) | (roadNeighbor(plan, x, y + 1) ? 4 : 0) | (roadNeighbor(plan, x - 1, y) ? 8 : 0);
+  }
+  function roadAngle(orientation) {
+    if (orientation === 'vertical' || orientation === 'cap-n' || orientation === 'cap-s' || orientation === 't-junction-n' || orientation === 't-junction-s') return Math.PI / 2;
+    if (orientation === 'corner-se') return Math.PI / 2;
+    if (orientation === 'corner-sw') return Math.PI;
+    if (orientation === 'corner-nw') return Math.PI * 1.5;
+    return 0;
+  }
+  function roadMaskPath(ctx, mask) {
+    const core = 11, arm = 15;
+    ctx.beginPath();
+    ctx.rect(-core, -core, core * 2, core * 2);
+    if (mask & 1) ctx.rect(-arm, -16, arm * 2, 16 - core);
+    if (mask & 2) ctx.rect(core, -arm, 16 - core, arm * 2);
+    if (mask & 4) ctx.rect(-arm, core, arm * 2, 16 - core);
+    if (mask & 8) ctx.rect(-16, -arm, 16 - core, arm * 2);
+  }
+  function drawRoadTexture(ctx, texture, mask, angle, dx, dy) {
+    if (!mask) return;
+    ctx.save();
+    ctx.translate(dx + TILE / 2, dy + TILE / 2);
+    roadMaskPath(ctx, mask);
+    ctx.clip();
+    ctx.rotate(angle);
+    ctx.drawImage(texture, -TILE / 2, -TILE / 2);
+    ctx.restore();
+  }
+  function drawRoadTile(ctx, plan, x, y, dx, dy) {
+    const texture = plan.pathTexture;
+    if (!texture) return;
+    const mask = roadMask(plan, x, y), orientation = plan.orientationGrid?.[y]?.[x] || 'horizontal', angle = roadAngle(orientation), horizontalMask = mask & 10, verticalMask = mask & 5;
+    // Keep the road shape in map space.  On bends/junctions each arm gets the
+    // appropriate quarter-turn variant of the same straight source tile.
+    if (horizontalMask && verticalMask) {
+      drawRoadTexture(ctx, texture, horizontalMask, 0, dx, dy);
+      drawRoadTexture(ctx, texture, verticalMask, Math.PI / 2, dx, dy);
+    } else drawRoadTexture(ctx, texture, mask, verticalMask ? Math.PI / 2 : angle, dx, dy);
+    ctx.save();ctx.translate(dx+16,dy+16);roadMaskPath(ctx,mask||15);ctx.clip();ctx.fillStyle='rgba(215,181,123,.19)';ctx.fillRect(-16,-16,32,32);ctx.restore();
+  }
+  function drawRoadCurb(ctx, plan, x, y, dx, dy) {
+
+    const palette = plan.config.palette || {}, color = colorFromHex(palette.roadCurb || palette.cliffShadow, [38, 36, 32]), light = colorFromHex(palette.roadCurbLight || palette.decalDark, [96, 88, 70]);
+    const open = { top: !roadNeighbor(plan, x, y - 1), bottom: !roadNeighbor(plan, x, y + 1), left: !roadNeighbor(plan, x - 1, y), right: !roadNeighbor(plan, x + 1, y) };
+    ctx.fillStyle = `rgb(${color.join(',')})`;
+    if (open.top) ctx.fillRect(dx + 2, dy + 1, TILE - 4, 2);
+    if (open.bottom) ctx.fillRect(dx + 2, dy + TILE - 3, TILE - 4, 2);
+    if (open.left) ctx.fillRect(dx + 1, dy + 2, 2, TILE - 4);
+    if (open.right) ctx.fillRect(dx + TILE - 3, dy + 2, 2, TILE - 4);
+    ctx.fillStyle = `rgba(${light.join(',')},.38)`;
+    if (open.top) ctx.fillRect(dx + 4, dy + 3, TILE - 8, 1);
+    if (open.left) ctx.fillRect(dx + 3, dy + 4, 1, TILE - 8);
+  }
+  function drawPlazaTile(ctx, plan, x, y, dx, dy) {
+    const texture = plan.plazaTexture || plan.pathTexture;
+    if (texture) ctx.drawImage(texture, dx, dy);
+    const palette = plan.config.palette || {};
+    if ((x + y) & 1) { ctx.fillStyle = `rgba(${colorFromHex(palette.plazaLight || palette.decalLight, [190, 177, 140]).join(',')},.10)`; ctx.fillRect(dx, dy, TILE, TILE); }
+    const border = colorFromHex(palette.plazaBorder || palette.cliffShadow, [42, 39, 34]);
+    ctx.fillStyle = `rgb(${border.join(',')})`;
+    const z = zoneNames().PLAZA;
+    if (planZone(plan, x, y - 1) !== z) ctx.fillRect(dx + 1, dy, TILE - 2, 2);
+    if (planZone(plan, x, y + 1) !== z) ctx.fillRect(dx + 1, dy + TILE - 2, TILE - 2, 2);
+    if (planZone(plan, x - 1, y) !== z) ctx.fillRect(dx, dy + 1, 2, TILE - 2);
+    if (planZone(plan, x + 1, y) !== z) ctx.fillRect(dx + TILE - 2, dy + 1, 2, TILE - 2);
+  }
+  function edgeSides(plan, x, y, liquid) {
+    const z = zoneNames(), same = side => {
+      const [dx, dy] = side === 'top' ? [0, -1] : side === 'bottom' ? [0, 1] : side === 'left' ? [-1, 0] : [1, 0];
+      return planZone(plan, x + dx, y + dy) === (liquid ? z.LIQUID : z.LIQUID);
+    };
+    return { top: same('top'), bottom: same('bottom'), left: same('left'), right: same('right') };
+  }
+  function drawRotatedEdgePiece(ctx, dx, dy, side, width, height) {
+    const angle = side === 'right' ? Math.PI / 2 : side === 'bottom' ? Math.PI : side === 'left' ? Math.PI * 1.5 : 0;
+    ctx.save();
+    ctx.translate(dx + TILE / 2, dy + TILE / 2);
+    ctx.rotate(angle);
+    ctx.fillRect(-TILE / 2 + 2, -TILE / 2 + 1, width, height);
+    ctx.restore();
+  }
+  function drawRotatedEdgeMark(ctx, dx, dy, side, along) {
+    const angle = side === 'right' ? Math.PI / 2 : side === 'bottom' ? Math.PI : side === 'left' ? Math.PI * 1.5 : 0;
+    ctx.save();
+    ctx.translate(dx + TILE / 2, dy + TILE / 2);
+    ctx.rotate(angle);
+    ctx.fillRect(-TILE / 2 + along, -TILE / 2 + 1, 4, 1);
+    ctx.restore();
+  }
+  function drawLiquidShore(ctx, plan, x, y, dx, dy) {
+    const z = zoneNames(), zone = planZone(plan, x, y), palette = plan.config.palette || {}, shore = colorFromHex(palette.shoreShadow, [30, 36, 36]), foam = colorFromHex(palette.foam, [164, 202, 188]);
+    const sides = edgeSides(plan, x, y, zone === z.LIQUID);
+    const edge = zone === z.LIQUID ? side => !sides[side] : side => sides[side];
+    ctx.fillStyle = `rgb(${shore.join(',')})`;
+    for (const side of ['top', 'bottom', 'left', 'right']) if (edge(side)) {
+      drawRotatedEdgePiece(ctx, dx, dy, side, TILE - 4, 3);
+    }
+    ctx.fillStyle = `rgb(${foam.join(',')})`;
+    for (const side of ['top', 'bottom', 'left', 'right']) if (edge(side)) {
+      const along = 4 + (hash(`${plan.map.id}|shore|${x}|${y}|${side}`) % 21);
+      drawRotatedEdgeMark(ctx, dx, dy, side, along);
+    }
+  }
+
+  function pathMask(plan, x, y, px, py) {
+    const cells = plan.path.renderCells || plan.path.cells;
+    const active = cells.has(key(x, y));
+    const neighbours = {
+      top: cells.has(key(x, y - 1)),
+      bottom: cells.has(key(x, y + 1)),
+      left: cells.has(key(x - 1, y)),
+      right: cells.has(key(x + 1, y))
+    };
+    return softCellMask(plan.grid, x, y, active, neighbours, px, py);
+  }
+
+  function wildMask(plan, x, y, px, py) {
+    const z = zoneNames(), zone = planZone(plan, x, y);
+    if (zone !== z.WILD) return 0;
+    let amount = 1;
+    for (const [side, dx, dy, edge] of [['top', 0, -1, py], ['bottom', 0, 1, TILE - 1 - py], ['left', -1, 0, px], ['right', 1, 0, TILE - 1 - px]]) {
+      if (planZone(plan, x + dx, y + dy) === z.GROUND) amount = Math.min(amount, edgeFade(edge));
+    }
+    return amount;
+  }
+
+  function preparePlanTextures(plan) {
+    if (plan.groundTextures) return;
+    const palette = plan.config.palette || {};
+    const tiles = plan.config.tiles || {};
+    plan.groundTextures = (tiles.ground || []).slice(0, 3).map(file => tintedTile(file, palette.ground, 'ground'));
+    plan.pathTexture = tintedTile((tiles.path || [])[0], palette.path, 'path');
+    plan.plazaTexture = tintedTile((tiles.plaza || tiles.path || [])[0], palette.plaza || palette.path, 'plaza');
+    plan.wildTexture = tintedTile(tiles.wild, palette.wild, 'wild');
+    plan.cliffTexture = tintedTile(tiles.cliff || (tiles.ground || [])[0], palette.cliff, 'cliff');
+  }
+
+  function groundVariant(plan, x, y) {
+    const textures = plan.groundTextures || [];
+    if (textures.length < 2) return null;
+    const patchTiles = clamp(Number(plan.config.groundPatchTiles) || 8, 6, 14);
+    const patch = valueNoise(x, y, `${plan.map.id}|ground-patch`, patchTiles);
+    const amount = smoothstep(.34, .66, patch);
+    if (amount <= .02) return null;
+    const variantNoise = valueNoise(x + 4, y - 3, `${plan.map.id}|ground-variant`, 11);
+    const index = 1 + Math.min(textures.length - 2, Math.floor(variantNoise * (textures.length - 1)));
+    return { texture: textures[index], amount, index };
+  }
+
+  function groundDecal(ctx, plan, x, y) {
+    if (planZone(plan, x, y) !== zoneNames().GROUND) return;
+    const seed = `${plan.map.id}|decal|${x}|${y}`;
+    if (hash(seed) % 23 !== 0) return;
+    const palette = plan.config.palette || {};
+    const dark = colorFromHex(palette.decalDark, [36, 43, 41]);
+    const light = colorFromHex(palette.decalLight, [131, 137, 111]);
+    const px = x * TILE + 4 + (hash(`${seed}|x`) % 23), py = y * TILE + 7 + (hash(`${seed}|y`) % 21);
+    if (hash(`${seed}|kind`) % 2 === 0) {
+      ctx.fillStyle = `rgba(${dark.join(',')},.55)`;
+      ctx.fillRect(px, py, 2, 1);
+      ctx.fillRect(px + 1, py - 1, 1, 1);
+      if (hash(`${seed}|extra`) % 3 === 0) ctx.fillRect(px + 3, py + 2, 1, 1);
+    } else {
+      ctx.fillStyle = `rgba(${light.join(',')},.48)`;
+      ctx.fillRect(px, py, 1, 3);
+      ctx.fillRect(px - 1, py + 1, 1, 1);
+      ctx.fillRect(px + 1, py, 1, 1);
+    }
+  }
+
+  /* Make monster habitats readable at a glance: a coloured wash, bright grass tufts and a dotted edge where the habitat ends. */
+  function wildAccent(ctx, plan, x, y) {
+    const z = zoneNames();
+    if (planZone(plan, x, y) !== z.WILD) return;
+    const colors = toneColors(plan.config.palette?.wild, [74, 92, 78]), light = colors.light;
+    const dx = x * TILE, dy = y * TILE;
+    ctx.fillStyle = `rgba(${light.join(',')},.30)`; ctx.fillRect(dx, dy, TILE, TILE);
+    for (let i = 0; i < 4; i++) {
+      const seed = `${plan.map.id}|accent|${x}|${y}|${i}`, px = dx + 3 + (hash(seed + 'x') % 26), py = dy + 5 + (hash(seed + 'y') % 22);
+      ctx.fillStyle = `rgba(${light.join(',')},.85)`; ctx.fillRect(px, py, 1, 4); ctx.fillRect(px - 2, py + 1, 1, 3); ctx.fillRect(px + 2, py + 1, 1, 3);
+      ctx.fillStyle = 'rgba(8,14,10,.55)'; ctx.fillRect(px - 1, py + 4, 3, 1);
+    }
+    const open = {top: planZone(plan, x, y - 1) !== z.WILD, bottom: planZone(plan, x, y + 1) !== z.WILD, left: planZone(plan, x - 1, y) !== z.WILD, right: planZone(plan, x + 1, y) !== z.WILD};
+    ctx.fillStyle = `rgba(${light.join(',')},.7)`;
+    for (let i = 0; i < TILE; i += 4) {
+      if (open.top) ctx.fillRect(dx + i, dy, 2, 2);
+      if (open.bottom) ctx.fillRect(dx + i, dy + TILE - 2, 2, 2);
+      if (open.left) ctx.fillRect(dx, dy + i, 2, 2);
+      if (open.right) ctx.fillRect(dx + TILE - 2, dy + i, 2, 2);
+    }
+  }
+  function wildDecal(ctx, plan, x, y) {
+    if (planZone(plan, x, y) !== zoneNames().WILD) return;
+    const seed = `${plan.map.id}|wild-decal|${x}|${y}`;
+    if (hash(seed) % 3 === 0) return;
+    const colors = toneColors(plan.config.palette?.wild, [74, 92, 78]);
+    const light = colors.light, shadow = colors.shadow;
+    const px = x * TILE + 5 + (hash(`${seed}|x`) % 20);
+    const py = y * TILE + 6 + (hash(`${seed}|y`) % 19);
+    ctx.fillStyle = `rgba(${shadow.join(',')},.58)`;
+    ctx.fillRect(px, py + 2, 1, 4);
+    ctx.fillRect(px - 1, py + 5, 3, 1);
+    ctx.fillStyle = `rgba(${light.join(',')},.72)`;
+    ctx.fillRect(px, py, 1, 3);
+    ctx.fillRect(px - 1, py + 1, 1, 1);
+    ctx.fillRect(px + 1, py + 1, 1, 1);
+    if (hash(`${seed}|second`) % 2 === 0) {
+      const sx = x * TILE + 18 + (hash(`${seed}|sx`) % 8);
+      const sy = y * TILE + 12 + (hash(`${seed}|sy`) % 11);
+      ctx.fillStyle = `rgba(${light.join(',')},.48)`;
+      ctx.fillRect(sx, sy, 1, 4);
+      ctx.fillRect(sx - 1, sy + 1, 3, 1);
+    }
+  }
+
+  function computeGroundEdgeContrast(plan, chunks) {
+    const snapshots = new Map();
+    for (const [id, chunk] of chunks) {
+      snapshots.set(id, { data: chunk.ctx.getImageData(0, 0, chunk.canvas.width, chunk.canvas.height).data, width: chunk.canvas.width, height: chunk.canvas.height });
+    }
+    const pixel = (x, y, px, py) => {
+      const cx = Math.floor(x / CHUNK_TILES), cy = Math.floor(y / CHUNK_TILES), snapshot = snapshots.get(`${cx},${cy}`);
+      if (!snapshot) return [0, 0, 0];
+      const lx = (x - cx * CHUNK_TILES) * TILE + px, ly = (y - cy * CHUNK_TILES) * TILE + py;
+      const offset = (ly * snapshot.width + lx) * 4;
+      return [snapshot.data[offset], snapshot.data[offset + 1], snapshot.data[offset + 2]];
+    };
+    const width = plan.size.width, height = plan.size.height;
+    const isGround = (x, y) => planZone(plan, x, y) === zoneNames().GROUND;
+    let borders = 0, highContrast = 0;
+    const compare = (x, y, nx, ny, horizontal) => {
+      if (!isGround(x, y) || !isGround(nx, ny)) return;
+      borders++;
+      let total = 0, count = 0;
+      for (let i = 4; i < TILE - 4; i++) {
+        const a = horizontal ? pixel(x, y, TILE - 1, i) : pixel(x, y, i, TILE - 1);
+        const b = horizontal ? pixel(nx, ny, 0, i) : pixel(nx, ny, i, 0);
+        total += (Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2])) / 3;
+        count++;
+      }
+      if (total / Math.max(1, count) > GROUND_EDGE_THRESHOLD) highContrast++;
+    };
+    for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+      if (x + 1 < width) compare(x, y, x + 1, y, true);
+      if (y + 1 < height) compare(x, y, x, y + 1, false);
+    }
+    return { threshold: GROUND_EDGE_THRESHOLD, borders, highContrast, ratio: borders ? highContrast / borders : 0 };
+  }
+
+  function buildChunks(plan) {
+    if (plan.chunks || typeof document === 'undefined') return;
+    const { width, height } = plan.size, cols = Math.ceil(width / CHUNK_TILES), rows = Math.ceil(height / CHUNK_TILES);
+    const chunks = new Map();
+    const chunkFor = (cx, cy) => {
+      const id = `${cx},${cy}`;
+      if (chunks.has(id)) return chunks.get(id);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.min(CHUNK_TILES, width - cx * CHUNK_TILES) * TILE;
+      canvas.height = Math.min(CHUNK_TILES, height - cy * CHUNK_TILES) * TILE;
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+      chunks.set(id, { canvas, ctx, cx, cy });
+      return chunks.get(id);
+    };
+    preparePlanTextures(plan);
+    const grid = plan.grid, cfg = plan.config, tiles = cfg.tiles, ground = tiles.ground || [];
+    for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+      const cx = Math.floor(x / CHUNK_TILES), cy = Math.floor(y / CHUNK_TILES), chunk = chunkFor(cx, cy), ctx = chunk.ctx;
+      const dx = (x - cx * CHUNK_TILES) * TILE, dy = (y - cy * CHUNK_TILES) * TILE, tile = grid[y]?.[x] ?? 1;
+      const baseGround = materialPatch(plan.groundTextures?.[0] || imageFor(ground[0])?.image,x,y);
+      if (baseGround) ctx.drawImage(baseGround, dx, dy);
+      const variant = groundVariant(plan, x, y);
+      if (variant?.texture) drawDithered(ctx, materialPatch(variant.texture,x,y), dx, dy, () => variant.amount, `${plan.map.id}|ground-blend|${x}|${y}`);
+      if (tile === 1) {
+        if (plan.cliffTexture) ctx.drawImage(plan.cliffTexture, dx, dy);
+        const cliffBase = colorFromHex(cfg.palette?.cliff?.base, [42, 54, 49]);
+        ctx.fillStyle = `rgba(${cliffBase.join(',')},.30)`;
+        ctx.fillRect(dx, dy, TILE, TILE);
+        const cliff = colorFromHex(cfg.palette?.cliffShadow, [7, 10, 15]);
+        ctx.fillStyle = `rgba(${cliff.join(',')},.24)`;
+        ctx.fillRect(dx, dy, TILE, TILE);
+        const edge = colorFromHex(cfg.palette?.cliffEdge, [150, 143, 116]);
+        ctx.fillStyle = `rgba(${edge.join(',')},.50)`;
+        for (let i = 0; i < 6; i++) {
+          const rx = dx + 4 + (hash(`${plan.map.id}|rock|${x}|${y}|${i}|x`) % 23);
+          const ry = dy + 4 + (hash(`${plan.map.id}|rock|${x}|${y}|${i}|y`) % 23);
+          ctx.fillRect(rx, ry, 2 + (i % 3), 1 + (i % 2));
+          if (i % 2 === 0) ctx.fillRect(rx + 1, ry - 1, 1, 1);
+        }
+        for (const [side, open] of Object.entries({
+          top: grid[y - 1]?.[x] !== 1,
+          bottom: grid[y + 1]?.[x] !== 1,
+          left: grid[y]?.[x - 1] !== 1,
+          right: grid[y]?.[x + 1] !== 1
+        })) if (open) {
+          for (let i = 3; i < TILE - 3; i += 5 + (hash(`${plan.map.id}|cliff|${x}|${y}|${side}|${i}`) % 4)) {
+            if (side === 'top') ctx.fillRect(dx + i, dy + (hash(`${x}|${y}|${i}`) % 3), 2, 1);
+            if (side === 'bottom') ctx.fillRect(dx + i, dy + TILE - 1 - (hash(`${x}|${y}|${i}`) % 3), 2, 1);
+            if (side === 'left') ctx.fillRect(dx + (hash(`${x}|${y}|${i}`) % 3), dy + i, 1, 2);
+            if (side === 'right') ctx.fillRect(dx + TILE - 1 - (hash(`${x}|${y}|${i}`) % 3), dy + i, 1, 2);
+          }
+        }
+      } else if (tile === 3) {
+        drawTile(ctx, tiles.liquid, dx, dy);
+      } else if (tile === 2) {
+        if (plan.wildTexture) drawDithered(ctx, plan.wildTexture, dx, dy, (px, py) => wildMask(plan, x, y, px, py), `${plan.map.id}|wild-edge|${x}|${y}`);
+        else drawTile(ctx, tiles.wild, dx, dy);
+      }
+      groundDecal(ctx, plan, x, y);
+      wildDecal(ctx, plan, x, y);
+      wildAccent(ctx, plan, x, y);
+    }
+    // Transitions are a separate deterministic pass: no ground variant or
+    // decal can leak into a road/plaza, and a bridge can cleanly cover water.
+    for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+      const cx = Math.floor(x / CHUNK_TILES), cy = Math.floor(y / CHUNK_TILES), chunk = chunkFor(cx, cy), ctx = chunk.ctx;
+      const dx = (x - cx * CHUNK_TILES) * TILE, dy = (y - cy * CHUNK_TILES) * TILE, zone = planZone(plan, x, y);
+      if (zone === zoneNames().LIQUID || zone === zoneNames().SHORE) drawLiquidShore(ctx, plan, x, y, dx, dy);
+      if (zone === zoneNames().PLAZA) drawPlazaTile(ctx, plan, x, y, dx, dy);
+      if (zone === zoneNames().ROAD) { drawRoadTile(ctx, plan, x, y, dx, dy); drawRoadCurb(ctx, plan, x, y, dx, dy); }
+    }
+    try {
+      plan.groundEdgeContrast = computeGroundEdgeContrast(plan, chunks);
+    } catch (error) {
+      // Offline file:// play can taint a canvas after an image draw.  The
+      // browser QA runs over HTTP for the real pixel metric; keep the game
+      // playable offline and expose an explicit unavailable marker here.
+      plan.groundEdgeContrast = { threshold: GROUND_EDGE_THRESHOLD, borders: 1, highContrast: 0, ratio: 0, unavailable: true };
+    }
+    for (const prop of plan.props.placements.filter(item => !item.dynamic)) {
+      const resource = imageFor(prop.prop.file);
+      if (!imageReady(resource)) continue;
+      const minCx = Math.max(0, Math.floor(prop.box.left / CHUNK_PX)), maxCx = Math.min(cols - 1, Math.floor((prop.box.right - 1) / CHUNK_PX));
+      const minCy = Math.max(0, Math.floor(prop.box.top / CHUNK_PX)), maxCy = Math.min(rows - 1, Math.floor((prop.box.bottom - 1) / CHUNK_PX));
+      for (let cy = minCy; cy <= maxCy; cy++) for (let cx = minCx; cx <= maxCx; cx++) {
+        const chunk = chunkFor(cx, cy);
+        chunk.ctx.drawImage(resource.image, prop.drawX - cx * CHUNK_PX, prop.drawY - cy * CHUNK_PX);
+      }
+    }
+    plan.chunks = chunks;
+  }
+
+  function allAssetsReady(plan) {
+    const entries = plan.files.map(file => imageFor(file));
+    const missing = entries.filter(entry => entry.status === 'missing').length;
+    const ready = entries.filter(imageReady).length;
+    plan.assetStats = { total: entries.length, ready, missing };
+    return missing === 0 && ready === entries.length;
+  }
+
+  const forestSilhouettes=['J049','J053','J054','J055'].map(id=>'assets/world/region_01/props/'+id+'.png');
+  const markerSprites={portal:'J029',clue:'J082',puzzle:'J081',legendary:'J082',shrine:'J006','abyss-memory':'J083'};
+  function nativeMarker(ctx,point,dx,dy){
+    const id=markerSprites[point.type];if(!id)return false;
+    const resource=imageFor('assets/world/region_01/props/'+id+'.png');if(!imageReady(resource))return false;
+    const im=resource.image,w=im.naturalWidth,h=im.naturalHeight;
+    ctx.drawImage(im,Math.round(dx+16-w/2),dy+32-h,w,h);return true;
+  }
+  function forestCanopies(map,grid,buildings){
+    if(map.regionId!=='region_01')return [];
+    const result=[];
+    for(let y=1;y<grid.length-1;y+=2)for(let x=1;x<grid[0].length-1;x+=2){
+      if(grid[y][x]!==1||hash(map.id+'|canopy|'+x+','+y)%4===0)continue;
+      if(buildings.some(b=>x*32>=b.drawX-32&&x*32<b.drawX+b.asset.w+32&&y*32>=b.drawY-16&&y*32<b.drawY+b.asset.h+16))continue;
+      result.push({x,y,file:forestSilhouettes[hash(x+','+y)%forestSilhouettes.length]});
+    }
+    return result;
+  }
+  function createPlan(info) {
+    const map = info.map, config = configForMap(map);
+    if (!config?.tiles) return null;
+    const grid = info.grid, points = info.points || [], buildings = makeBuildings(map, grid, points, config);
+    const path = pathNetwork(map, grid, points, buildings), zoneModel = path.zones || g.VTN_MAP_LAYOUTS?.zoneModel?.(map, grid, points, { extraEndpoints: buildings.map(building => building.door), plazaSources: buildings, carveRoads: true });
+    if (zoneModel) { path.zones = zoneModel; path.cells = new Set(zoneModel.roadCells); path.renderCells = new Set(zoneModel.roadCells); }
+    const props = makeProps(map, grid, points, buildings, config, path),canopies=forestCanopies(map,grid,buildings);
+    const files = [...new Set([
+      ...filesForConfig(config),
+      ...buildings.map(building => building.asset.file),
+      ...props.placements.map(prop => prop.prop.file),...canopies.map(tree=>tree.file),...Object.values(markerSprites).map(id=>'assets/world/region_01/props/'+id+'.png')
+    ])];
+    for (const file of files) imageFor(file);
+    return {
+      map,
+      config,
+      grid,
+      points,
+      size: mapSize(map),
+      buildings,
+      path,
+      zoneModel,
+      zoneGrid: zoneModel?.zones || null,
+      orientationGrid: zoneModel?.orientations || null,
+      props,canopies,
+      files,
+      chunks: null,
+      ready: false,
+      assetStats: { total: files.length, ready: 0, missing: 0 },
+      doorCells: new Set(buildings.map(building => key(building.door.x, building.door.y))),
+      collisionCells: (() => {
+        const cells = new Set(props.collisionCells);
+        for (const building of buildings) {
+          const x0 = Math.floor(building.footBox.left / TILE), x1 = Math.floor((building.footBox.right - 1) / TILE);
+          const y0 = Math.floor(building.footBox.top / TILE), y1 = Math.floor((building.footBox.bottom - 1) / TILE);
+          for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+            if (key(x, y) !== key(building.door.x, building.door.y)) cells.add(key(x, y));
+          }
+        }
+        return cells;
+      })()
+    };
+  }
+
+  function getPlan(info) {
+    const mapId = info?.map?.id;
+    if (!mapId) return null;
+    let plan = plans.get(mapId);
+    if (!plan) {
+      plan = createPlan(info);
+      if (plan) plans.set(mapId, plan);
+    }
+    if (!plan) return null;
+    plan.points = info.points || plan.points;
+    plan.grid = info.grid || plan.grid;
+    if (!plan.ready && allAssetsReady(plan)) {
+      buildChunks(plan);
+      plan.ready = !!plan.chunks;
+    }
+    return plan;
+  }
+
+  function opaqueMaskFor(building) {
+    const file = building?.asset?.file;
+    if (!file || typeof document === 'undefined') return null;
+    if (opaqueMaskCache.has(file)) return opaqueMaskCache.get(file);
+    const resource = building.image;
+    if (!imageReady(resource)) return null;
+    const width = Math.max(1, Math.round(Number(building.asset.w) || resource.image.naturalWidth || TILE)), height = Math.max(1, Math.round(Number(building.asset.h) || resource.image.naturalHeight || TILE));
+    try {
+      const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
+      const context = canvas.getContext('2d'); context.imageSmoothingEnabled = false; context.drawImage(resource.image, 0, 0, width, height);
+      const alpha = context.getImageData(0, 0, width, height).data, mask = new Uint8Array(width * height); let maxAlpha = 0;
+      for (let i = 0; i < mask.length; i++) { mask[i] = alpha[i * 4 + 3]; if (mask[i] > maxAlpha) maxAlpha = mask[i]; }
+      const result = { width, height, mask, maxAlpha, unavailable: false }; opaqueMaskCache.set(file, result); return result;
+    } catch {
+      const result = { width, height, mask: null, maxAlpha: 255, unavailable: true }; opaqueMaskCache.set(file, result); return result;
+    }
+  }
+  function buildingHasOpaqueOverlap(building, heroBox) {
+    if (!boxesOverlap(building.fullBox, heroBox)) return false;
+    const mask = opaqueMaskFor(building); if (!mask?.mask) return true;
+    const left = Math.max(building.fullBox.left, Math.floor(heroBox.left)), right = Math.min(building.fullBox.right, Math.ceil(heroBox.right)), top = Math.max(building.fullBox.top, Math.floor(heroBox.top)), bottom = Math.min(building.fullBox.bottom, Math.ceil(heroBox.bottom));
+    for (let y = top; y < bottom; y++) for (let x = left; x < right; x++) { const ix = Math.floor((x - building.drawX) * mask.width / Math.max(1, building.fullBox.right - building.fullBox.left)), iy = Math.floor((y - building.drawY) * mask.height / Math.max(1, building.fullBox.bottom - building.fullBox.top)); if (mask.mask[iy * mask.width + ix] > 8) return true; }
+    return false;
+  }
+  function fadeBuildingFor(plan, heroBox, heroFeetY, heroCenterX, heroCenterY, heroHeight, now) {
+    plan.fadeState ||= new Map();
+    const radius = Math.max(1, heroHeight * 1.5), candidates = plan.buildings.filter(building => heroFeetY < building.sortY && buildingHasOpaqueOverlap(building, heroBox)).map(building => ({ building, distance: Math.hypot((building.fullBox.left + building.fullBox.right) / 2 - heroCenterX, (building.fullBox.top + building.fullBox.bottom) / 2 - heroCenterY) })).filter(value => value.distance <= radius).sort((a, b) => a.distance - b.distance);
+    const active = candidates[0]?.building || null;
+    const audit = [];
+    for (const building of plan.buildings) {
+      const state = plan.fadeState.get(building.id) || { alpha: 1, last: now };
+      const distance = active === building ? candidates[0].distance : radius * 2;
+      const soft = active === building ? 1 - smoothstep(radius * .55, radius, distance) : 0;
+      const target = active === building ? 1 - .45 * soft : 1;
+      const step = clamp((now - state.last) / .15, 0, 1); state.alpha += (target - state.alpha) * step; state.last = now; state.target = target; plan.fadeState.set(building.id, state);
+      const mask = opaqueMaskFor(building); audit.push({ id: building.id, alpha: state.alpha, target, sourceSampleAlpha: mask?.maxAlpha ?? 255, maskUnavailable: !!mask?.unavailable, fadeActive: active === building });
+    }
+    plan.buildingFadeAudit = audit; return active;
+  }
+  function drawDynamicProp(ctx, placement) {
+    const resource = imageFor(placement.prop.file);
+    if (!imageReady(resource)) return false;
+    ctx.save();
+    // Tall props are opaque and sharp.  Only a building can enter the
+    // deliberate hero-behind-building fade path below.
+    ctx.globalAlpha = 1;
+    ctx.filter = 'none';
+    ctx.drawImage(resource.image, placement.drawX, placement.drawY);
+    ctx.restore();
+    return true;
+  }
+
+  function drawBuilding(ctx, building, alpha = 1) {
+    if (!imageReady(building.image)) return false;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.filter = 'none';
+    ctx.drawImage(building.image.image, building.drawX, building.drawY);
+    ctx.restore();
+    return true;
+  }
+
+  function renderAtmosphere(ctx, canvas, info, now) {
+    // Atmosphere is particle-only.  A post-map fog/vignette changed source
+    // building pixels and made the P9-F terrain look washed out.
+    for (let i = 0; i < 22; i++) {
+      const x = (i * 137 + now * 3) % canvas.width;
+      const y = (i * 79 + Math.sin(now * .8 + i) * 7) % canvas.height;
+      ctx.fillStyle = i % 5 === 0 ? 'rgba(235,184,104,.48)' : 'rgba(207,224,199,.20)';
+      ctx.fillRect(Math.round(x), Math.round(y), i % 4 === 0 ? 2 : 1, i % 4 === 0 ? 2 : 1);
+    }
+  }
+
+  function smoothCamera(map, targetX, targetY, now) {
+    const maxX = Math.max(0, (Number(map.width) || 40) * TILE - targetX.viewportW);
+    const maxY = Math.max(0, (Number(map.height) || 30) * TILE - targetY.viewportH);
+    const tx = clamp(targetX.x, 0, maxX), ty = clamp(targetY.y, 0, maxY);
+    if (cameraState.mapId !== map.id || !cameraState.lastAt) {
+      cameraState = { mapId: map.id, x: tx, y: ty, vx: 0, vy: 0, lastAt: now, renderX: Math.round(tx), renderY: Math.round(ty) };
+      return { x: Math.round(tx), y: Math.round(ty) };
+    }
+    const dt = clamp(now - cameraState.lastAt, 0, .05);
+    cameraState.lastAt = now;
+    const omega = 15;
+    const integrate = (position, velocity, target) => {
+      const acceleration = omega * omega * (target - position) - 2 * omega * velocity;
+      // The cap keeps a clamped, pixel-snapped camera from producing a large
+      // one-frame correction when the hero reaches a map edge.
+      const nextVelocity = clamp(velocity + acceleration * dt, -32, 32);
+      return [position + nextVelocity * dt, nextVelocity];
+    };
+    [cameraState.x, cameraState.vx] = integrate(cameraState.x, cameraState.vx, tx);
+    [cameraState.y, cameraState.vy] = integrate(cameraState.y, cameraState.vy, ty);
+    cameraState.x = clamp(cameraState.x, 0, maxX); cameraState.y = clamp(cameraState.y, 0, maxY);
+    const targetRenderX = Math.round(cameraState.x), targetRenderY = Math.round(cameraState.y);
+    cameraState.renderX += Math.max(-1, Math.min(1, targetRenderX - cameraState.renderX));
+    cameraState.renderY += Math.max(-1, Math.min(1, targetRenderY - cameraState.renderY));
+    return { x: cameraState.renderX, y: cameraState.renderY };
+  }
+
+  function updateDebug(plan, info) {
+    const old = oldPropsCounts(info.map.regionId), total = plan.props.placed || 0;
+    lastDebug = {
+      regionId: info.map.regionId,
+      mapId: info.map.id,
+      scriptState: 'loaded',
+      tilesetLoaded: true,
+      assetsReady: true,
+      tallAvailable: old.tall,
+      propAvailable: old.prop,
+      tallSprites: plan.props.tallPlaced,
+      fallbackTrees: info.map.regionId === 'region_01' ? 1 : 0,
+      smallProps: plan.props.placements.filter(prop => !prop.dynamic).length,
+      alphaAnchors: old.tall,
+      tallPlaced: plan.props.tallPlaced,
+      tallCap: plan.props.cap,
+      tallRestricted: 0,
+      worldLibrary: true,
+      worldLibraryState: 'ready',
+      librarySet: setForMap(info.map),
+      worldImagesTotal: plan.assetStats.total,
+      worldImagesLoaded: plan.assetStats.ready,
+      worldImagesMissing: plan.assetStats.missing,
+      staticChunks: plan.chunks?.size || 0,
+      buildingsPlaced: plan.buildings.length,
+      landmarkBuildings: plan.buildings.filter(building => building.landmark).length,
+      propsPlaced: total,
+      sharedProps: plan.props.sharedPlaced,
+      sharedPropRatio: total ? plan.props.sharedPlaced / total : 0,
+      pathTiles: (plan.path.renderCells || plan.path.cells).size,
+      liquidPathTiles: [...(plan.path.renderCells || plan.path.cells)].filter(cell => { const [x, y] = cell.split(',').map(Number); return plan.grid[y]?.[x] === 3; }).length,
+      zoneStats: plan.zoneModel?.stats || {},
+      roadOrientations: plan.orientationGrid || [],
+      buildingFadeAudit: plan.buildingFadeAudit || [],
+      groundEdgeContrast: plan.groundEdgeContrast || { threshold: GROUND_EDGE_THRESHOLD, borders: 0, highContrast: 0, ratio: 0 },
+      collisionProps: plan.props.collisionCells.size,
+      doorsClear: plan.buildings.every(building => !plan.props.placements.some(prop => boxesOverlap(prop.box, { left: building.door.x * TILE, top: building.door.y * TILE, right: (building.door.x + 1) * TILE, bottom: (building.door.y + 1) * TILE })))
+    };
+    return lastDebug;
+  }
+
+  function render(ctx, canvas, info, callbacks = {}) {
+    const plan = getPlan(info);
+    if (!plan) {
+      lastDebug = { ...lastDebug, worldLibrary: false, worldLibraryState: 'unconfigured' };
+      return false;
+    }
+    if (!plan.ready) {
+      const entries = plan.files.map(imageFor), ready = entries.filter(imageReady).length;
+      lastDebug = {
+        ...lastDebug,
+        worldLibrary: true,
+        worldLibraryState: entries.some(entry => entry.status === 'missing') ? 'missing' : 'loading',
+        librarySet: setForMap(info.map),
+        worldImagesTotal: entries.length,
+        worldImagesLoaded: ready,
+        worldImagesMissing: entries.filter(entry => entry.status === 'missing').length,
+        assetsReady: false
+      };
+      return false;
+    }
+    const frameStart = performance.now();
+    const now = frameStart / 1000;
+    const Z = Math.max(1, Math.min(2, Math.floor(Math.min(canvas.width / 480, canvas.height / 320))));
+    const VW = canvas.width / Z, VH = canvas.height / Z;
+    const heroX = Number.isFinite(info.heroRenderX) ? info.heroRenderX : info.px;
+    const heroY = Number.isFinite(info.heroRenderY) ? info.heroRenderY : info.py;
+    const camera = smoothCamera(info.map, {x: heroX*TILE-VW/2+16, viewportW: VW}, {y: heroY*TILE-VH/2+16, viewportH: VH}, now), camX = camera.x, camY = camera.y;
+    const x0 = Math.floor(camX / CHUNK_PX) - 1, x1 = Math.ceil((camX + VW) / CHUNK_PX) + 1;
+    const y0 = Math.floor(camY / CHUNK_PX) - 1, y1 = Math.ceil((camY + VH) / CHUNK_PX) + 1;
+    ctx.imageSmoothingEnabled = false;
+    ctx.fillStyle = '#080d12';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.scale(Z, Z);
+    ctx.translate(-camX, -camY);
+    for (let cy = y0; cy <= y1; cy++) for (let cx = x0; cx <= x1; cx++) {
+      const chunk = plan.chunks.get(`${cx},${cy}`);
+      if (chunk) ctx.drawImage(chunk.canvas, cx * CHUNK_PX, cy * CHUNK_PX);
+    }
+
+    const actorX = heroX * TILE + 16, actorY = heroY * TILE + TILE;
+    const heroBox = { left: actorX - 13, top: actorY - 50, right: actorX + 13, bottom: actorY + 3 };
+    fadeBuildingFor(plan, heroBox, actorY, actorX, actorY - (heroBox.bottom - heroBox.top) / 2, heroBox.bottom - heroBox.top, now);
+    const drawables = [];
+    for (const building of plan.buildings) {
+      if (building.drawX + building.asset.w < camX - 80 || building.drawX > camX + VW + 80 || building.drawY + building.asset.h < camY - 80 || building.drawY > camY + VH + 80) continue;
+      drawables.push({ sortY: building.sortY, priority: 2, building });
+    }
+    for (const prop of plan.props.placements.filter(item => item.dynamic)) {
+      if (prop.box.right < camX - 80 || prop.box.left > camX + VW + 80 || prop.box.bottom < camY - 80 || prop.box.top > camY + VH + 80) continue;
+      drawables.push({ sortY: prop.sortY, priority: 1, prop });
+    }
+    for (const point of info.points || []) {
+      if (point.type === 'building' || point.type === 'boss-gate') continue;
+      drawables.push({ sortY: (point.renderY ?? point.y) * TILE + TILE - 1, priority: 3, point });
+    }
+    for(const tree of plan.canopies||[])if(tree.x*TILE>camX-100&&tree.x*TILE<camX+VW+100&&tree.y*TILE>camY-100&&tree.y*TILE<camY+VH+100)drawables.push({sortY:tree.y*TILE+TILE,priority:1,canopy:tree});
+    drawables.push({ sortY: heroY * TILE + TILE - 1, priority: 4, hero: true });
+    drawables.sort((a, b) => a.sortY - b.sortY || a.priority - b.priority);
+    for (const drawable of drawables) {
+      if(drawable.canopy){
+        const tree=drawable.canopy,resource=imageFor(tree.file);
+        if(imageReady(resource)){const im=resource.image,x=tree.x*TILE+16,y=tree.y*TILE+32;ctx.save();if(Math.abs(heroX-tree.x)<1.2&&heroY<tree.y&&heroY>tree.y-2)ctx.globalAlpha=.5;ctx.drawImage(im,Math.round(x-im.naturalWidth/2),y-im.naturalHeight,im.naturalWidth,im.naturalHeight);ctx.restore();}
+      } else if (drawable.building) {
+        drawBuilding(ctx, drawable.building, plan.fadeState?.get(drawable.building.id)?.alpha ?? 1);
+      } else if (drawable.prop) {
+        drawDynamicProp(ctx, drawable.prop);
+      } else if (drawable.point) {
+        const point = drawable.point, dx = (point.renderX ?? point.x) * TILE, dy = (point.renderY ?? point.y) * TILE;
+        if (point.type === 'npc' || point.type === 'rival') {
+          if (!callbacks.drawNpc?.(ctx, point, dx, dy, info.S, now)) info.hero?.(dx, dy, point.type === 'rival' ? '#788da0' : '#9da47e');
+        } else {
+          if(!nativeMarker(ctx,point,dx,dy))callbacks.landmark?.(ctx, dx, dy, {
+            type: point.type === 'boss' || point.type === 'arena' || point.type === 'final-boss' || point.type === 'abyss-boss' ? 'boss_altar' : point.type === 'portal' || point.type === 'legendary' ? 'portal' : point.type === 'shop' ? 'shop' : 'shrine'
+          }, info.mapArt, info.tick);
+        }
+      } else if (drawable.hero) {
+        const moving = !!info.heroMoving;
+        const frame = moving ? 1 + (Math.floor((info.heroWalkDistance || 0) * 3) % 2) : 0;
+        if (!callbacks.drawHero?.(ctx, info, heroX * TILE, heroY * TILE, frame)) info.hero?.(heroX * TILE, heroY * TILE, info.S?.hero?.corruption >= 60 ? '#715276' : '#a96652');
+      }
+    }
+    ctx.font = `600 ${Math.round(13 / Z * 10) / 10}px 'VTN UI',sans-serif`;
+    ctx.textAlign = 'center';
+    for (const point of info.points || []) {
+      const rx = point.renderX ?? point.x, ry = point.renderY ?? point.y;
+      if (Math.abs(rx - info.px) + Math.abs(ry - info.py) >= 6) continue;
+      const labelY = ry * TILE + (point.type === 'npc' || point.type === 'rival' ? -6 : -30);
+      ctx.fillStyle = '#070b0dcc'; ctx.fillText(point.name, rx * TILE + 17, labelY + 1 / Z);
+      ctx.fillStyle = point.type === 'rival' ? '#c9d4dc' : '#ead9a5'; ctx.fillText(point.name, rx * TILE + 16, labelY);
+    }
+    ctx.textAlign = 'start';
+    ctx.restore();
+    renderAtmosphere(ctx, canvas, info, now);
+    updateDebug(plan, info);
+    lastDebug.camera={x:camX,y:camY,zoom:Z};
+    lastDebug.cameraX=camX; lastDebug.cameraY=camY;
+    lastDebug.heroWorldX=heroX*TILE+16; lastDebug.heroWorldY=heroY*TILE+TILE;
+    lastDebug.heroScreenX=Math.round((heroX*TILE+16-camX)*Z); lastDebug.heroScreenY=Math.round((heroY*TILE+TILE-camY)*Z);
+    lastDebug.frameRenderMs = performance.now() - frameStart;
+    return true;
+  }
+
+  function inspect(mapId) {
+    const plan = plans.get(mapId);
+    if (!plan) return { ...lastDebug };
+    return {
+      ...lastDebug,
+      worldLibraryState: plan.ready ? 'ready' : 'loading',
+      mapId: plan.map.id,
+      librarySet: setForMap(plan.map),
+       buildings: plan.buildings.map(building => ({ id: building.id, name: building.name, gate: building.gate, landmark: building.landmark, door: building.door, foot: building.footBox, file: building.asset.file, district: building.district, alpha: plan.fadeState?.get(building.id)?.alpha ?? 1, sourceSampleAlpha: opaqueMaskFor(building)?.maxAlpha ?? 255 })),
+      props: plan.props.placements.map(prop => ({ file: prop.prop.file, shape: prop.prop.shape, cell: prop.cell, collision: prop.collision, dynamic: prop.dynamic, box: prop.box })),
+      pathTiles: [...(plan.path.renderCells || plan.path.cells)].map(value => value.split(',').map(Number)),
+       zoneGrid: plan.zoneGrid || [],
+       roadOrientations: plan.orientationGrid || [],
+       zoneStats: plan.zoneModel?.stats || {},
+       buildingFadeAudit: plan.buildingFadeAudit || [],
+      groundEdgeContrast: plan.groundEdgeContrast || { threshold: GROUND_EDGE_THRESHOLD, borders: 0, highContrast: 0, ratio: 0 },
+      collisionCells: [...plan.collisionCells],
+      encounterRatio: (() => { let walk = 0, encounter = 0; for (const row of plan.grid) for (const tile of row) { if (walkable(tile)) walk++; if (tile === 2) encounter++; } return walk ? encounter / walk : 0; })()
+    };
+  }
+
+  function isTileBlocked(map, x, y) {
+    const plan = plans.get(map?.id);
+    if (!plan) return false;
+    const cell = key(Math.round(x), Math.round(y));
+    if (plan.doorCells.has(cell)) return false;
+    return plan.collisionCells.has(cell);
+  }
+
+  const previousWorld = g.VTNWorld || {};
+  g.VTNWorld = Object.assign(previousWorld, { buildingName, worldLibrary: true });
+  g.VTNWorldLibrary = {
+    render,
+    inspect,
+    isTileBlocked,
+    buildingName,
+    reset(mapId) { if (mapId) plans.delete(mapId); else plans.clear(); cameraState = { mapId: null, x: 0, y: 0, vx: 0, vy: 0, lastAt: 0, renderX: null, renderY: null }; },
+    debug: () => ({ ...lastDebug })
+  };
+})(typeof window !== 'undefined' ? window : globalThis);

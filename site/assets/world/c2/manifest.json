@@ -1,0 +1,1362 @@
+[
+  {
+    "file": "assets/world/c2/region_01/ground_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      5,
+      124,
+      145,
+      234
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      96,
+      96
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_01/ground_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      155,
+      124,
+      295,
+      234
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      96,
+      96
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_01/path_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      305,
+      124,
+      445,
+      234
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_01/plaza_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      455,
+      124,
+      595,
+      234
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_01/wild_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      605,
+      124,
+      744,
+      234
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_01/wild_alt_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      754,
+      124,
+      894,
+      234
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_01/liquid_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      904,
+      124,
+      1044,
+      234
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_01/liquid_alt_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      1054,
+      124,
+      1194,
+      234
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_02/ground_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      5,
+      244,
+      145,
+      353
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      96,
+      96
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_02/ground_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      155,
+      244,
+      295,
+      353
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      96,
+      96
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_02/path_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      305,
+      244,
+      445,
+      353
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_02/plaza_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      455,
+      244,
+      595,
+      353
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_02/wild_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      605,
+      244,
+      744,
+      353
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_02/wild_alt_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      754,
+      244,
+      894,
+      353
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_02/liquid_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      904,
+      244,
+      1044,
+      353
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_02/liquid_alt_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      1054,
+      244,
+      1194,
+      353
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_03/ground_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      5,
+      363,
+      145,
+      472
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      96,
+      96
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_03/ground_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      155,
+      363,
+      295,
+      472
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      96,
+      96
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_03/path_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      305,
+      363,
+      445,
+      472
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_03/plaza_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      455,
+      363,
+      595,
+      472
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_03/wild_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      605,
+      363,
+      744,
+      472
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_03/wild_alt_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      754,
+      363,
+      894,
+      472
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_03/liquid_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      904,
+      363,
+      1044,
+      472
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_03/liquid_alt_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      1054,
+      363,
+      1194,
+      472
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_04/ground_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      5,
+      482,
+      145,
+      591
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      96,
+      96
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_04/ground_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      155,
+      482,
+      295,
+      591
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      96,
+      96
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_04/path_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      305,
+      482,
+      445,
+      591
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_04/plaza_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      455,
+      482,
+      595,
+      591
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_04/wild_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      605,
+      482,
+      744,
+      591
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_04/wild_alt_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      754,
+      482,
+      894,
+      591
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_04/liquid_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      904,
+      482,
+      1044,
+      591
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_04/liquid_alt_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      1054,
+      482,
+      1194,
+      591
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_05/ground_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      5,
+      601,
+      145,
+      711
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      96,
+      96
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_05/ground_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      155,
+      601,
+      295,
+      711
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      96,
+      96
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_05/path_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      305,
+      601,
+      445,
+      711
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_05/plaza_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      455,
+      601,
+      595,
+      711
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_05/wild_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      605,
+      601,
+      744,
+      711
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_05/wild_alt_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      754,
+      601,
+      894,
+      711
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_05/liquid_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      904,
+      601,
+      1044,
+      711
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_05/liquid_alt_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      1054,
+      601,
+      1194,
+      711
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_06/ground_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      5,
+      721,
+      145,
+      830
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      96,
+      96
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_06/ground_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      155,
+      721,
+      295,
+      830
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      96,
+      96
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_06/path_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      305,
+      721,
+      445,
+      830
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_06/plaza_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      455,
+      721,
+      595,
+      830
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_06/wild_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      605,
+      721,
+      744,
+      830
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_06/wild_alt_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      754,
+      721,
+      894,
+      830
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_06/liquid_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      904,
+      721,
+      1044,
+      830
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_06/liquid_alt_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      1054,
+      721,
+      1194,
+      830
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_07/ground_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      5,
+      840,
+      145,
+      949
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      96,
+      96
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_07/ground_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      155,
+      840,
+      295,
+      949
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      96,
+      96
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_07/path_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      305,
+      840,
+      445,
+      949
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_07/plaza_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      455,
+      840,
+      595,
+      949
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_07/wild_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      605,
+      840,
+      744,
+      949
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_07/wild_alt_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      754,
+      840,
+      894,
+      949
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_07/liquid_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      904,
+      840,
+      1044,
+      949
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_07/liquid_alt_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      1054,
+      840,
+      1194,
+      949
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_08/ground_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      5,
+      959,
+      145,
+      1068
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      96,
+      96
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_08/ground_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      155,
+      959,
+      295,
+      1068
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      96,
+      96
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_08/path_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      305,
+      959,
+      445,
+      1068
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_08/plaza_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      455,
+      959,
+      595,
+      1068
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_08/wild_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      605,
+      959,
+      744,
+      1068
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_08/wild_alt_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      754,
+      959,
+      894,
+      1068
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_08/liquid_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      904,
+      959,
+      1044,
+      1068
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_08/liquid_alt_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      1054,
+      959,
+      1194,
+      1068
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_09/ground_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      5,
+      1078,
+      145,
+      1188
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      96,
+      96
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_09/ground_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      155,
+      1078,
+      295,
+      1188
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      96,
+      96
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_09/path_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      305,
+      1078,
+      445,
+      1188
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_09/plaza_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      455,
+      1078,
+      595,
+      1188
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_09/wild_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      605,
+      1078,
+      744,
+      1188
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_09/wild_alt_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      754,
+      1078,
+      894,
+      1188
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_09/liquid_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      904,
+      1078,
+      1044,
+      1188
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_09/liquid_alt_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      1054,
+      1078,
+      1194,
+      1188
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_10/ground_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      5,
+      1198,
+      145,
+      1307
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      96,
+      96
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_10/ground_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      155,
+      1198,
+      295,
+      1307
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      96,
+      96
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_10/path_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      305,
+      1198,
+      445,
+      1307
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_10/plaza_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      455,
+      1198,
+      595,
+      1307
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_10/wild_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      605,
+      1198,
+      744,
+      1307
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_10/wild_alt_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      754,
+      1198,
+      894,
+      1307
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_10/liquid_0.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      904,
+      1198,
+      1044,
+      1307
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/world/c2/region_10/liquid_alt_1.png",
+    "source": "ART_REQUESTS/inbox/C2/C2_nendat.png",
+    "sourceBox": [
+      1054,
+      1198,
+      1194,
+      1307
+    ],
+    "license": "user-provided; source rights retained by user",
+    "edit": "trim sheet grid, nearest-neighbour resize, periodic seam normalization",
+    "size": [
+      32,
+      32
+    ],
+    "technical_checks_passed": true
+  }
+]

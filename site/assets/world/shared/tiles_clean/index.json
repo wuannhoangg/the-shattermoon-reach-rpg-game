@@ -1,0 +1,675 @@
+{
+  "version": 1,
+  "set": "shared",
+  "tileSize": 32,
+  "sourceDirectory": "assets/world/shared/tiles",
+  "cleanDirectory": "assets/world/shared/tiles_clean",
+  "tiles": [
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_00.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_00.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.46759,
+      "grid_score": 0.76094,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.35979,
+        "grid_score": 0.7563,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_01.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_01.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.46495,
+      "grid_score": 0.78167,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.33995,
+        "grid_score": 0.71444,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_02.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_02.png",
+      "crop": {
+        "top": 2,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.41204,
+      "grid_score": 0.75486,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.37434,
+        "grid_score": 0.65707,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_03.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_03.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.50265,
+      "grid_score": 0.59477,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.37037,
+        "grid_score": 0.57711,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_04.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_04.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.40675,
+      "grid_score": 0.77359,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.35913,
+        "grid_score": 0.75553,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_05.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_05.png",
+      "crop": {
+        "top": 3,
+        "right": 1,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.36839,
+      "grid_score": 0.80486,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.2996,
+        "grid_score": 0.63095,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_06.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_06.png",
+      "crop": {
+        "top": 3,
+        "right": 0,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.42989,
+      "grid_score": 0.71965,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.33399,
+        "grid_score": 0.67813,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_07.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_07.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.17857,
+      "grid_score": 0.42815,
+      "ground_eligible": true,
+      "output_metrics": {
+        "edge_density": 0.12434,
+        "grid_score": 0.27326,
+        "ground_eligible": true
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_08.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_08.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.25794,
+      "grid_score": 0.48784,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.25331,
+        "grid_score": 0.4411,
+        "ground_eligible": true
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_09.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_09.png",
+      "crop": {
+        "top": 3,
+        "right": 0,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.35913,
+      "grid_score": 0.7472,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.27712,
+        "grid_score": 0.52775,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_10.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_10.png",
+      "crop": {
+        "top": 3,
+        "right": 0,
+        "bottom": 3,
+        "left": 2
+      },
+      "edge_density": 0.3545,
+      "grid_score": 0.74027,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.28307,
+        "grid_score": 0.6315,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_11.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_11.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 1,
+        "left": 3
+      },
+      "edge_density": 0.42328,
+      "grid_score": 0.73654,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.28439,
+        "grid_score": 0.47551,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_12.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_12.png",
+      "crop": {
+        "top": 0,
+        "right": 3,
+        "bottom": 3,
+        "left": 0
+      },
+      "edge_density": 0.48677,
+      "grid_score": 0.76363,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.37566,
+        "grid_score": 0.63067,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_13.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_13.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 3
+      },
+      "edge_density": 0.35251,
+      "grid_score": 0.72277,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.26455,
+        "grid_score": 0.47504,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_14.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_14.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.41534,
+      "grid_score": 0.79283,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.31614,
+        "grid_score": 0.58431,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_15.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_15.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.23611,
+      "grid_score": 0.51632,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.21495,
+        "grid_score": 0.46008,
+        "ground_eligible": true
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_16.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_16.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.45701,
+      "grid_score": 0.76936,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.39087,
+        "grid_score": 0.7375,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_17.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_17.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.11243,
+      "grid_score": 0.21897,
+      "ground_eligible": true,
+      "output_metrics": {
+        "edge_density": 0.08003,
+        "grid_score": 0.28836,
+        "ground_eligible": true
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_18.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_18.png",
+      "crop": {
+        "top": 0,
+        "right": 3,
+        "bottom": 3,
+        "left": 0
+      },
+      "edge_density": 0.44841,
+      "grid_score": 0.69038,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.33598,
+        "grid_score": 0.53001,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_19.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_19.png",
+      "crop": {
+        "top": 0,
+        "right": 2,
+        "bottom": 2,
+        "left": 0
+      },
+      "edge_density": 0.45701,
+      "grid_score": 0.58341,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.33333,
+        "grid_score": 0.68594,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_20.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_20.png",
+      "crop": {
+        "top": 1,
+        "right": 2,
+        "bottom": 2,
+        "left": 3
+      },
+      "edge_density": 0.39616,
+      "grid_score": 0.71637,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.33929,
+        "grid_score": 0.50455,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_21.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_21.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.38228,
+      "grid_score": 0.65779,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.27116,
+        "grid_score": 0.55883,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_22.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_22.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.13757,
+      "grid_score": 0.27652,
+      "ground_eligible": true,
+      "output_metrics": {
+        "edge_density": 0.08135,
+        "grid_score": 0.33226,
+        "ground_eligible": true
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_23.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_23.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.1713,
+      "grid_score": 0.54925,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.09325,
+        "grid_score": 0.35005,
+        "ground_eligible": true
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_24.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_24.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.23347,
+      "grid_score": 0.39822,
+      "ground_eligible": true,
+      "output_metrics": {
+        "edge_density": 0.16799,
+        "grid_score": 0.38153,
+        "ground_eligible": true
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_25.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_25.png",
+      "crop": {
+        "top": 3,
+        "right": 0,
+        "bottom": 2,
+        "left": 0
+      },
+      "edge_density": 0.35714,
+      "grid_score": 0.78982,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.24074,
+        "grid_score": 0.67712,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_26.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_26.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.4127,
+      "grid_score": 0.77867,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.37632,
+        "grid_score": 0.67609,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_27.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_27.png",
+      "crop": {
+        "top": 3,
+        "right": 0,
+        "bottom": 1,
+        "left": 2
+      },
+      "edge_density": 0.32011,
+      "grid_score": 0.66453,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.17923,
+        "grid_score": 0.49721,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_28.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_28.png",
+      "crop": {
+        "top": 1,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.40278,
+      "grid_score": 0.82486,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.30952,
+        "grid_score": 0.58057,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_29.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_29.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 3,
+        "left": 2
+      },
+      "edge_density": 0.34524,
+      "grid_score": 0.77204,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.22024,
+        "grid_score": 0.45944,
+        "ground_eligible": true
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_30.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_30.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.0787,
+      "grid_score": 0.29919,
+      "ground_eligible": true,
+      "output_metrics": {
+        "edge_density": 0.03704,
+        "grid_score": 0.26157,
+        "ground_eligible": true
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_31.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_31.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.3955,
+      "grid_score": 0.71785,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.34524,
+        "grid_score": 0.70454,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_32.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_32.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.47751,
+      "grid_score": 0.73958,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.38624,
+        "grid_score": 0.68339,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_33.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_33.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.46098,
+      "grid_score": 0.78605,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.38823,
+        "grid_score": 0.74336,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_34.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_34.png",
+      "crop": {
+        "top": 2,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.41931,
+      "grid_score": 0.70891,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.33399,
+        "grid_score": 0.6324,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/g_common_TichHo_35.png",
+      "file": "assets/world/shared/tiles_clean/g_common_TichHo_35.png",
+      "crop": {
+        "top": 0,
+        "right": 3,
+        "bottom": 3,
+        "left": 2
+      },
+      "edge_density": 0.42526,
+      "grid_score": 0.79558,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.36905,
+        "grid_score": 0.6198,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/shared/tiles/J200.png",
+      "file": "assets/world/shared/tiles_clean/J200.png",
+      "crop": {
+        "top": 2,
+        "right": 1,
+        "bottom": 3,
+        "left": 0
+      },
+      "edge_density": 0.46958,
+      "grid_score": 0.87129,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.43056,
+        "grid_score": 0.75984,
+        "ground_eligible": false
+      }
+    }
+  ]
+}

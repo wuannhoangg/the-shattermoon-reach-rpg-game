@@ -1,0 +1,82 @@
+{
+ "region_01": {
+  "normal": "assets/battle_bg/region_01_normal.png",
+  "boss": "assets/battle_bg/region_01_boss.png",
+  "source": [
+   "clean/s6_r0c0",
+   "clean/s2_r0c0"
+  ]
+ },
+ "region_02": {
+  "normal": "assets/battle_bg/region_02_normal.png",
+  "boss": "assets/battle_bg/region_02_boss.png",
+  "source": [
+   "s3_r0c1",
+   "s1_r1c0"
+  ]
+ },
+ "region_03": {
+  "normal": "assets/battle_bg/region_03_normal.png",
+  "boss": "assets/battle_bg/region_03_boss.png",
+  "source": [
+   "clean/s6_r1c0",
+   "clean/s6_r1c0"
+  ]
+ },
+ "region_04": {
+  "normal": "assets/battle_bg/region_04_normal.png",
+  "boss": "assets/battle_bg/region_04_boss.png",
+  "source": [
+   "s6_r1c1",
+   "s2_r1c1"
+  ]
+ },
+ "region_05": {
+  "normal": "assets/battle_bg/region_05_normal.png",
+  "boss": "assets/battle_bg/region_05_boss.png",
+  "source": [
+   "s4_r2c0",
+   "s6_r2c0"
+  ]
+ },
+ "region_06": {
+  "normal": "assets/battle_bg/region_06_normal.png",
+  "boss": "assets/battle_bg/region_06_boss.png",
+  "source": [
+   "s4_r2c1",
+   "clean/s5_r2c1"
+  ]
+ },
+ "region_07": {
+  "normal": "assets/battle_bg/region_07_normal.png",
+  "boss": "assets/battle_bg/region_07_boss.png",
+  "source": [
+   "s3_r3c0",
+   "clean/s1_r1c1"
+  ]
+ },
+ "region_08": {
+  "normal": "assets/battle_bg/region_08_normal.png",
+  "boss": "assets/battle_bg/region_08_boss.png",
+  "source": [
+   "s5_r3c1",
+   "s1_r2c1"
+  ]
+ },
+ "region_09": {
+  "normal": "assets/battle_bg/region_09_normal.png",
+  "boss": "assets/battle_bg/region_09_boss.png",
+  "source": [
+   "clean/s1_r3c1",
+   "clean/s1_r3c1"
+  ]
+ },
+ "region_10": {
+  "normal": "assets/battle_bg/region_10_normal.png",
+  "boss": "assets/battle_bg/region_10_boss.png",
+  "source": [
+   "s3_r4c1",
+   "s1_r4c1"
+  ]
+ }
+}

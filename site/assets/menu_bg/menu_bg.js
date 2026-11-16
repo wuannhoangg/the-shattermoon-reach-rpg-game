@@ -1,0 +1,1 @@
+window.VTN_MENU_BG=["assets/menu_bg/menu_01.webp", "assets/menu_bg/menu_02.webp", "assets/menu_bg/menu_03.webp", "assets/menu_bg/menu_04.webp", "assets/menu_bg/menu_05.webp", "assets/menu_bg/menu_06.webp", "assets/menu_bg/menu_07.webp", "assets/menu_bg/menu_08.webp", "assets/menu_bg/menu_09.webp", "assets/menu_bg/menu_10.webp", "assets/menu_bg/menu_11.webp"];

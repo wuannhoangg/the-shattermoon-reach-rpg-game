@@ -1,0 +1,24 @@
+[
+  {
+    "file": "assets/ui/moonlit/frame.png",
+    "source": "ref_UI_UX/internet_asset/UI/kenney_fantasy-ui-borders/PNG/Default/Border/panel-border-002.png",
+    "license": "CC0-1.0",
+    "edit": "gold palette swap; original geometry and alpha",
+    "size": [
+      48,
+      48
+    ],
+    "technical_checks_passed": true
+  },
+  {
+    "file": "assets/ui/moonlit/selection.png",
+    "source": "ref_UI_UX/internet_asset/UI/kenney_fantasy-ui-borders/PNG/Default/Border/panel-border-000.png",
+    "license": "CC0-1.0",
+    "edit": "gold palette swap; original geometry and alpha",
+    "size": [
+      48,
+      48
+    ],
+    "technical_checks_passed": true
+  }
+]

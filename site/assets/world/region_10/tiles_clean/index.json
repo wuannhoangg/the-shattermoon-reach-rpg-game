@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "set": "region_10",
+  "tileSize": 32,
+  "sourceDirectory": "assets/world/region_10/tiles",
+  "cleanDirectory": "assets/world/region_10/tiles_clean",
+  "tiles": [
+    {
+      "source": "assets/world/region_10/tiles/I253.png",
+      "file": "assets/world/region_10/tiles_clean/I253.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 3,
+        "left": 1
+      },
+      "edge_density": 0.50794,
+      "grid_score": 0.72786,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.34656,
+        "grid_score": 0.48076,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_10/tiles/I254.png",
+      "file": "assets/world/region_10/tiles_clean/I254.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 0
+      },
+      "edge_density": 0.55489,
+      "grid_score": 0.75073,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.41667,
+        "grid_score": 0.67927,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_10/tiles/I255.png",
+      "file": "assets/world/region_10/tiles_clean/I255.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 3,
+        "left": 0
+      },
+      "edge_density": 0.60317,
+      "grid_score": 0.65101,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.4213,
+        "grid_score": 0.5794,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_10/tiles/I283.png",
+      "file": "assets/world/region_10/tiles_clean/I283.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 3,
+        "left": 0
+      },
+      "edge_density": 0.54101,
+      "grid_score": 0.79745,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.39947,
+        "grid_score": 0.61206,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_10/tiles/I286.png",
+      "file": "assets/world/region_10/tiles_clean/I286.png",
+      "crop": {
+        "top": 3,
+        "right": 1,
+        "bottom": 3,
+        "left": 0
+      },
+      "edge_density": 0.61706,
+      "grid_score": 0.75403,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.44709,
+        "grid_score": 0.66201,
+        "ground_eligible": false
+      }
+    }
+  ]
+}

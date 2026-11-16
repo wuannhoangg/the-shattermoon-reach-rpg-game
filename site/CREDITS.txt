@@ -1,0 +1,13 @@
+# Tài nguyên bên ngoài (dự án phi thương mại)
+
+| Thư mục | Gói | Tác giả | Nguồn | Giấy phép |
+|---|---|---|---|---|
+| darkages | Dark Ages UI v1.0 | Hypnobius | https://hypnobius.itch.io/dark-ages-ui-pixel-art-asset-pack | xem darkages/LICENSE.txt |
+| darkfantasy | Dark Fantasy Free Pack | (xem README trong thư mục) | itch.io | miễn phí |
+| darkworld | Dark World - Free Asset Pack v1.0 | Kaishido | itch.io | miễn phí |
+| shikashi | Shikashi's Fantasy Icons Pack v2 | Matt Firth (shikashipx), dựa trên game-icons.net | https://shikashipx.itch.io/shikashis-fantasy-icons-pack | CC BY 4.0, cần ghi công |
+| weapons_fpf | Free Pixel Fantasy Weapon Pack | Domin Dev | itch.io | miễn phí |
+| weapons_rpg | RPG Weapons | (người dùng tải) | itch.io | miễn phí |
+| dcss | Dungeon Crawl Stone Soup tiles (RLTiles) | DCSS team | https://github.com/crawl/crawl | public domain / CC0 |
+
+Màn Giới thiệu trong game phải liệt kê các tác giả trên.

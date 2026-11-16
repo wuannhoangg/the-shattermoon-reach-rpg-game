@@ -1,0 +1,1071 @@
+{
+  "version": 1,
+  "set": "region_08",
+  "tileSize": 32,
+  "sourceDirectory": "assets/world/region_08/tiles",
+  "cleanDirectory": "assets/world/region_08/tiles_clean",
+  "tiles": [
+    {
+      "source": "assets/world/region_08/tiles/g_r08_TichHo_00.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_TichHo_00.png",
+      "crop": {
+        "top": 1,
+        "right": 0,
+        "bottom": 1,
+        "left": 3
+      },
+      "edge_density": 0.34458,
+      "grid_score": 0.78033,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.21362,
+        "grid_score": 0.42518,
+        "ground_eligible": true
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_TichHo_01.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_TichHo_01.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.28175,
+      "grid_score": 0.38302,
+      "ground_eligible": true,
+      "output_metrics": {
+        "edge_density": 0.17725,
+        "grid_score": 0.51265,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_TichHo_02.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_TichHo_02.png",
+      "crop": {
+        "top": 1,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.48016,
+      "grid_score": 0.68725,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.37169,
+        "grid_score": 0.67495,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_TichHo_03.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_TichHo_03.png",
+      "crop": {
+        "top": 0,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.52381,
+      "grid_score": 0.72236,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.41733,
+        "grid_score": 0.70787,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_00.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_00.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.49272,
+      "grid_score": 0.71787,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.44246,
+        "grid_score": 0.74661,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_01.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_01.png",
+      "crop": {
+        "top": 2,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.21825,
+      "grid_score": 0.40027,
+      "ground_eligible": true,
+      "output_metrics": {
+        "edge_density": 0.14484,
+        "grid_score": 0.35859,
+        "ground_eligible": true
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_02.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_02.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.45833,
+      "grid_score": 0.75916,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.40608,
+        "grid_score": 0.80861,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_03.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_03.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 0
+      },
+      "edge_density": 0.4623,
+      "grid_score": 0.82473,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.40013,
+        "grid_score": 0.67005,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_04.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_04.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 0
+      },
+      "edge_density": 0.55159,
+      "grid_score": 0.79077,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.45701,
+        "grid_score": 0.69472,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_05.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_05.png",
+      "crop": {
+        "top": 3,
+        "right": 2,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.50066,
+      "grid_score": 0.74432,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.38228,
+        "grid_score": 0.6218,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_06.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_06.png",
+      "crop": {
+        "top": 3,
+        "right": 2,
+        "bottom": 2,
+        "left": 3
+      },
+      "edge_density": 0.49008,
+      "grid_score": 0.68686,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.40807,
+        "grid_score": 0.54446,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_07.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_07.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.51455,
+      "grid_score": 0.81952,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.40873,
+        "grid_score": 0.73175,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_08.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_08.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.54696,
+      "grid_score": 0.80854,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.45833,
+        "grid_score": 0.71525,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_09.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_09.png",
+      "crop": {
+        "top": 3,
+        "right": 0,
+        "bottom": 1,
+        "left": 0
+      },
+      "edge_density": 0.19907,
+      "grid_score": 0.47185,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.15278,
+        "grid_score": 0.37513,
+        "ground_eligible": true
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_10.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_10.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.47288,
+      "grid_score": 0.77672,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.37368,
+        "grid_score": 0.71524,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_11.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_11.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 2,
+        "left": 3
+      },
+      "edge_density": 0.50595,
+      "grid_score": 0.7832,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.41733,
+        "grid_score": 0.66568,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_12.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_12.png",
+      "crop": {
+        "top": 3,
+        "right": 2,
+        "bottom": 0,
+        "left": 1
+      },
+      "edge_density": 0.5291,
+      "grid_score": 0.79222,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.38955,
+        "grid_score": 0.61648,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_13.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_13.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 0,
+        "left": 3
+      },
+      "edge_density": 0.44114,
+      "grid_score": 0.70537,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.33664,
+        "grid_score": 0.62227,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_14.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_14.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.55159,
+      "grid_score": 0.78343,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.47288,
+        "grid_score": 0.6613,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_15.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_15.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 2
+      },
+      "edge_density": 0.21693,
+      "grid_score": 0.64991,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.19841,
+        "grid_score": 0.68772,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_16.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_16.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.51323,
+      "grid_score": 0.75451,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.38955,
+        "grid_score": 0.72958,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_17.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_17.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.49008,
+      "grid_score": 0.77519,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.44312,
+        "grid_score": 0.8474,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_18.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_18.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.55093,
+      "grid_score": 0.82144,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.44643,
+        "grid_score": 0.70071,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_19.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_19.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.57474,
+      "grid_score": 0.8394,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.46164,
+        "grid_score": 0.7277,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_20.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_20.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.49934,
+      "grid_score": 0.80047,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.40873,
+        "grid_score": 0.65123,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_21.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_21.png",
+      "crop": {
+        "top": 3,
+        "right": 1,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.47751,
+      "grid_score": 0.80822,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.31019,
+        "grid_score": 0.58502,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_22.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_22.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.48413,
+      "grid_score": 0.78419,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.38294,
+        "grid_score": 0.68416,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_23.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_23.png",
+      "crop": {
+        "top": 0,
+        "right": 1,
+        "bottom": 3,
+        "left": 0
+      },
+      "edge_density": 0.40675,
+      "grid_score": 0.67721,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.30423,
+        "grid_score": 0.53963,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_24.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_24.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.4795,
+      "grid_score": 0.78421,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.33532,
+        "grid_score": 0.64079,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_25.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_25.png",
+      "crop": {
+        "top": 3,
+        "right": 1,
+        "bottom": 1,
+        "left": 2
+      },
+      "edge_density": 0.0377,
+      "grid_score": 0.36763,
+      "ground_eligible": true,
+      "output_metrics": {
+        "edge_density": 0.01653,
+        "grid_score": 0.18585,
+        "ground_eligible": true
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_26.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_26.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 1,
+        "left": 2
+      },
+      "edge_density": 0.57011,
+      "grid_score": 0.79966,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.42526,
+        "grid_score": 0.53146,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_27.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_27.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.45635,
+      "grid_score": 0.78042,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.33796,
+        "grid_score": 0.59588,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_28.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_28.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 0,
+        "left": 2
+      },
+      "edge_density": 0.50397,
+      "grid_score": 0.80475,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.41336,
+        "grid_score": 0.56985,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_29.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_29.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.51521,
+      "grid_score": 0.76453,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.38492,
+        "grid_score": 0.7231,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_30.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_30.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.57804,
+      "grid_score": 0.80206,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.43056,
+        "grid_score": 0.67559,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_31.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_31.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.20238,
+      "grid_score": 0.6212,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.1369,
+        "grid_score": 0.43608,
+        "ground_eligible": true
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_32.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_32.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 0,
+        "left": 2
+      },
+      "edge_density": 0.42659,
+      "grid_score": 0.75017,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.36045,
+        "grid_score": 0.50033,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_33.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_33.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.53439,
+      "grid_score": 0.764,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.42526,
+        "grid_score": 0.73732,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_34.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_34.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 2
+      },
+      "edge_density": 0.34921,
+      "grid_score": 0.77706,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.28175,
+        "grid_score": 0.77293,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_35.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_35.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.35582,
+      "grid_score": 0.83405,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.31283,
+        "grid_score": 0.89497,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_36.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_36.png",
+      "crop": {
+        "top": 2,
+        "right": 0,
+        "bottom": 1,
+        "left": 0
+      },
+      "edge_density": 0.32209,
+      "grid_score": 0.58273,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.2619,
+        "grid_score": 0.54502,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_37.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_37.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.3922,
+      "grid_score": 0.83919,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.30357,
+        "grid_score": 0.75067,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_38.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_38.png",
+      "crop": {
+        "top": 2,
+        "right": 1,
+        "bottom": 0,
+        "left": 1
+      },
+      "edge_density": 0.34193,
+      "grid_score": 0.63192,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.28571,
+        "grid_score": 0.68084,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_39.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_39.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.11971,
+      "grid_score": 0.32004,
+      "ground_eligible": true,
+      "output_metrics": {
+        "edge_density": 0.10847,
+        "grid_score": 0.50603,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_40.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_40.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.17526,
+      "grid_score": 0.55857,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.21693,
+        "grid_score": 0.60433,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_41.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_41.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.24471,
+      "grid_score": 0.57021,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.21164,
+        "grid_score": 0.5432,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_42.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_42.png",
+      "crop": {
+        "top": 3,
+        "right": 2,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.55225,
+      "grid_score": 0.82795,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.5086,
+        "grid_score": 0.67095,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/g_r08_VungBa_43.png",
+      "file": "assets/world/region_08/tiles_clean/g_r08_VungBa_43.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "edge_density": 0.26389,
+      "grid_score": 0.43831,
+      "ground_eligible": true,
+      "output_metrics": {
+        "edge_density": 0.26786,
+        "grid_score": 0.61778,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/I102.png",
+      "file": "assets/world/region_08/tiles_clean/I102.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 1
+      },
+      "edge_density": 0.60119,
+      "grid_score": 0.77113,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.46958,
+        "grid_score": 0.6744,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/I123.png",
+      "file": "assets/world/region_08/tiles_clean/I123.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.55886,
+      "grid_score": 0.80822,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.47619,
+        "grid_score": 0.72095,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/I142.png",
+      "file": "assets/world/region_08/tiles_clean/I142.png",
+      "crop": {
+        "top": 0,
+        "right": 0,
+        "bottom": 3,
+        "left": 0
+      },
+      "edge_density": 0.56878,
+      "grid_score": 0.73154,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.41667,
+        "grid_score": 0.5904,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/K052.png",
+      "file": "assets/world/region_08/tiles_clean/K052.png",
+      "crop": {
+        "top": 2,
+        "right": 1,
+        "bottom": 3,
+        "left": 1
+      },
+      "edge_density": 0.44841,
+      "grid_score": 0.75378,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.33598,
+        "grid_score": 0.95135,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/K192.png",
+      "file": "assets/world/region_08/tiles_clean/K192.png",
+      "crop": {
+        "top": 3,
+        "right": 0,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.45569,
+      "grid_score": 0.85708,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.4127,
+        "grid_score": 0.7038,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/K193.png",
+      "file": "assets/world/region_08/tiles_clean/K193.png",
+      "crop": {
+        "top": 3,
+        "right": 1,
+        "bottom": 2,
+        "left": 0
+      },
+      "edge_density": 0.42659,
+      "grid_score": 0.59681,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.40608,
+        "grid_score": 0.83699,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/K194.png",
+      "file": "assets/world/region_08/tiles_clean/K194.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.51653,
+      "grid_score": 0.75771,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.44907,
+        "grid_score": 0.70594,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/K195.png",
+      "file": "assets/world/region_08/tiles_clean/K195.png",
+      "crop": {
+        "top": 3,
+        "right": 2,
+        "bottom": 1,
+        "left": 0
+      },
+      "edge_density": 0.51455,
+      "grid_score": 0.6298,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.43915,
+        "grid_score": 0.62125,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/K196.png",
+      "file": "assets/world/region_08/tiles_clean/K196.png",
+      "crop": {
+        "top": 3,
+        "right": 1,
+        "bottom": 3,
+        "left": 0
+      },
+      "edge_density": 0.50661,
+      "grid_score": 0.70041,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.44312,
+        "grid_score": 0.72652,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/K197.png",
+      "file": "assets/world/region_08/tiles_clean/K197.png",
+      "crop": {
+        "top": 3,
+        "right": 1,
+        "bottom": 3,
+        "left": 2
+      },
+      "edge_density": 0.51257,
+      "grid_score": 0.77631,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.43056,
+        "grid_score": 0.88966,
+        "ground_eligible": false
+      }
+    },
+    {
+      "source": "assets/world/region_08/tiles/K198.png",
+      "file": "assets/world/region_08/tiles_clean/K198.png",
+      "crop": {
+        "top": 3,
+        "right": 3,
+        "bottom": 3,
+        "left": 3
+      },
+      "edge_density": 0.36111,
+      "grid_score": 0.73383,
+      "ground_eligible": false,
+      "output_metrics": {
+        "edge_density": 0.39616,
+        "grid_score": 0.6977,
+        "ground_eligible": false
+      }
+    }
+  ]
+}

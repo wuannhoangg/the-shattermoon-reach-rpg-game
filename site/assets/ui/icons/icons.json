@@ -1,0 +1,21 @@
+{
+  "source": "assets/ext/darkfantasy/FunctionIcons/System&Interaction",
+  "icons": {
+    "journal": "assets/ui/icons/journal.png",
+    "bestiary": "assets/ui/icons/bestiary.png",
+    "races": "assets/ui/icons/races.png",
+    "album": "assets/ui/icons/album.png",
+    "party": "assets/ui/icons/party.png",
+    "character": "assets/ui/icons/character.png",
+    "inventory": "assets/ui/icons/inventory.png",
+    "map": "assets/ui/icons/map.png",
+    "save": "assets/ui/icons/save.png",
+    "settings": "assets/ui/icons/settings.png",
+    "continue": "assets/ui/icons/continue.png",
+    "new": "assets/ui/icons/new.png",
+    "load": "assets/ui/icons/load.png",
+    "about": "assets/ui/icons/about.png",
+    "interact": "assets/ui/icons/interact.png",
+    "move": "assets/ui/icons/move.png"
+  }
+}

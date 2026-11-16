@@ -1,0 +1,785 @@
+{
+  "frames": {
+    "meteor-0": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "duration": 60,
+      "pivot": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchor": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchorPx": {
+        "x": 40,
+        "y": 54
+      }
+    },
+    "meteor-1": {
+      "frame": {
+        "x": 64,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "duration": 60,
+      "pivot": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchor": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchorPx": {
+        "x": 40,
+        "y": 54
+      }
+    },
+    "meteor-2": {
+      "frame": {
+        "x": 128,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "duration": 60,
+      "pivot": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchor": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchorPx": {
+        "x": 40,
+        "y": 54
+      }
+    },
+    "meteor-3": {
+      "frame": {
+        "x": 192,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "duration": 60,
+      "pivot": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchor": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchorPx": {
+        "x": 40,
+        "y": 54
+      }
+    },
+    "meteor-4": {
+      "frame": {
+        "x": 256,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "duration": 60,
+      "pivot": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchor": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchorPx": {
+        "x": 40,
+        "y": 54
+      }
+    },
+    "meteor-5": {
+      "frame": {
+        "x": 320,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "duration": 60,
+      "pivot": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchor": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchorPx": {
+        "x": 40,
+        "y": 54
+      }
+    },
+    "meteor-6": {
+      "frame": {
+        "x": 384,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "duration": 60,
+      "pivot": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchor": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchorPx": {
+        "x": 40,
+        "y": 54
+      }
+    },
+    "meteor-7": {
+      "frame": {
+        "x": 448,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "duration": 60,
+      "pivot": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchor": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchorPx": {
+        "x": 40,
+        "y": 54
+      }
+    },
+    "meteor-8": {
+      "frame": {
+        "x": 0,
+        "y": 64,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "duration": 60,
+      "pivot": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchor": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchorPx": {
+        "x": 40,
+        "y": 54
+      },
+      "points": {
+        "impact": {
+          "x": 40,
+          "y": 54
+        }
+      }
+    },
+    "meteor-9": {
+      "frame": {
+        "x": 64,
+        "y": 64,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "duration": 60,
+      "pivot": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchor": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchorPx": {
+        "x": 40,
+        "y": 54
+      }
+    },
+    "meteor-10": {
+      "frame": {
+        "x": 128,
+        "y": 64,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "duration": 60,
+      "pivot": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchor": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchorPx": {
+        "x": 40,
+        "y": 54
+      }
+    },
+    "meteor-11": {
+      "frame": {
+        "x": 192,
+        "y": 64,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "duration": 60,
+      "pivot": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchor": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchorPx": {
+        "x": 40,
+        "y": 54
+      }
+    },
+    "meteor-12": {
+      "frame": {
+        "x": 256,
+        "y": 64,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "duration": 60,
+      "pivot": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchor": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchorPx": {
+        "x": 40,
+        "y": 54
+      }
+    },
+    "meteor-13": {
+      "frame": {
+        "x": 320,
+        "y": 64,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "duration": 60,
+      "pivot": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchor": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchorPx": {
+        "x": 40,
+        "y": 54
+      }
+    },
+    "meteor-14": {
+      "frame": {
+        "x": 384,
+        "y": 64,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "duration": 60,
+      "pivot": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchor": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchorPx": {
+        "x": 40,
+        "y": 54
+      }
+    },
+    "meteor-15": {
+      "frame": {
+        "x": 448,
+        "y": 64,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "duration": 60,
+      "pivot": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchor": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchorPx": {
+        "x": 40,
+        "y": 54
+      }
+    },
+    "meteor-16": {
+      "frame": {
+        "x": 0,
+        "y": 128,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "duration": 60,
+      "pivot": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchor": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchorPx": {
+        "x": 40,
+        "y": 54
+      }
+    },
+    "meteor-17": {
+      "frame": {
+        "x": 64,
+        "y": 128,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "duration": 60,
+      "pivot": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchor": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchorPx": {
+        "x": 40,
+        "y": 54
+      }
+    },
+    "meteor-18": {
+      "frame": {
+        "x": 128,
+        "y": 128,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "duration": 60,
+      "pivot": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchor": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchorPx": {
+        "x": 40,
+        "y": 54
+      }
+    },
+    "meteor-19": {
+      "frame": {
+        "x": 192,
+        "y": 128,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "duration": 60,
+      "pivot": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchor": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchorPx": {
+        "x": 40,
+        "y": 54
+      }
+    },
+    "meteor-20": {
+      "frame": {
+        "x": 256,
+        "y": 128,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "duration": 60,
+      "pivot": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchor": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchorPx": {
+        "x": 40,
+        "y": 54
+      }
+    },
+    "meteor-21": {
+      "frame": {
+        "x": 320,
+        "y": 128,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      },
+      "duration": 60,
+      "pivot": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchor": {
+        "x": 0.625,
+        "y": 0.84375
+      },
+      "anchorPx": {
+        "x": 40,
+        "y": 54
+      }
+    }
+  },
+  "animations": {
+    "meteor": {
+      "frames": [
+        "meteor-0",
+        "meteor-1",
+        "meteor-2",
+        "meteor-3",
+        "meteor-4",
+        "meteor-5",
+        "meteor-6",
+        "meteor-7",
+        "meteor-8",
+        "meteor-9",
+        "meteor-10",
+        "meteor-11",
+        "meteor-12",
+        "meteor-13",
+        "meteor-14",
+        "meteor-15",
+        "meteor-16",
+        "meteor-17",
+        "meteor-18",
+        "meteor-19",
+        "meteor-20",
+        "meteor-21"
+      ],
+      "loop": false,
+      "duration": 1320
+    }
+  },
+  "meta": {
+    "app": "Pixelbolt",
+    "version": "1",
+    "image": "meteor.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 512,
+      "h": 192
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "meteor",
+        "from": 0,
+        "to": 21,
+        "direction": "forward"
+      }
+    ]
+  }
+}

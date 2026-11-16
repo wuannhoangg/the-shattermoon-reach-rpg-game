@@ -1,0 +1,344 @@
+{
+  "source": "assets/ext/darkages/32x32-Tilesheet.png",
+  "assets": {
+    "panel-main": {
+      "path": "assets/ui/skin/panel-main.png",
+      "size": [
+        96,
+        123
+      ],
+      "insets": [
+        24,
+        24,
+        24,
+        24
+      ],
+      "source_window": [
+        0,
+        0,
+        96,
+        123
+      ],
+      "alpha_components": 2,
+      "exact_pixels": true
+    },
+    "tooltip-parchment": {
+      "path": "assets/ui/skin/tooltip-parchment.png",
+      "size": [
+        96,
+        96
+      ],
+      "insets": [
+        16,
+        16,
+        16,
+        16
+      ],
+      "source_window": [
+        96,
+        0,
+        192,
+        96
+      ],
+      "alpha_components": 1,
+      "exact_pixels": true
+    },
+    "panel-dark": {
+      "path": "assets/ui/skin/panel-dark.png",
+      "size": [
+        60,
+        60
+      ],
+      "insets": [
+        12,
+        12,
+        12,
+        12
+      ],
+      "source_window": [
+        210,
+        18,
+        270,
+        78
+      ],
+      "alpha_components": 1,
+      "exact_pixels": true
+    },
+    "panel-dark-alt": {
+      "path": "assets/ui/skin/panel-dark-alt.png",
+      "size": [
+        60,
+        60
+      ],
+      "insets": [
+        12,
+        12,
+        12,
+        12
+      ],
+      "source_window": [
+        306,
+        18,
+        366,
+        78
+      ],
+      "alpha_components": 1,
+      "exact_pixels": true
+    },
+    "button-secondary": {
+      "path": "assets/ui/skin/button-secondary.png",
+      "size": [
+        28,
+        27
+      ],
+      "insets": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "source_window": [
+        194,
+        101,
+        222,
+        128
+      ],
+      "alpha_components": 1,
+      "exact_pixels": true
+    },
+    "button-secondary-alt": {
+      "path": "assets/ui/skin/button-secondary-alt.png",
+      "size": [
+        28,
+        27
+      ],
+      "insets": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "source_window": [
+        226,
+        101,
+        254,
+        128
+      ],
+      "alpha_components": 1,
+      "exact_pixels": true
+    },
+    "button-primary": {
+      "path": "assets/ui/skin/button-primary.png",
+      "size": [
+        32,
+        32
+      ],
+      "insets": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "source_window": [
+        256,
+        96,
+        288,
+        128
+      ],
+      "alpha_components": 1,
+      "exact_pixels": true
+    },
+    "bar-frame": {
+      "path": "assets/ui/skin/bar-frame.png",
+      "size": [
+        84,
+        7
+      ],
+      "insets": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "source_window": [
+        102,
+        141,
+        186,
+        148
+      ],
+      "alpha_components": 1,
+      "exact_pixels": true
+    },
+    "bar-fill-blue": {
+      "path": "assets/ui/skin/bar-fill-blue.png",
+      "size": [
+        82,
+        4
+      ],
+      "insets": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "source_window": [
+        296,
+        144,
+        378,
+        148
+      ],
+      "alpha_components": 1,
+      "exact_pixels": true
+    },
+    "bar-fill-red": {
+      "path": "assets/ui/skin/bar-fill-red.png",
+      "size": [
+        82,
+        4
+      ],
+      "insets": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "source_window": [
+        199,
+        176,
+        281,
+        180
+      ],
+      "alpha_components": 1,
+      "exact_pixels": true
+    },
+    "bar-fill-green": {
+      "path": "assets/ui/skin/bar-fill-green.png",
+      "size": [
+        82,
+        4
+      ],
+      "insets": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "source_window": [
+        295,
+        176,
+        377,
+        180
+      ],
+      "alpha_components": 1,
+      "exact_pixels": true
+    },
+    "divider": {
+      "path": "assets/ui/skin/divider.png",
+      "size": [
+        56,
+        12
+      ],
+      "insets": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "source_window": [
+        324,
+        201,
+        380,
+        213
+      ],
+      "alpha_components": 4,
+      "exact_pixels": true
+    },
+    "corner-ornament": {
+      "path": "assets/ui/skin/corner-ornament.png",
+      "size": [
+        13,
+        12
+      ],
+      "insets": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "source_window": [
+        10,
+        266,
+        23,
+        278
+      ],
+      "alpha_components": 1,
+      "exact_pixels": true
+    },
+    "tab": {
+      "path": "assets/ui/skin/tab.png",
+      "size": [
+        28,
+        27
+      ],
+      "insets": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "source_window": [
+        194,
+        101,
+        222,
+        128
+      ],
+      "alpha_components": 1,
+      "exact_pixels": true
+    },
+    "slot-darkworld": {
+      "path": "assets/ui/skin/slot-darkworld.png",
+      "size": [
+        20,
+        20
+      ],
+      "insets": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "source": "assets/ext/darkworld/Dark World - Free Asset Pack - v1.0/Inventory/inventory_slot_1x1.png",
+      "exact_pixels": true
+    },
+    "slot-darkworld-2x2": {
+      "path": "assets/ui/skin/slot-darkworld-2x2.png",
+      "size": [
+        43,
+        43
+      ],
+      "insets": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "source": "assets/ext/darkworld/Dark World - Free Asset Pack - v1.0/Inventory/inventory_slot_2x2.png",
+      "exact_pixels": true
+    },
+    "bag-frame": {
+      "path": "assets/ui/skin/bag-frame.png",
+      "size": [
+        214,
+        171
+      ],
+      "insets": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "source": "assets/ext/darkworld/Dark World - Free Asset Pack - v1.0/Inventory/inventory_bag_frame.png",
+      "exact_pixels": true
+    }
+  }
+}
