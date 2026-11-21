@@ -45,6 +45,20 @@
     });
   }
 
+  // Khung nhiệm vụ / tự tìm đường / tìm quái nằm dưới bản đồ nhỏ, có nút thu gọn (nhớ trạng thái)
+  function buildDock() {
+    const aside = doc.querySelector('#game-ui>main>aside');
+    if (!aside || doc.getElementById('phone-dock-toggle')) return;
+    const b = doc.createElement('button');
+    b.id = 'phone-dock-toggle'; b.type = 'button';
+    aside.insertBefore(b, aside.firstChild);
+    let collapsed = false;
+    try { collapsed = g.localStorage.getItem('vtn4-dock') === '1'; } catch { /* bộ nhớ bị chặn */ }
+    const paint = () => { doc.body.classList.toggle('dock-collapsed', collapsed); b.innerHTML = '<span>Nhiệm vụ · tìm quái</span><i>' + (collapsed ? '▸' : '▾') + '</i>'; b.setAttribute('aria-expanded', String(!collapsed)); };
+    b.addEventListener('click', e => { e.stopPropagation(); collapsed = !collapsed; try { g.localStorage.setItem('vtn4-dock', collapsed ? '1' : '0'); } catch { /* bỏ qua */ } paint(); });
+    paint();
+  }
+
   function buildRotate() {
     rotate = doc.createElement('div');
     rotate.id = 'phone-rotate';
@@ -98,6 +112,7 @@
     doc.body.classList.toggle('phone', on);
     doc.body.style.setProperty('--ps', String(prefs().phoneText || 1));
     doc.documentElement.dataset.phone = on ? '1' : '0';
+    if (on) buildDock();
     if (on && !pad) buildPad();
     if (on && !rotate) buildRotate();
     if (!toggle) buildToggle();

@@ -376,7 +376,7 @@
         body = regionFilter + beatsHtml + (list.length ? `<div class="qlist">${list.map(q => questCard(q, s.q.done[q.id] ? 'done' : s.q.active[q.id] ? 'active' : 'available')).join('')}</div>` : `<p class="small qempty">${openTab === 'done' ? 'Chưa hoàn thành lời hứa nào.' : 'Chưa có lời hứa nào ở mục này. Hãy đi, nghe và hỏi chuyện người dân.'}</p>`);
       }
       const gate = finalGate();
-      ctx.show('Sổ Nhiệm Vụ · Lời Hứa và Dấu Vết', `<div class="intro qintro"><p>Ngày ${s.daysSinceSummon || s.day} từ khi bị triệu hồi · ${s.overlordsResolved}/9 Bá Chủ đã giải quyết · Khế Hồn hạng ${esc(rankOf())}</p><p class="small">Lối tới khe trời: ${gate.road === 'evidence' ? 'đường chứng cứ' : gate.road === 'confront' ? 'đường đối đầu' : 'đường liều lĩnh'}${gate.missing.length ? ' — ' + esc(gate.missing.join('; ')) : ''}</p></div><div class="row qmemory"><button data-act="memory-book">Sổ Ký Ức · ${(s.hero.memories || []).length} ký ức còn giữ</button></div><div class="qtabs">${tabs}</div>${body}<div class="row"><button data-act="journal-legacy">Ký ức · phe phái · mười chương</button></div>`, 'quests');
+      ctx.show('Sổ Nhiệm Vụ · Lời Hứa và Dấu Vết', `<div class="intro qintro"><p>Ngày ${s.daysSinceSummon || s.day} từ khi bị triệu hồi · ${s.overlordsResolved}/9 Bá Chủ đã giải quyết · Khế Hồn hạng ${esc(rankOf())}</p><p class="small">Lối tới khe trời: ${gate.road === 'evidence' ? 'đường chứng cứ' : gate.road === 'confront' ? 'đường đối đầu' : 'đường liều lĩnh'}${gate.missing.length ? ' — ' + esc(gate.missing.join('; ')) : ''}</p></div><div class="row qmemory"><button data-act="memory-book">Sổ Ký Ức · ${(s.hero.memories || []).length} ký ức còn giữ</button><button data-act="char-roster">Nhóm triệu hồi</button></div><div class="qtabs">${tabs}</div>${body}<div class="row"><button data-act="journal-legacy">Ký ức · phe phái · mười chương</button></div>`, 'quests');
       const sel = document.getElementById('q-region'); if (sel) sel.onchange = () => { openRegion = sel.value; openLog(); };
     }
     function renderTracker() {
@@ -427,6 +427,7 @@
       const s = S(); if (!s) return false; ensure(s);
       switch (action) {
         case 'journal': openLog(); return true;
+        case 'char-roster': g.VTNCharCards?.openRoster?.(); return true;
         case 'q-tab': openTab = id; openLog(); return true;
         case 'q-track': s.q.tracked = id; renderTracker(); openLog(); return true;
         case 'q-go': { const o = objective(id); if (o?.dest) ctx.goDest?.(o.dest, o.title + ' — ' + o.label, { source: 'quest', arrive: 'interact' }); else ctx.toast?.('Mục tiêu này không có điểm đến cụ thể.'); return true; }

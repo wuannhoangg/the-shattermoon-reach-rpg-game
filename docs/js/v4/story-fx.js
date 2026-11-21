@@ -124,6 +124,9 @@
       if (cond.startsWith('(') && cond.endsWith(')')) return test(cond.slice(1,-1),s,ctx);
       return atom(cond, s, ctx);
     }
+    if (cond.not !== undefined) return !test(cond.not, s, ctx);
+    if (Array.isArray(cond.and)) return cond.and.every(c => test(c, s, ctx));
+    if (Array.isArray(cond.or)) return cond.or.some(c => test(c, s, ctx));
     if (Array.isArray(cond.all)) return cond.all.every(c => test(c, s, ctx));
     if (Array.isArray(cond.any)) return cond.any.some(c => test(c, s, ctx));
     return false;

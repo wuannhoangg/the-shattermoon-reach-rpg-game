@@ -23,18 +23,19 @@ body.phone:not(.title-mode) #game-ui>#location{top:36px!important;left:calc(70px
 body.phone:not(.title-mode) #location h1{font-size:16px!important;line-height:1.2}
 body.phone:not(.title-mode) #location small,body.phone:not(.title-mode) #location p,body.phone:not(.title-mode) #time-info{display:none!important}
 body.phone:not(.title-mode) #nav{top:38px!important;left:calc(8px + var(--safe-l))!important;gap:6px!important;width:auto!important}
-body.phone:not(.title-mode) #nav>button,body.phone:not(.title-mode) #nav .nav-more>button{width:50px!important;height:44px!important;min-height:44px;padding:0!important;justify-content:center}
-body.phone:not(.title-mode) #nav .nav-label,body.phone:not(.title-mode) #nav kbd{display:none!important}
+body.phone:not(.title-mode) #nav>button,body.phone:not(.title-mode) #nav .nav-more>button{width:50px!important;min-width:0!important;max-width:50px!important;height:44px!important;min-height:44px;padding:0!important;justify-content:center;overflow:hidden}
+body.phone:not(.title-mode) #nav{width:50px!important;min-width:0!important}
+body.phone:not(.title-mode) #nav>button .nav-label,body.phone:not(.title-mode) #nav>.nav-more .nav-label,body.phone:not(.title-mode) #nav kbd{display:none!important}
 body.phone:not(.title-mode) #nav>button img,body.phone:not(.title-mode) #nav .nav-more>button img{width:28px!important;height:28px!important}
-body.phone:not(.title-mode) .world-minimap{width:84px!important;height:84px!important;top:36px!important;right:calc(10px + var(--safe-r))!important}
+body.phone:not(.title-mode) .world-minimap{width:62px!important;height:62px!important;top:36px!important;right:calc(10px + var(--safe-r))!important;border-width:2px!important}
+body.phone:not(.title-mode) .world-minimap span{font-size:10px!important;bottom:3px!important}
 body.phone:not(.title-mode) #hint{left:50%!important;bottom:calc(8px + var(--safe-b))!important;max-width:min(60vw,460px)!important;font-size:0!important;padding:6px 10px!important;opacity:.9}
 body.phone:not(.title-mode) #hint::after{content:'Chạm đất để đi · chạm NPC hoặc vật để tự tới và tương tác';font-size:12px;line-height:1.4}
 body.phone:not(.title-mode) #toast{top:40px!important;bottom:auto!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;max-width:min(60vw,480px)!important;font-size:calc(14px*var(--ps,1))!important;padding:8px 14px!important}
-body.phone:not(.title-mode) #game-ui>main>aside{display:none!important}
-body.phone:not(.title-mode) #hero-hud,body.phone:not(.title-mode) #party-hud{transform:scale(.85);transform-origin:left bottom;left:calc(8px + var(--safe-l))!important;bottom:calc(6px + var(--safe-b))!important}
+body.phone:not(.title-mode) #hero-hud,body.phone:not(.title-mode) #party-hud,body.phone:not(.title-mode) #game-ui>main>aside .feed-section{display:none!important}
 
 /* ---------- nút cảm ứng nổi ---------- */
-#phone-pad{display:none;position:fixed;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:60;flex-direction:column;align-items:flex-end;gap:10px;pointer-events:none}
+#phone-pad{display:none;position:fixed;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:60;flex-direction:row-reverse;align-items:flex-end;gap:12px;pointer-events:none}
 #phone-pad.on{display:flex}
 #phone-pad button{pointer-events:auto;font:700 16px/1.1 var(--vtn-ui,sans-serif);color:#f6e8c8;background:#2c2140ee;border:2px solid #b8924f;box-shadow:0 3px 10px #000a;touch-action:manipulation}
 #phone-pad .pp-zoom{display:flex;gap:10px}
@@ -89,4 +90,102 @@ body.phone .story-dialogue .story-controls .story-back{font-size:0!important}
 body.phone .story-dialogue .story-controls .story-back::after{content:'Bỏ qua';font-size:15px}
 
 /* ---------- chiến đấu ---------- */
-body.phone[data-screen='battle'] .battle-skill-info-button{width:38px!important;height:38px!important}
+
+
+/* ---------- tạo nhân vật: vừa khít một màn hình ngang, nút điều hướng luôn thấy ---------- */
+body.phone.creating #overlay{padding:0!important;align-items:stretch!important}
+body.phone.creating #overlay .modal{width:100vw!important;max-width:none!important;height:100dvh!important;max-height:100dvh!important;margin:0!important;border-radius:0!important;display:flex!important;flex-direction:column;box-sizing:border-box;padding-left:var(--safe-l);padding-right:var(--safe-r)}
+body.phone.creating #overlay .modal-head{display:none!important}
+body.phone.creating #content{flex:1 1 auto;min-height:0;overflow:hidden!important;padding:6px 12px calc(6px + var(--safe-b))!important;max-height:none!important}
+body.phone.creating .creation-shell{display:flex!important;flex-direction:column;height:100%;min-height:0;gap:6px;margin:0!important;padding:0!important}
+body.phone.creating .creation-stepper{flex:0 0 auto;margin:0!important}
+body.phone.creating .creation-step{min-height:40px!important;padding:2px 10px!important}
+body.phone.creating .creation-step small{display:none!important}
+body.phone.creating .creation-layout{flex:1 1 auto;min-height:0;margin:0!important}
+body.phone.creating .creation-picker,body.phone.creating .creation-preview,body.phone.creating .creation-stats{min-height:0}
+body.phone.creating .creation-layout .choice-grid{flex:1 1 auto;min-height:0;max-height:none!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch}
+body.phone.creating .creation-shell>:last-child{flex:0 0 auto}
+body.phone.creating .creation-shell button.vtn-button{min-height:44px}
+body.phone.creating .creation-layout,body.phone.creating .creation-layout.has-stats{height:auto!important;max-height:none!important;flex:1 1 0!important;min-height:0!important;grid-template-rows:minmax(0,1fr)!important;align-items:stretch;overflow:hidden}
+body.phone.creating .creation-layout .creation-picker,body.phone.creating .creation-layout.has-stats .creation-picker{height:auto!important;max-height:none!important;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+body.phone.creating .creation-layout .creation-preview,body.phone.creating .creation-layout .creation-stats{height:auto!important;max-height:none!important;overflow-y:auto}
+body.phone.creating .creation-layout,body.phone.creating .creation-layout.has-stats{grid-template-columns:minmax(0,1.15fr) minmax(300px,1fr)!important}
+
+/* ---------- chiến đấu trên màn hình thấp (~1024x460): bảng chọn chiêu phải đủ chỗ, sân khấu co lại ---------- */
+body.phone[data-screen='battle'] .battle-bottom{height:clamp(176px,63dvh,340px)!important;max-height:none!important}
+body.phone[data-screen='battle'] .battle-command-dock,body.phone[data-screen='battle'] .battle-console{min-height:0}
+body.phone[data-screen='battle'] .battle-panel-head{min-height:30px!important;padding-bottom:2px!important}
+body.phone[data-screen='battle'] .battle-skill-info-button{width:36px!important;height:36px!important}
+body.phone[data-screen='battle'] .battle-topbar{min-height:38px!important}
+
+/* menu "Thêm": bảng nổi có chữ, không phải lưới ô icon trống */
+body.phone:not(.title-mode) #nav .nav-extra{position:fixed!important;left:calc(66px + var(--safe-l))!important;top:38px!important;right:auto!important;bottom:auto!important;width:min(520px,62vw)!important;max-height:calc(100dvh - 56px)!important;overflow-y:auto!important;flex-direction:row!important;flex-wrap:wrap;gap:8px!important;padding:8px!important;background:#130f1dfa;border:1px solid #8d714b;z-index:70;-webkit-overflow-scrolling:touch}
+body.phone:not(.title-mode) #nav .nav-extra button{flex:1 1 44%!important;width:auto!important;min-width:150px!important;max-width:none!important;height:46px!important;display:flex!important;align-items:center;justify-content:flex-start!important;gap:10px;padding:0 12px!important;overflow:visible}
+body.phone:not(.title-mode) #nav .nav-extra button .nav-label{display:inline!important;font-size:15px;white-space:nowrap}
+body.phone:not(.title-mode) #nav .nav-extra button img{width:26px!important;height:26px!important;flex:none}
+
+/* hộp "Bỏ qua cảnh?" phải nằm trên khung hội thoại */
+body.phone .story-confirm{position:fixed!important;z-index:60!important;left:50%;top:50%;width:min(440px,calc(100vw - 80px))!important;padding:18px 20px!important}
+body.phone .story-confirm h2{font-size:22px!important}
+body.phone .story-confirm p{font-size:calc(15px*var(--ps,1))!important;margin-bottom:12px!important}
+body.phone .story-confirm button{min-height:46px;font-size:15px}
+body.phone .story-overlay:has(.story-confirm:not([hidden])) .story-dialogue{visibility:hidden}
+
+/* thẻ chiêu thức hẹp: ảnh chiêu và nút ⓘ nằm một hàng trên đầu thẻ, chữ bên dưới */
+body.phone[data-screen='battle'] .battle-skill{padding-top:38px!important}
+body.phone[data-screen='battle'] .battle-skill>.skill-ico,body.phone[data-screen='battle'] .battle-skill-wrap>.battle-skill>.skill-ico{left:8px!important;right:auto!important;top:7px!important;width:28px!important;height:28px!important}
+body.phone[data-screen='battle'] .battle-skill-info-button{top:5px!important;right:6px!important;width:34px!important;height:34px!important}
+
+/* màn hình rất thấp (Safari còn thanh công cụ): bỏ dòng mô tả phụ trong thẻ chiêu thức, giữ tên, hệ, MP, chỉ số, hiệu quả (mô tả đầy đủ xem ở nút ⓘ) */
+@media (max-height:440px){
+ body.phone[data-screen='battle'] .battle-skill>small{display:none!important}
+ body.phone[data-screen='battle'] .battle-skill{padding-top:36px!important}
+ body.phone[data-screen='battle'] .battle-bottom{height:auto!important;max-height:none!important}
+ body.phone[data-screen='battle'] .battle-stage-wrap{min-height:64px!important}
+}
+
+/* khung xem trước: ảnh nhân vật co lại để còn chỗ cho mô tả (trước đây mô tả bị ép về 0px) */
+body.phone.creating .creation-preview{display:flex!important;flex-direction:column;gap:4px;overflow-y:auto!important;padding:8px 10px!important}
+body.phone.creating .creation-preview .preview-heading{flex:0 0 auto}
+body.phone.creating .creation-preview .look-controls{flex:0 0 auto}
+body.phone.creating .creation-preview .preview-art{flex:0 0 auto!important;height:104px!important;min-height:104px!important;max-height:104px!important;overflow:hidden!important}
+body.phone.creating .creation-preview .preview-art>img,body.phone.creating .creation-preview .preview-art img.preview-main{max-height:100px!important}
+body.phone.creating .creation-preview .form-row{flex:0 0 auto;margin:0!important}
+body.phone.creating .creation-preview .preview-detail-scroll{flex:1 0 auto!important;min-height:96px!important;max-height:none!important;height:auto!important;overflow:visible!important}
+body.phone.creating .creation-preview .preview-lore{max-height:none!important;overflow:visible!important}
+
+/* khung nhiệm vụ + tìm quái: nhỏ, nằm dưới bản đồ nhỏ, thu gọn được */
+body.phone:not(.title-mode) #game-ui>main>aside{display:block!important;position:fixed!important;right:calc(10px + var(--safe-r))!important;left:auto!important;top:136px!important;bottom:auto!important;width:188px!important;max-height:calc(100dvh - 136px - 74px);overflow-y:auto;-webkit-overflow-scrolling:touch;z-index:30;pointer-events:none}
+body.phone:not(.title-mode) #game-ui>main>aside>*{pointer-events:auto}
+body.phone:not(.title-mode) #game-ui>main>aside section{margin:0 0 5px!important;padding:6px 8px!important;border-radius:4px;background:#161020f2!important}
+body.phone:not(.title-mode) #game-ui>main>aside section small{font-size:9px!important;letter-spacing:.04em}
+body.phone:not(.title-mode) #objective{font-size:12px!important;line-height:1.4!important;margin:3px 0!important}
+body.phone:not(.title-mode) #objective .tk-sub{font-size:11.5px!important}
+body.phone:not(.title-mode) #objective .tk-step{display:none!important}
+body.phone:not(.title-mode) #game-ui>main>aside button{font-size:11px!important;min-height:30px!important;padding:3px 8px!important}
+body.phone:not(.title-mode) #game-ui>main>aside .quest-tools{display:flex;gap:4px;flex-wrap:wrap}
+body.phone:not(.title-mode) #game-ui>main>aside .route-status{font-size:10.5px!important;margin:3px 0 0!important}
+#phone-dock-toggle{display:none}
+body.phone:not(.title-mode) #phone-dock-toggle{display:flex!important;align-items:center;justify-content:space-between;gap:8px;width:100%;margin:0 0 5px;padding:4px 10px!important;min-height:30px;border:1px solid #9b784b;border-radius:15px;background:#2a1f3cf2;color:#f0dfb4;font:700 12px/1.2 var(--vtn-ui,sans-serif)!important}
+body.phone:not(.title-mode) #phone-dock-toggle i{font-style:normal;font-size:12px}
+body.phone.dock-collapsed:not(.title-mode) #game-ui>main>aside>section{display:none!important}
+body.phone.dock-collapsed:not(.title-mode) #game-ui>main>aside{width:150px!important}
+/* khi một bảng đang mở, khung nhỏ nằm dưới bảng */
+body.phone:has(#overlay.open) #game-ui>main>aside,body.phone:has(#story-overlay.is-active) #game-ui>main>aside{display:none!important}
+
+body.phone:not(.title-mode) #hunt-card .hunt-chips{display:none!important}
+body.phone:not(.title-mode) #hunt-card .hunt-head{width:100%;display:flex;justify-content:space-between;align-items:center;gap:6px;min-height:26px!important;padding:2px 4px!important}
+body.phone:not(.title-mode) #hunt-card .hunt-head small{font-size:10px!important;white-space:normal;text-align:left}
+body.phone:not(.title-mode) #hunt-card .hunt-head span{font-size:10px;white-space:nowrap}
+body.phone:not(.title-mode) #hunt-card .hunt-list{max-height:92px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+body.phone:not(.title-mode) #hunt-card .hunt-foot{display:block}
+body.phone:not(.title-mode) #hunt-card .hunt-foot small{display:block;font-size:10px!important;margin:2px 0}
+body.phone:not(.title-mode) #hunt-card .hunt-toggle{width:100%;min-height:32px!important;font-size:12px!important}
+body.phone:not(.title-mode) #game-ui>main>aside .quest-tools [data-act="journal"]{display:none}
+body.phone:not(.title-mode) #game-ui>main>aside .quest-tools [data-act="quest-route"]{width:100%}
+
+body.phone:not(.title-mode) #game-ui>main>aside section:not(#hunt-card)>small{display:none!important}
+body.phone:not(.title-mode) #hunt-card .hunt-foot small{display:none!important}
+body.phone:not(.title-mode) #hunt-card.has-target .hunt-foot small{display:block!important}
+body.phone:not(.title-mode) #objective .tk-kind{display:none!important}
+body.phone:not(.title-mode) #hint{max-width:min(40vw,360px)!important}
