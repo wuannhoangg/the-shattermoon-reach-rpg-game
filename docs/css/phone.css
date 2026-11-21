@@ -31,7 +31,7 @@ body.phone:not(.title-mode) .world-minimap{width:62px!important;height:62px!impo
 body.phone:not(.title-mode) .world-minimap span{font-size:10px!important;bottom:3px!important}
 body.phone:not(.title-mode) #hint{left:50%!important;bottom:calc(8px + var(--safe-b))!important;max-width:min(60vw,460px)!important;font-size:0!important;padding:6px 10px!important;opacity:.9}
 body.phone:not(.title-mode) #hint::after{content:'Chạm đất để đi · chạm NPC hoặc vật để tự tới và tương tác';font-size:12px;line-height:1.4}
-body.phone:not(.title-mode) #toast{top:40px!important;bottom:auto!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;max-width:min(60vw,480px)!important;font-size:calc(14px*var(--ps,1))!important;padding:8px 14px!important}
+body.phone:not(.title-mode) #toast{top:40px!important;bottom:auto!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;max-width:min(60vw,480px)!important;font-size:calc(13px*var(--ps,1))!important;padding:6px 12px!important}
 body.phone:not(.title-mode) #hero-hud,body.phone:not(.title-mode) #party-hud,body.phone:not(.title-mode) #game-ui>main>aside .feed-section{display:none!important}
 
 /* ---------- nút cảm ứng nổi ---------- */
@@ -63,26 +63,26 @@ body.phone:not(.title-mode):not(.creating):not([data-screen='battle']) #overlay 
 body.phone:not(.title-mode):not(.creating) #overlay .modal-head small{display:none!important}
 body.phone:not(.title-mode):not(.creating):not([data-screen='battle']) #overlay .modal-head h2{font-size:20px!important;line-height:1.2}
 body.phone:not(.title-mode):not(.creating) #close-modal{min-width:72px;min-height:40px;font-size:15px}
-body.phone:not(.title-mode):not(.creating):not([data-screen='battle']) #content{flex:1 1 auto;min-height:0;overflow-y:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:10px 16px calc(14px + var(--safe-b))!important;font-size:calc(16px*var(--ps,1));line-height:1.6;max-height:none!important}
+body.phone:not(.title-mode):not(.creating):not([data-screen='battle']) #content{flex:1 1 auto;min-height:0;overflow-y:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:10px 16px calc(14px + var(--safe-b))!important;font-size:calc(14px*var(--ps,1));line-height:1.6;max-height:none!important}
 body.phone:not(.title-mode):not(.creating) #content::-webkit-scrollbar{width:12px}
 body.phone:not(.title-mode):not(.creating) #content::-webkit-scrollbar-thumb{background:#9b7b51;border-radius:6px;border:2px solid #15101f}
 body.phone:not(.title-mode):not(.creating) #content::-webkit-scrollbar-track{background:#15101f}
-body.phone:not(.title-mode):not(.creating):not([data-screen='battle']) #content p,body.phone:not(.title-mode):not(.creating):not([data-screen='battle']) #content li,body.phone:not(.title-mode):not(.creating):not([data-screen='battle']) #content .lore,body.phone:not(.title-mode):not(.creating):not([data-screen='battle']) #content .card p{font-size:calc(16px*var(--ps,1))!important;line-height:1.65}
-body.phone:not(.title-mode):not(.creating):not([data-screen='battle']) #content small,body.phone:not(.title-mode):not(.creating):not([data-screen='battle']) #content .small{font-size:calc(13px*var(--ps,1))!important}
-body.phone:not(.title-mode):not(.creating):not([data-screen='battle']) #content h2{font-size:calc(22px*var(--ps,1))!important}
-body.phone:not(.title-mode):not(.creating):not([data-screen='battle']) #content h3{font-size:calc(18px*var(--ps,1))!important}
+body.phone:not(.title-mode):not(.creating):not([data-screen='battle']) #content p,body.phone:not(.title-mode):not(.creating):not([data-screen='battle']) #content li,body.phone:not(.title-mode):not(.creating):not([data-screen='battle']) #content .lore,body.phone:not(.title-mode):not(.creating):not([data-screen='battle']) #content .card p{font-size:calc(14px*var(--ps,1))!important;line-height:1.65}
+body.phone:not(.title-mode):not(.creating):not([data-screen='battle']) #content small,body.phone:not(.title-mode):not(.creating):not([data-screen='battle']) #content .small{font-size:calc(11.5px*var(--ps,1))!important}
+body.phone:not(.title-mode):not(.creating):not([data-screen='battle']) #content h2{font-size:calc(11.5px*var(--ps,1))!important}
+body.phone:not(.title-mode):not(.creating):not([data-screen='battle']) #content h3{font-size:calc(11.5px*var(--ps,1))!important}
 body.phone:not(.title-mode):not(.creating):not([data-screen='battle']) #content .intro{padding:10px 14px}
-body.phone:not(.title-mode):not(.creating):not([data-screen='battle']) #content button{min-height:44px;font-size:calc(15px*var(--ps,1));padding:8px 14px}
+body.phone:not(.title-mode):not(.creating):not([data-screen='battle']) #content button{min-height:44px;font-size:calc(11.5px*var(--ps,1));padding:8px 14px}
 body.phone:not(.title-mode):not(.creating) .set-diff{grid-template-columns:repeat(2,minmax(0,1fr))}
 
 /* ---------- hội thoại cốt truyện ---------- */
 body.phone .story-dialogue{width:calc(100% - var(--safe-l) - var(--safe-r) - 20px)!important;max-width:none!important;bottom:calc(8px + var(--safe-b))!important;padding:10px 16px!important;grid-template-columns:110px minmax(0,1fr)!important;gap:14px!important;max-height:76dvh!important;overflow-y:auto;-webkit-overflow-scrolling:touch}
 body.phone .story-dialogue.no-portrait{grid-template-columns:minmax(0,1fr)!important}
 body.phone .story-dialogue .story-portrait{min-height:110px!important;max-height:150px}
-body.phone .story-dialogue .story-speaker{font-size:calc(16px*var(--ps,1))!important;padding:0!important}
-body.phone .story-dialogue .story-speaker[data-speaker="DẪN"]{font-size:calc(17px*var(--ps,1))!important}
-body.phone .story-dialogue .story-text{font-size:calc(17px*var(--ps,1))!important;line-height:1.6!important;min-height:2.6em!important}
-body.phone .story-dialogue .story-choice{font-size:calc(16px*var(--ps,1))!important;padding:10px 14px!important;min-height:44px;line-height:1.5!important}
+body.phone .story-dialogue .story-speaker{font-size:calc(14px*var(--ps,1))!important;padding:0!important}
+body.phone .story-dialogue .story-speaker[data-speaker="DẪN"]{font-size:calc(14.5px*var(--ps,1))!important}
+body.phone .story-dialogue .story-text{font-size:calc(14.5px*var(--ps,1))!important;line-height:1.6!important;min-height:2.6em!important}
+body.phone .story-dialogue .story-choice{font-size:calc(14px*var(--ps,1))!important;padding:10px 14px!important;min-height:44px;line-height:1.5!important}
 body.phone .story-dialogue .story-controls{margin-top:6px!important;gap:10px!important}
 body.phone .story-dialogue .story-controls span{display:none}
 body.phone .story-dialogue .story-controls button{min-height:44px;min-width:96px;font-size:15px!important}
@@ -127,7 +127,7 @@ body.phone:not(.title-mode) #nav .nav-extra button img{width:26px!important;heig
 /* hộp "Bỏ qua cảnh?" phải nằm trên khung hội thoại */
 body.phone .story-confirm{position:fixed!important;z-index:60!important;left:50%;top:50%;width:min(440px,calc(100vw - 80px))!important;padding:18px 20px!important}
 body.phone .story-confirm h2{font-size:22px!important}
-body.phone .story-confirm p{font-size:calc(15px*var(--ps,1))!important;margin-bottom:12px!important}
+body.phone .story-confirm p{font-size:calc(11.5px*var(--ps,1))!important;margin-bottom:12px!important}
 body.phone .story-confirm button{min-height:46px;font-size:15px}
 body.phone .story-overlay:has(.story-confirm:not([hidden])) .story-dialogue{visibility:hidden}
 
@@ -148,8 +148,6 @@ body.phone[data-screen='battle'] .battle-skill-info-button{top:5px!important;rig
 body.phone.creating .creation-preview{display:flex!important;flex-direction:column;gap:4px;overflow-y:auto!important;padding:8px 10px!important}
 body.phone.creating .creation-preview .preview-heading{flex:0 0 auto}
 body.phone.creating .creation-preview .look-controls{flex:0 0 auto}
-body.phone.creating .creation-preview .preview-art{flex:0 0 auto!important;height:104px!important;min-height:104px!important;max-height:104px!important;overflow:hidden!important}
-body.phone.creating .creation-preview .preview-art>img,body.phone.creating .creation-preview .preview-art img.preview-main{max-height:100px!important}
 body.phone.creating .creation-preview .form-row{flex:0 0 auto;margin:0!important}
 body.phone.creating .creation-preview .preview-detail-scroll{flex:1 0 auto!important;min-height:96px!important;max-height:none!important;height:auto!important;overflow:visible!important}
 body.phone.creating .creation-preview .preview-lore{max-height:none!important;overflow:visible!important}
@@ -189,3 +187,129 @@ body.phone:not(.title-mode) #hunt-card .hunt-foot small{display:none!important}
 body.phone:not(.title-mode) #hunt-card.has-target .hunt-foot small{display:block!important}
 body.phone:not(.title-mode) #objective .tk-kind{display:none!important}
 body.phone:not(.title-mode) #hint{max-width:min(40vw,360px)!important}
+
+/* ===== Vòng 8: cuộn cả trang, chữ chính nhỏ hơn 2 cỡ, thanh hành động chiến đấu ~1/3 màn hình ===== */
+/* --- tạo nhân vật: cả trang cuộn; chỉ danh sách thật dài (chủng tộc, lớp) cuộn riêng --- */
+body.phone.creating #content{overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch;padding:6px 12px 0!important;display:block!important}
+body.phone.creating .creation-shell{display:block!important;height:auto!important;min-height:0;position:relative}
+body.phone.creating .creation-stepper{margin:0 0 6px!important}
+body.phone.creating .creation-layout,body.phone.creating .creation-layout.has-stats{display:grid!important;grid-template-columns:minmax(0,1.15fr) minmax(280px,1fr)!important;gap:10px;height:auto!important;max-height:none!important;overflow:visible!important;flex:none!important;align-items:start}
+body.phone.creating .creation-picker,body.phone.creating .creation-layout.has-stats .creation-picker{height:auto!important;max-height:none!important;overflow:visible!important}
+body.phone.creating .creation-picker .choice-grid.race-grid{max-height:min(250px,58dvh)!important;overflow-y:auto!important}
+body.phone.creating .creation-picker .choice-grid.class-grid,body.phone.creating .creation-picker .choice-grid.starter-grid{max-height:none!important;overflow:visible!important}
+body.phone.creating .creation-picker.creation-confirm{overflow:visible!important}
+body.phone.creating .creation-layout .creation-preview,body.phone.creating .creation-layout .creation-stats{height:auto!important;max-height:none!important;overflow:visible!important;position:sticky;top:4px;align-self:start}
+body.phone.creating .creation-preview{display:flex!important;flex-direction:column;padding:8px 10px!important}
+body.phone.creating .creation-preview .preview-art{height:190px!important;min-height:190px!important;max-height:190px!important;overflow:hidden!important;flex:none!important;position:relative;margin:2px 0 6px}
+body.phone.creating .creation-preview .preview-detail-scroll{flex:1 0 auto!important;min-height:96px!important;max-height:none!important;height:auto!important;overflow:visible!important}
+body.phone.creating .creation-preview .preview-lore{max-height:none!important;overflow:visible!important}
+
+/* khung nhiệm vụ + tìm quái: nhỏ, nằm dưới bản đồ nhỏ, thu gọn được */
+body.phone:not(.title-mode) #game-ui>main>aside{display:block!important;position:fixed!important;right:calc(10px + var(--safe-r))!important;left:auto!important;top:136px!important;bottom:auto!important;width:188px!important;max-height:calc(100dvh - 136px - 74px);overflow-y:auto;-webkit-overflow-scrolling:touch;z-index:30;pointer-events:none}
+body.phone:not(.title-mode) #game-ui>main>aside>*{pointer-events:auto}
+body.phone:not(.title-mode) #game-ui>main>aside section{margin:0 0 5px!important;padding:6px 8px!important;border-radius:4px;background:#161020f2!important}
+body.phone:not(.title-mode) #game-ui>main>aside section small{font-size:9px!important;letter-spacing:.04em}
+body.phone:not(.title-mode) #objective{font-size:12px!important;line-height:1.4!important;margin:3px 0!important}
+body.phone:not(.title-mode) #objective .tk-sub{font-size:11.5px!important}
+body.phone:not(.title-mode) #objective .tk-step{display:none!important}
+body.phone:not(.title-mode) #game-ui>main>aside button{font-size:11px!important;min-height:30px!important;padding:3px 8px!important}
+body.phone:not(.title-mode) #game-ui>main>aside .quest-tools{display:flex;gap:4px;flex-wrap:wrap}
+body.phone:not(.title-mode) #game-ui>main>aside .route-status{font-size:10.5px!important;margin:3px 0 0!important}
+#phone-dock-toggle{display:none}
+body.phone:not(.title-mode) #phone-dock-toggle{display:flex!important;align-items:center;justify-content:space-between;gap:8px;width:100%;margin:0 0 5px;padding:4px 10px!important;min-height:30px;border:1px solid #9b784b;border-radius:15px;background:#2a1f3cf2;color:#f0dfb4;font:700 12px/1.2 var(--vtn-ui,sans-serif)!important}
+body.phone:not(.title-mode) #phone-dock-toggle i{font-style:normal;font-size:12px}
+body.phone.dock-collapsed:not(.title-mode) #game-ui>main>aside>section{display:none!important}
+body.phone.dock-collapsed:not(.title-mode) #game-ui>main>aside{width:150px!important}
+/* khi một bảng đang mở, khung nhỏ nằm dưới bảng */
+body.phone:has(#overlay.open) #game-ui>main>aside,body.phone:has(#story-overlay.is-active) #game-ui>main>aside{display:none!important}
+
+body.phone:not(.title-mode) #hunt-card .hunt-chips{display:none!important}
+body.phone:not(.title-mode) #hunt-card .hunt-head{width:100%;display:flex;justify-content:space-between;align-items:center;gap:6px;min-height:26px!important;padding:2px 4px!important}
+body.phone:not(.title-mode) #hunt-card .hunt-head small{font-size:10px!important;white-space:normal;text-align:left}
+body.phone:not(.title-mode) #hunt-card .hunt-head span{font-size:10px;white-space:nowrap}
+body.phone:not(.title-mode) #hunt-card .hunt-list{max-height:92px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+body.phone:not(.title-mode) #hunt-card .hunt-foot{display:block}
+body.phone:not(.title-mode) #hunt-card .hunt-foot small{display:block;font-size:10px!important;margin:2px 0}
+body.phone:not(.title-mode) #hunt-card .hunt-toggle{width:100%;min-height:32px!important;font-size:12px!important}
+body.phone:not(.title-mode) #game-ui>main>aside .quest-tools [data-act="journal"]{display:none}
+body.phone:not(.title-mode) #game-ui>main>aside .quest-tools [data-act="quest-route"]{width:100%}
+
+body.phone:not(.title-mode) #game-ui>main>aside section:not(#hunt-card)>small{display:none!important}
+body.phone:not(.title-mode) #hunt-card .hunt-foot small{display:none!important}
+body.phone:not(.title-mode) #hunt-card.has-target .hunt-foot small{display:block!important}
+body.phone:not(.title-mode) #objective .tk-kind{display:none!important}
+body.phone:not(.title-mode) #hint{max-width:min(40vw,360px)!important}
+
+/* ===== Vòng 8: cuộn cả trang, chữ chính nhỏ hơn 2 cỡ, thanh hành động chiến đấu ~1/3 màn hình ===== */
+/* --- tạo nhân vật: cả trang cuộn; chỉ danh sách thật dài (chủng tộc, lớp) cuộn riêng --- */
+body.phone.creating #content{overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch;padding:6px 12px 0!important;display:block!important}
+body.phone.creating .creation-shell{display:block!important;height:auto!important;min-height:0;position:relative}
+body.phone.creating .creation-stepper{margin:0 0 6px!important}
+body.phone.creating .creation-layout,body.phone.creating .creation-layout.has-stats{display:grid!important;grid-template-columns:minmax(0,1.15fr) minmax(280px,1fr)!important;gap:10px;height:auto!important;max-height:none!important;overflow:visible!important;flex:none!important;align-items:start}
+body.phone.creating .creation-picker,body.phone.creating .creation-layout.has-stats .creation-picker{height:auto!important;max-height:none!important;overflow:visible!important}
+body.phone.creating .creation-picker .choice-grid.race-grid{max-height:min(250px,58dvh)!important;overflow-y:auto!important}
+body.phone.creating .creation-picker .choice-grid.class-grid,body.phone.creating .creation-picker .choice-grid.starter-grid{max-height:none!important;overflow:visible!important}
+body.phone.creating .creation-picker.creation-confirm{overflow:visible!important}
+body.phone.creating .creation-layout .creation-preview,body.phone.creating .creation-layout .creation-stats{height:auto!important;max-height:none!important;overflow:visible!important;position:sticky;top:4px;align-self:start}
+body.phone.creating .creation-preview{display:flex!important;flex-direction:column;padding:8px 10px!important}
+body.phone.creating .creation-preview .preview-detail-scroll,body.phone.creating .creation-preview .preview-lore{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}
+body.phone.creating .creation-preview .form-row{margin:4px 0!important}
+/* thanh Quay lại / Tiếp tục luôn nằm cuối màn hình khi cuộn */
+body.phone.creating .creation-shell>:last-child{position:sticky;bottom:0;z-index:6;background:#120e1cf5;padding:6px 0 calc(6px + var(--safe-b));margin-top:8px;border-top:1px solid #3a2f4d}
+body.phone.creating .creation-step{min-height:36px!important}
+body.phone.creating h1,body.phone.creating .creation-intro h1{font-size:18px!important}
+body.phone.creating .creation-picker-head h2,body.phone.creating .creation-picker h2{font-size:17px!important}
+body.phone.creating .choice-card{font-size:13px}
+body.phone.creating .choice-card strong,body.phone.creating .choice-card h3{font-size:15px!important}
+
+/* --- chiến đấu: thanh hành động ~1/3 màn hình, chữ nhỏ --- */
+body.phone[data-screen='battle'] .battle-bottom{height:40dvh!important;min-height:150px!important;max-height:none!important;grid-template-columns:minmax(150px,.7fr) minmax(0,1.9fr) minmax(110px,.55fr)!important;gap:5px!important}
+body.phone[data-screen='battle'] .battle-stage-wrap{min-height:0!important}
+body.phone[data-screen='battle'] .battle-panel-head{min-height:24px!important;padding:0 0 2px!important}
+body.phone[data-screen='battle'] .battle-panel-head small{font-size:8px!important}
+body.phone[data-screen='battle'] .battle-panel-head strong,body.phone[data-screen='battle'] .battle-panel-head h3{font-size:12px!important}
+body.phone[data-screen='battle'] .battle-command-button{min-height:0!important;font-size:10px!important}
+body.phone[data-screen='battle'] .battle-command-button img,body.phone[data-screen='battle'] .battle-command-button svg{width:24px!important;height:24px!important}
+body.phone[data-screen='battle'] .battle-main-actions button,body.phone[data-screen='battle'] .battle-command-row button{min-height:44px!important;font-size:10.5px!important;padding:2px 4px!important}
+body.phone[data-screen='battle'] .battle-party-card{min-height:0!important;padding:3px 5px!important}
+body.phone[data-screen='battle'] .battle-party-name,body.phone[data-screen='battle'] .battle-party-name strong{font-size:10.5px!important}
+body.phone[data-screen='battle'] .battle-meter-label{font-size:8.5px!important}
+body.phone[data-screen='battle'] .battle-party-portrait{width:34px!important;max-height:38px!important;min-height:0!important}
+body.phone[data-screen='battle'] .battle-log-panel{font-size:9.5px!important;line-height:1.35!important;padding:4px 6px!important}
+body.phone[data-screen='battle'] .battle-topbar{min-height:30px!important;padding:2px 4px!important}
+body.phone[data-screen='battle'] .battle-topbar button,body.phone[data-screen='battle'] .battle-round-plate{min-height:28px!important;font-size:10.5px!important;padding:2px 8px!important}
+/* thẻ chiêu thức gọn: ảnh + tên + hệ + MP trên hai dòng, bỏ mô tả phụ và dòng hiệu quả (xem ở nút ⓘ) */
+body.phone[data-screen='battle'] .battle-skill,body.phone[data-screen='battle'] .battle-skill-card{padding:4px 6px 4px 38px!important;min-height:0!important;font-size:10px!important;line-height:1.25!important}
+body.phone[data-screen='battle'] .battle-skill>small,body.phone[data-screen='battle'] .battle-skill .battle-effectiveness{display:none!important}
+body.phone[data-screen='battle'] .battle-skill strong{font-size:11.5px!important}
+body.phone[data-screen='battle'] .battle-skill-stats{font-size:9px!important}
+body.phone[data-screen='battle'] .battle-skill-top{font-size:9px!important}
+body.phone[data-screen='battle'] .battle-skill .vtn-tag{font-size:9px!important;padding:0 4px!important;min-height:0!important}
+body.phone[data-screen='battle'] .battle-skill>.skill-ico,body.phone[data-screen='battle'] .battle-skill-wrap>.battle-skill>.skill-ico{left:5px!important;top:5px!important;width:26px!important;height:26px!important}
+body.phone[data-screen='battle'] .battle-skill-info-button{width:26px!important;height:26px!important;top:3px!important;right:3px!important;font-size:12px!important}
+body.phone[data-screen='battle'] .battle-skill-wrap{height:auto!important}
+
+/* bảng chọn chiêu gọn: hàng đầu = tiêu đề + Quay lại; mục tiêu thu thành một hàng mỏng; thẻ chiêu dàn ngang, nhỏ */
+body.phone[data-screen='battle'] .battle-console{display:flex!important;flex-direction:column;gap:3px;padding:4px 6px!important;overflow:hidden!important}
+body.phone[data-screen='battle'] .battle-panel-head{flex:0 0 auto;min-height:24px!important;display:flex;align-items:center;justify-content:space-between}
+body.phone[data-screen='battle'] .battle-panel-head>div{display:flex;align-items:baseline;gap:6px}
+body.phone[data-screen='battle'] .battle-panel-head small{display:none!important}
+body.phone[data-screen='battle'] .battle-back-button{min-height:26px!important;height:26px!important;padding:0 10px!important;font-size:10.5px!important}
+body.phone[data-screen='battle'] .battle-target{flex:0 0 auto;min-height:0!important;padding:0!important;margin:0!important}
+body.phone[data-screen='battle'] .battle-target button{min-height:24px!important;height:24px!important;padding:0 8px!important;font-size:10px!important}
+body.phone[data-screen='battle'] .battle-skill-grid{flex:1 1 auto;min-height:0;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:4px!important;align-items:stretch}
+body.phone[data-screen='battle'] .battle-skill-wrap{height:100%!important;min-height:0}
+body.phone[data-screen='battle'] .battle-skill,body.phone[data-screen='battle'] .battle-skill-card{height:100%!important;min-height:0!important;overflow:hidden}
+
+body.phone[data-screen='battle'] .battle-target{display:none!important}
+body.phone[data-screen='battle'] .battle-skill-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+body.phone[data-screen='battle'] .battle-skill-card .battle-skill-top b{font-size:9px!important}
+body.phone[data-screen='battle'] .battle-skill-top{display:flex;gap:3px;align-items:center;flex-wrap:nowrap}
+body.phone[data-screen='battle'] .battle-skill .type-tag span{display:none}
+body.phone[data-screen='battle'] .battle-skill strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+@media (max-height:420px){
+ body.phone[data-screen='battle'] .battle-bottom{height:44dvh!important}
+ body.phone[data-screen='battle'] .battle-skill-stats{display:none!important}
+ body.phone[data-screen='battle'] .battle-skill-wrap .battle-skill{padding-top:30px!important}
+}
