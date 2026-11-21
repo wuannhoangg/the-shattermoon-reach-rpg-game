@@ -232,7 +232,7 @@
           info('#hunt-card', 'Khu săn', 'Quái trong vùng và tỉ lệ gặp. Bấm nút tự tìm để đi săn.', {skipIf: () => !exists('#hunt-card'), place: 'l'}),
           more('Lưu và thoát'),
           info(navTarget('saves'), 'Lưu và thoát', 'Trò chơi tự lưu. <b>Lưu / Tải</b> để lưu thủ công, <b>Thoát</b> để về menu chính.'),
-          {mode: 'info', title: 'Trận luyện tập', text: 'Học ra đòn, dùng vật phẩm và thu phục trong một trận không thể thua.', target: null, noSkip: true, skipIf: () => c.chain(),
+          {mode: 'info', title: 'Trận luyện tập', text: 'Học ra đòn, dùng vật phẩm và lập khế trong một trận không thể thua.', target: null, noSkip: true, skipIf: () => c.chain(),
             buttons: [{label: 'Bắt đầu', primary: true, run: () => { stop('done'); setTimeout(() => c.startLesson(), 60); }}, {label: 'Để sau', run: () => stop('done')}]},
         ]
       },
@@ -247,7 +247,7 @@
           info('#objective', 'Nhiệm vụ', 'Nhiệm vụ hiện tại. Bấm <b>Tự tìm đường</b> để nhân vật tự đi tới đó.', {pad: 10, target: () => q('#objective')?.closest('section')}),
           {mode: 'wait', target: () => c.heroRect(), dimless: true, title: 'Di chuyển', text: 'Bấm vào mặt đất hoặc dùng <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> để đi.', place: 't',
             enter() { const s = c.S(); this.x0 = s.x; this.y0 = s.y; this.m0 = s.mapId; }, done() { const s = c.S(); return s.mapId !== this.m0 || Math.abs(s.x - this.x0) + Math.abs(s.y - this.y0) >= 3; }, timeout: 8000},
-          click(navTarget('party'), 'Đội hình', 'Bấm <b>Đội hình</b> để xem khế thú vừa thu phục.', {fallback: fallbackAct('party'), timeout: 3500, done: () => modalOpen() && /Đội hình/i.test(modalTitle())}),
+          click(navTarget('party'), 'Đội hình', 'Bấm <b>Đội hình</b> để xem khế thú vừa lập khế.', {fallback: fallbackAct('party'), timeout: 3500, done: () => modalOpen() && /Đội hình/i.test(modalTitle())}),
           info('#content [data-act="manage"]', 'Quản lý khế thú', 'Xem chỉ số, đổi kỹ năng, cho ăn, tiến hóa.', {ready: () => modalOpen(), nextLabel: 'Tiếp →', onNext: () => c.act('close')}),
           more('Lưu và thoát'),
           info(navTarget('saves'), 'Lưu và thoát', 'Trò chơi tự lưu. <b>Lưu / Tải</b> để lưu thủ công, <b>Thoát</b> để về menu chính.'),
@@ -255,7 +255,7 @@
         ]
       },
       battle: {
-        title: 'Chiến đấu và thu phục', blurb: 'Ra đòn, vật phẩm, thu phục trong một trận luyện tập.', practice: true, steps: c => {
+        title: 'Chiến đấu và lập khế', blurb: 'Ra đòn, vật phẩm, lập khế trong một trận luyện tập.', practice: true, steps: c => {
           const B = () => c.B(), mine = () => B() && !B().acted && B().waitingUid && B().panel !== 'iteminfo';
           const heroTurn = () => mine() && B().waitingUid === 'hero';
           const list = [
@@ -267,12 +267,12 @@
             click('.battle-command-row [data-id="items"]', 'Vật phẩm', 'Bấm <b>Vật phẩm</b>.', {enter: () => c.battleRoot(), ready: heroTurn, done: () => B()?.panel === 'items'}),
             click('.battle-info-button', 'Chi tiết', 'Bấm <b>i</b> để xem tác dụng.', {ready: () => B()?.panel === 'items', done: () => B()?.panel === 'iteminfo'}),
             info('.battle-item-info', 'Mô tả vật phẩm', 'Tác dụng, số lượng và nút Dùng.', {ready: () => B()?.panel === 'iteminfo', place: 't', nextLabel: 'Tiếp →', onNext: () => c.battleRoot()}),
-            click('.battle-command-row [data-id="capture"]', 'Khế Hồn', 'Bấm <b>Khế Hồn</b> để thu phục kẻ địch.', {enter: () => c.battleRoot(), ready: () => heroTurn() && B()?.panel === 'root', done: () => B()?.panel === 'capture'}),
+            click('.battle-command-row [data-id="capture"]', 'Khế Hồn', 'Bấm <b>Khế Hồn</b> để lập khế kẻ địch.', {enter: () => c.battleRoot(), ready: () => heroTurn() && B()?.panel === 'root', done: () => B()?.panel === 'capture'}),
             click('.battle-item-cell > button:first-child:not(:disabled)', 'Phong ấn', () => B()?.practice ? 'Tỉ lệ thành công ghi trên mỗi nút. Lần này chắc chắn thành công, hãy bấm một phong ấn.' : 'Tỉ lệ thành công ghi trên mỗi nút. Bấm một phong ấn để ném.', {ready: () => B()?.panel === 'capture', place: 't', done: () => !B()}),
-            info('#content .collectible', 'Thu phục thành công', 'Khế thú mới đã vào đội.', {skipIf: () => !!B() || !(modalOpen() && q('#content .collectible')), ready: () => modalOpen() && !!q('#content .collectible'), place: 'l', timeout: 4000, nextLabel: 'Tiếp →', onNext: () => c.act('close')}),
+            info('#content .collectible', 'Lập khế thành công', 'Khế thú mới đã vào đội.', {skipIf: () => !!B() || !(modalOpen() && q('#content .collectible')), ready: () => modalOpen() && !!q('#content .collectible'), place: 'l', timeout: 4000, nextLabel: 'Tiếp →', onNext: () => c.act('close')}),
             {mode: 'info', title: 'Hoàn tất', text: 'Còn <b>Đổi vị trí</b>, <b>Phòng thủ</b> và <b>Thêm</b> (Quan sát, Bỏ chạy). Nút <b>?</b> trong trận nhắc lại cách chơi.', target: null, nextLabel: 'Xong', noSkip: true, skipIf: () => c.chain()},
           ];
-          const cut = list.findIndex(x => x.title === 'Thu phục thành công');
+          const cut = list.findIndex(x => x.title === 'Lập khế thành công');
           list.forEach((x, i) => { if (i < cut) { const o = x.skipIf; x.skipIf = o ? () => !B() || o() : () => !B(); } });
           return list;
         }

@@ -24,9 +24,12 @@
  function rng(value){let state=hash(value)||0x9e3779b9;return ()=>{state=(Math.imul(state,1664525)+1013904223)>>>0;return state/4294967296;};}
  function clamp(value,min,max){return Math.max(min,Math.min(max,value));}
  function cellKey(x,y){return `${x},${y}`;}
+ // A region whose capital declares mapSize gets its own size; coordinates authored for 80x60 are scaled into it.
+ function regionSize(map){const c=map?.kind==='region'?g.VTN_DATA?.citadels?.regions?.[map.regionId]:null,m=c&&c.enabled!==false?c.mapSize:null;return m?{w:m.w,h:m.h}:{w:REGION_WIDTH,h:REGION_HEIGHT};}
+ function frameScale(map){const s=regionSize(map);return {x:s.w/REGION_WIDTH,y:s.h/REGION_HEIGHT};}
  function dimensions(map=null,raw=null){
-  const width=raw?.[0]?.length||(map?.kind==='region'?REGION_WIDTH:map?.kind==='lair'?LAIR_WIDTH:Number(map?.width)||WIDTH);
-  const height=raw?.length||(map?.kind==='region'?REGION_HEIGHT:map?.kind==='lair'?LAIR_HEIGHT:Number(map?.height)||HEIGHT);
+  const width=raw?.[0]?.length||(map?.kind==='region'?regionSize(map).w:map?.kind==='lair'?LAIR_WIDTH:Number(map?.width)||WIDTH);
+  const height=raw?.length||(map?.kind==='region'?regionSize(map).h:map?.kind==='lair'?LAIR_HEIGHT:Number(map?.height)||HEIGHT);
   return {width,height};
  }
  function inBounds(x,y,raw=null){const {width,height}=dimensions(null,raw);return x>0&&x<width-1&&y>0&&y<height-1;}
@@ -208,7 +211,97 @@
    default:return roomDungeon(map,random);
   }
  }
- function buildingLots(map){return g.VTN_DATA?.buildings?.regions?.[map?.regionId]?.lots||[];}
+ // Walled anchor city (citadels dataset): inner ward = core, outer ward = middle ring, everything else = rim.
+ const citadelCache=new WeakMap();
+ const wardMasks=new WeakMap();
+ function wardContains(R,x,y){
+  if(!R)return false;if(!R.poly)return x>=R.x&&x<R.x+R.w&&y>=R.y&&y<R.y+R.h;
+  let m=wardMasks.get(R);
+  if(!m){const xs=R.poly.map(p=>p[0]),ys=R.poly.map(p=>p[1]),x0=Math.floor(Math.min(...xs))-1,y0=Math.floor(Math.min(...ys))-1,w=Math.ceil(Math.max(...xs))-x0+2,h=Math.ceil(Math.max(...ys))-y0+2,bits=new Uint8Array(w*h);
+   for(let yy=0;yy<h;yy++)for(let xx=0;xx<w;xx++)bits[yy*w+xx]=polyContains(R.poly,x0+xx,y0+yy)?1:0;m={x0,y0,w,h,bits};wardMasks.set(R,m);}
+  const ix=x-m.x0,iy=y-m.y0;return ix>=0&&iy>=0&&ix<m.w&&iy<m.h&&m.bits[iy*m.w+ix]===1;
+ }
+ function polyContains(P,x,y){
+  const px=x+.5,py=y+.5;let inside=false;
+  for(let i=0,j=P.length-1;i<P.length;j=i++){const [ax,ay]=P[i],[bx,by]=P[j];if((ay>py)!==(by>py)&&px<(bx-ax)*(py-ay)/(by-ay)+ax)inside=!inside;}
+  return inside;
+ }
+ const geometryBlocked=(geo,k)=>geo.wall.has(k)||geo.water.has(k);
+ function applyCitadelWater(a,geo){for(const k of geo.water){const [x,y]=k.split(',').map(Number);setTile(a,x,y,3);}for(const k of geo.bridges){const [x,y]=k.split(',').map(Number);setTile(a,x,y,0);}}
+ function citadelOf(map){const c=map?.kind==='region'?(g.VTN_DATA?.citadels?.regions?.[map.regionId]||null):null;return c&&c.enabled!==false?c:null;}
+ function citadelGeometry(map){
+  const c=citadelOf(map);if(!c)return null;
+  if(citadelCache.has(c))return citadelCache.get(c);
+  const wall=new Map(),open=new Set(),outside=[],hubs=[],O=c.outer,I=c.inner,thick=c.innerThickness||I.thickness||2,othick=c.outerThickness||O.thickness||(O.poly?2:1);
+  const ring=(R,t,ward)=>{for(let y=R.y;y<R.y+R.h;y++)for(let x=R.x;x<R.x+R.w;x++){
+   if(R.poly){if(!wardContains(R,x,y))continue;let edge=false;for(let dy=1-t;dy<t&&!edge;dy++)for(let dx=1-t;dx<t;dx++)if(!wardContains(R,x+dx,y+dy)){edge=true;break;}if(edge)wall.set(cellKey(x,y),ward);}
+   else {const d=Math.min(x-R.x,R.x+R.w-1-x,y-R.y,R.y+R.h-1-y);if(d<t)wall.set(cellKey(x,y),ward);}
+  }};
+  ring(O,othick,'outer');ring(I,thick,'inner');
+  const parts={outer:{R:O,t:othick},inner:{R:I,t:thick}};
+  (c.keeps||[]).forEach((K,i)=>{const t=K.thickness||2;parts['keep'+i]={R:K,t};ring(K,t,'keep'+i);});
+  const allGates=[...(c.gates||[]),...(c.keeps||[]).flatMap((K,i)=>(K.gates||[]).map(gt=>({...gt,ward:'keep'+i})))];
+  for(const gate of allGates){
+   if(gate.cells){for(const [x,y] of gate.cells){const k=cellKey(x,y);wall.delete(k);open.add(k);}if(gate.hubs){hubs.push(...gate.hubs);if(gate.ward!=='inner'&&gate.hubs[0])outside.push(gate.hubs[0]);}continue;}
+   const {R,t}=parts[gate.ward]||parts.outer,half=Math.floor(gate.width/2);
+   for(let k=-half;k<=half;k++){
+    for(let d=0;d<t;d++){let x,y;
+     if(gate.side==='W'){x=R.x+d;y=gate.at+k;}else if(gate.side==='E'){x=R.x+R.w-1-d;y=gate.at+k;}else if(gate.side==='N'){x=gate.at+k;y=R.y+d;}else{x=gate.at+k;y=R.y+R.h-1-d;}
+     wall.delete(cellKey(x,y));open.add(cellKey(x,y));}
+    if(k===0){const near=(side,at,inward)=>side==='W'?[R.x+(inward?t:-1),at]:side==='E'?[R.x+R.w-1-(inward?t:-1),at]:side==='N'?[at,R.y+(inward?t:-1)]:[at,R.y+R.h-1-(inward?t:-1)];hubs.push(near(gate.side,gate.at,false),near(gate.side,gate.at,true));}
+    if(gate.ward!=='inner'){const out=gate.side==='W'?[R.x-1,gate.at+k]:gate.side==='E'?[R.x+R.w,gate.at+k]:gate.side==='N'?[gate.at+k,R.y-1]:[gate.at+k,R.y+R.h];outside.push(out);}
+   }
+  }
+  const water=new Set(),bridges=new Set(),{width,height}=dimensions(map);
+  for(let y=1;y<height-1;y++)for(let x=1;x<width-1;x++)if((c.water||[]).some(R=>wardContains(R,x,y))){const k=cellKey(x,y);if((c.bridges||[]).some(R=>wardContains(R,x,y)))bridges.add(k);else water.add(k);}
+  const geo={c,wall,open,outside,hubs,water,bridges};citadelCache.set(c,geo);return geo;
+ }
+ function citadelZone(map,x,y){
+  const c=citadelOf(map);if(!c)return null;const I=c.inner,O=c.outer;
+  for(const K of c.keeps||[])if(wardContains(K,x,y))return 'keep';
+  if(wardContains(I,x,y))return 'inner';
+  if(wardContains(O,x,y))return 'outer';
+  return 'rim';
+ }
+ const citadelRects=map=>{const c=citadelOf(map);return c?[c.outer,...(c.keeps||[])]:[];};
+ const inCitadel=(map,x,y)=>citadelRects(map).some(R=>wardContains(R,x,y));
+ const citadelBlocked=(map,k)=>{const geo=citadelGeometry(map);return !!geo&&geometryBlocked(geo,k);};
+ function applyCitadel(a,map){
+  const geo=citadelGeometry(map);if(!geo)return a;
+  for(const O of citadelRects(map))for(let y=O.y;y<O.y+O.h;y++)for(let x=O.x;x<O.x+O.w;x++)if(wardContains(O,x,y))setTile(a,x,y,0);
+  for(const k of geo.wall.keys()){const [x,y]=k.split(',').map(Number);setTile(a,x,y,1);}
+  applyCitadelWater(a,geo);return a;
+ }
+ function finalizeCitadel(a,map,points=[]){
+  const geo=citadelGeometry(map);if(!geo)return a;const H=a.length,W=a[0].length,spawn=map.spawn||SPAWN;
+  for(const O of citadelRects(map))for(let y=O.y;y<O.y+O.h;y++)for(let x=O.x;x<O.x+O.w;x++)if(wardContains(O,x,y)&&a[y]?.[x]===2)a[y][x]=0;
+  for(const k of geo.wall.keys()){const [x,y]=k.split(',').map(Number);if(a[y]?.[x]!==undefined)a[y][x]=1;}
+  for(const k of geo.open){const [x,y]=k.split(',').map(Number);if(a[y]?.[x]!==undefined)a[y][x]=0;}
+  applyCitadelWater(a,geo);
+  // reachability from spawn as a typed mask; recomputed only after a carve changed the grid
+  let reachMask=null;
+  const flood=()=>{if(reachMask)return reachMask;const seen=new Uint8Array(W*H),q=[spawn.y*W+spawn.x];seen[q[0]]=1;while(q.length){const i=q.pop(),x=i%W,y=(i-x)/W;for(const [dx,dy] of DIRECTIONS){const nx=x+dx,ny=y+dy;if(nx<1||ny<1||nx>=W-1||ny>=H-1)continue;const j=ny*W+nx;if(seen[j]||a[ny][nx]===1||a[ny][nx]===3)continue;seen[j]=1;q.push(j);}}
+   seen.has=k=>{const [x,y]=String(k).split(',').map(Number);return !!seen[y*W+x];};seen.cells=function*(){for(let j=0;j<seen.length;j++)if(seen[j]){const x=j%W;yield [x,(j-x)/W];}};return reachMask=seen;};
+  const inO=(x,y)=>inCitadel(map,x,y);
+  const carve=(x,y)=>{if(x>0&&y>0&&x<W-1&&y<H-1&&!geometryBlocked(geo,cellKey(x,y))&&a[y][x]!==0){a[y][x]=0;reachMask=null;}};
+  for(const [ox,oy] of geo.outside){
+   carve(ox,oy);const reach=flood();if(reach.has(cellKey(ox,oy)))continue;
+   let best=null;for(const [x,y] of reach.cells()){const d=Math.abs(x-ox)+Math.abs(y-oy);if(best&&d>=best.d)continue;if(inO(x,y))continue;best={x,y,d};}
+   if(!best)continue;
+   const tryPath=horizontalFirst=>{const cells=[];let x=ox,y=oy;const stepX=()=>{while(x!==best.x){x+=Math.sign(best.x-x);cells.push([x,y]);}},stepY=()=>{while(y!==best.y){y+=Math.sign(best.y-y);cells.push([x,y]);}};if(horizontalFirst){stepX();stepY();}else{stepY();stepX();}return cells.every(([cx,cy])=>!geometryBlocked(geo,cellKey(cx,cy)))?cells:null;};
+   const cells=tryPath(true)||tryPath(false);if(cells)for(const [cx,cy] of cells)carve(cx,cy);
+  }
+  // Any fixed point the walls cut off (a lair door, an NPC) is joined to the nearest reachable cell.
+  for(const p of points||[]){
+   const px=Math.round(Number(p.x)),py=Math.round(Number(p.y));if(!(px>0&&py>0&&px<W-1&&py<H-1))continue;
+   let reach=flood();if(reach.has(cellKey(px,py)))continue;
+   const pIn=inO(px,py);let best=null;for(const [x,y] of reach.cells()){const d=Math.abs(x-px)+Math.abs(y-py);if(best&&d>=best.d)continue;if(inO(x,y)!==pIn)continue;best={x,y,d};}
+   if(!best)continue;
+   for(const horizontalFirst of [true,false]){const cells=[];let x=px,y=py;const sx=()=>{while(x!==best.x){x+=Math.sign(best.x-x);cells.push([x,y]);}},sy=()=>{while(y!==best.y){y+=Math.sign(best.y-y);cells.push([x,y]);}};if(horizontalFirst){sx();sy();}else{sy();sx();}if(cells.every(([cx,cy])=>!geometryBlocked(geo,cellKey(cx,cy)))){carve(px,py);for(const [cx,cy] of cells)carve(cx,cy);break;}}
+  }
+  return a;
+ }
+ function buildingLots(map){const c=citadelOf(map);return c?(c.lots||[]):(g.VTN_DATA?.buildings?.regions?.[map?.regionId]?.lots||[]);}
  function applyBuildingLots(a,map){
   for(const lot of buildingLots(map)){
    const x=Math.round(Number(lot.x)),y=Math.round(Number(lot.y)),w=Math.max(2,Math.round(Number(lot.w)||6)),h=Math.max(2,Math.round(Number(lot.h)||5));
@@ -228,7 +321,7 @@
   }));
  }
  function largeRegionalTerrain(map,random){
-  const source=regionalTerrain({...map,kind:'region'},random),a=scaleGrid(source,REGION_WIDTH,REGION_HEIGHT),region=map.regionId;
+  const source=regionalTerrain({...map,kind:'region'},random),a=scaleGrid(source,regionSize(map).w,regionSize(map).h),region=map.regionId;
   // The scaled silhouette is deliberately sparse; these broad additions give each
   // 80x60 region its own second layer of landmarks without sealing the route network.
   if(region==='region_02'||region==='region_10'){
@@ -245,7 +338,7 @@
    for(let i=0;i<18;i++){const x=5+Math.floor(random()*68),y=5+Math.floor(random()*48);ellipse(a,x,y,1+Math.floor(random()*3),1+Math.floor(random()*3),region==='region_03'?3:1);}
    winding(a,[[6,51],[19,42],[29,45],[39,33],[52,36],[73,8]],1,random()*6.28);
   }
-  return applyBuildingLots(a,map);
+  return applyBuildingLots(applyCitadel(a,map),map);
  }
  function lairAsset(map){
   const rid=map?.lairId||String(map?.regionId||'region_01').slice(-2);
@@ -307,6 +400,7 @@
   return a;
  }
  function terrainGrid(map){
+  if(map?.kind==='interior'&&g.VTNInteriors)return g.VTNInteriors.gridFor(map);
   const random=rng(map?.id||'map'),region=map?.regionId||'region_01';
    if(map?.layout==='abyss_cave')return abyssCave(map,random);
    if(map?.layout==='lair')return lairTerrain(map);
@@ -315,12 +409,14 @@
    return map?.kind==='region'||Number(map?.width||0)>=REGION_WIDTH||Number(map?.height||0)>=REGION_HEIGHT?largeRegionalTerrain(map,random):applyBuildingLots(regionalTerrain(map,random),map);
  }
 
- function chooseCoord(base,key,map,used){
+ function chooseCoord(base,key,map,used,avoid=false){
    const {width,height}=dimensions(map),[bx,by]=base||[SPAWN.x,SPAWN.y],compact=map?.kind!=='region',seed=hash(`${map?.id||'map'}|${key}`),offsets=[[0,0],[1,0],[-1,0],[0,1],[0,-1],[2,0],[-2,0],[0,2],[0,-2],[1,1],[-1,1],[1,-1],[-1,-1]];
+  const usable=(x,y)=>!used.has(cellKey(x,y))&&(!avoid||!citadelBlocked(map,cellKey(x,y)));
   const start=compact?seed%offsets.length:0;
   for(let i=0;i<offsets.length;i++){
-    const [dx,dy]=offsets[(start+i)%offsets.length],x=clamp(bx+dx,1,width-2),y=clamp(by+dy,1,height-2),key2=cellKey(x,y);if(!used.has(key2))return [x,y];
+    const [dx,dy]=offsets[(start+i)%offsets.length],x=clamp(bx+dx,1,width-2),y=clamp(by+dy,1,height-2);if(usable(x,y))return [x,y];
   }
+   if(avoid)for(let r=1;r<Math.max(width,height);r++)for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){if(Math.abs(dx)!==r&&Math.abs(dy)!==r)continue;const x=bx+dx,y=by+dy;if(x>0&&y>0&&x<width-1&&y<height-1&&usable(x,y))return [x,y];}
    return [clamp(bx,1,width-2),clamp(by,1,height-2)];
  }
  function pointAnchors(map){
@@ -329,27 +425,28 @@
      return points.map((point,index)=>({...point,id:point.id||map.id+'|point|'+index,x:point.type==='portal'?spawn.x:wake.x,y:point.type==='portal'?spawn.y:wake.y,type:point.type||'point'}));
     }
    if(Array.isArray(map?.points))return map.points.map((point,index)=>({id:point.id||`${map.id}|point|${index}`,x:Math.round(Number(point.x)),y:Math.round(Number(point.y)),type:point.type||'point',...point}));
-   const style=styles[map?.regionId]||styles.region_01,used=new Set(),out=[];
-  const add=(type,base,key,extra={})=>{if(!base)return;const [x,y]=chooseCoord(base,key,map,used);used.add(cellKey(x,y));out.push({id:map.id+'|'+key,x,y,type,...extra});};
+   const fs=frameScale(map),scaleXY=v=>Array.isArray(v)&&typeof v[0]==='number'?[Math.round(v[0]*fs.x),Math.round(v[1]*fs.y)]:v,baseStyle=Object.fromEntries(Object.entries(styles[map?.regionId]||styles.region_01).map(([k,v])=>[k,k==='portals'&&Array.isArray(v)?v.map(scaleXY):scaleXY(v)])),style={...baseStyle,...citadelOf(map)?.points},used=new Set(),out=[];
+  const add=(type,base,key,extra={})=>{if(!base)return;const [x,y]=chooseCoord(base,key,map,used,!!citadelOf(map)?.points?.[type==='portal'?'portals':key]);used.add(cellKey(x,y));out.push({id:map.id+'|'+key,x,y,type,...extra});};
    if(map?.kind==='region')for(const lot of buildingLots(map)){
     const door=Array.isArray(lot.door)?lot.door:[Number(lot.x)+Math.floor(Number(lot.w||6)/2),Number(lot.y)+Number(lot.h||5)-1];
     const x=Math.round(door[0]),y=Math.round(door[1]),type=lot.kind==='gate'?'boss-gate':'building';
     used.add(cellKey(x,y));out.push({id:lot.name,x,y,type,name:lot.name,regionId:map.regionId,lot,target:type==='boss-gate'?`lair_${String(map.regionId).slice(-2)}`:undefined});
    }
   if(map?.kind==='region')add('shrine',style.shrine,'shrine');
+  {const cit=citadelOf(map);if(cit?.anchor){used.add(cellKey(cit.anchor.x,cit.anchor.y));out.push({id:map.id+'|anchor',x:cit.anchor.x,y:cit.anchor.y,type:'anchor',name:cit.anchor.name});}}
   add('clue',style.clue,'clue');
-  if(map?.id==='region_06')add('shop',style.shop,'shop');
+  if(map?.id==='region_06'||citadelOf(map)?.points?.shop)add('shop',style.shop,'shop');
   add('boss',style.boss,'boss');
   add('puzzle',style.puzzle,'puzzle');
-  if(map?.id==='region_06')add('arena',style.arena,'arena');
+  if(map?.id==='region_06'||citadelOf(map)?.points?.arena)add('arena',style.arena,'arena');
   if(map?.kind==='region')add('rival',style.rival,'rival');
-  const slots=style.portals||[[4,25],[20,25],[35,25]];
+  const slots=style.portals||[[4,25],[20,25],[35,25]].map(scaleXY);
   (map?.links||[]).forEach((target,index)=>add('portal',slots[index%slots.length],`portal|${index}`,{target}));
   return out;
  }
 
  function npcHome(n,index,raw,blocked,occupied){
-   const {width,height}=dimensions(null,raw),baseX=clamp(Math.round(Number.isFinite(Number(n?.x))?Number(n.x):5+(index%6)*5),1,width-2),baseY=clamp(Math.round(Number.isFinite(Number(n?.y))?Number(n.y):12+Math.floor(index/6)*5),1,height-2);
+   const {width,height}=dimensions(null,raw),kx=width>REGION_WIDTH?width/REGION_WIDTH:1,ky=height>REGION_HEIGHT?height/REGION_HEIGHT:1,ax=n?.abs?1:kx,ay=n?.abs?1:ky,baseX=clamp(Math.round((Number.isFinite(Number(n?.x))?Number(n.x):5+(index%6)*5)*ax),1,width-2),baseY=clamp(Math.round((Number.isFinite(Number(n?.y))?Number(n.y):12+Math.floor(index/6)*5)*ay),1,height-2);
   const ordered=NPC_HOME_OFFSETS.slice().sort((a,b)=>unit(`${n?.id||index}|home|${a[0]},${a[1]}`)-unit(`${n?.id||index}|home|${b[0]},${b[1]}`));
   const usable=(x,y,rawOnly=true)=>inBounds(x,y,raw)&&!blocked.has(cellKey(x,y))&&!occupied.has(cellKey(x,y))&&(!rawOnly||!([1,3].includes(raw?.[y]?.[x])));
   for(const [dx,dy] of [[0,0],...ordered])if(usable(baseX+dx,baseY+dy))return {x:baseX+dx,y:baseY+dy};
@@ -374,6 +471,31 @@
    else {for(let y=sy+Math.sign(gy-sy);y!==gy+Math.sign(gy-sy);y+=Math.sign(gy-sy))append(sx,y);for(let x=sx+Math.sign(gx-sx);x!==gx+Math.sign(gx-sx);x+=Math.sign(gx-sx))append(x,gy);}
    return path;
   }
+  // Shortest orthogonal route that never crosses a citadel wall; extra cost per turn keeps it to a few long runs.
+  // blocked mask per geometry (walls + city water), built once
+  const blockMasks=new WeakMap();
+  function blockMask(geo,width,height){
+   let m=blockMasks.get(geo);if(m&&m.w===width)return m.bits;
+   const bits=new Uint8Array(width*height);for(const set of [geo.wall,geo.water])for(const k of set.keys?set.keys():set){const i=k.indexOf(','),x=+k.slice(0,i),y=+k.slice(i+1);if(x>=0&&y>=0&&x<width&&y<height)bits[y*width+x]=1;}
+   blockMasks.set(geo,{w:width,bits});return bits;
+  }
+  // Shortest orthogonal route that never crosses a citadel wall; extra cost per turn keeps it to a few long runs (A*, binary heap, typed arrays).
+  function wallAwareRoute(geo,width,height,from,to){
+   const N=width*height*5,dist=new Float32Array(N).fill(Infinity),prev=new Int32Array(N).fill(-1),block=blockMask(geo,width,height),DX=[1,-1,0,0],DY=[0,0,1,-1];
+   const h=(x,y)=>Math.abs(x-to.x)+Math.abs(y-to.y),heap=[];
+   const push=(f,k)=>{heap.push([f,k]);let i=heap.length-1;while(i){const p=(i-1)>>1;if(heap[p][0]<=f)break;heap[i]=heap[p];i=p;}heap[i]=[f,k];};
+   const pop=()=>{const top=heap[0],last=heap.pop();if(heap.length){let i=0;for(;;){const l=i*2+1,r=l+1;let m=i;if(l<heap.length&&heap[l][0]<(m===i?last[0]:heap[m][0]))m=l;if(r<heap.length&&heap[r][0]<(m===i?last[0]:heap[m][0]))m=r;if(m===i)break;heap[i]=heap[m];i=m;}heap[i]=last;}return top;};
+   const s0=(from.y*width+from.x)*5+4;dist[s0]=0;push(h(from.x,from.y),s0);let end=-1;
+   while(heap.length){
+    const [f,k]=pop(),d=k%5,cell=(k-d)/5,x=cell%width,y=(cell-x)/width,c=dist[k];if(f-h(x,y)>c+1e-6)continue;
+    if(x===to.x&&y===to.y){end=k;break;}
+    for(let nd=0;nd<4;nd++){const nx=x+DX[nd],ny=y+DY[nd];if(nx<1||ny<1||nx>=width-1||ny>=height-1||block[ny*width+nx])continue;
+     const nc=c+1+(d!==4&&d!==nd?3:0),nk=(ny*width+nx)*5+nd;if(nc<dist[nk]){dist[nk]=nc;prev[nk]=k;push(nc+h(nx,ny),nk);}}
+   }
+   if(end<0)return null;
+   const out=[];for(let k=end;k>=0;k=prev[k]){const cell=(k-k%5)/5;out.push({x:cell%width,y:(cell-cell%width)/width});if(k===s0)break;}
+   return out.reverse();
+  }
   function roadNetwork(map,a,points=[],extraEndpoints=[],includeActors=false){
    const width=a?.[0]?.length||WIDTH,height=a?.length||HEIGHT,spawn=map?.spawn||SPAWN,endpoints=[];
    const add=point=>{const x=clamp(Math.round(Number(point?.x)),1,width-2),y=clamp(Math.round(Number(point?.y)),1,height-2);if(!endpoints.some(other=>other.x===x&&other.y===y))endpoints.push({x,y});};
@@ -385,17 +507,31 @@
     // Join nearby landmarks instead of laying one long road through every
     // landmark in data order. The resulting settlement has small courtyards
     // and branches, leaving large quiet habitat pockets between routes.
+    const geo=citadelGeometry(map);
+    if(geo)for(const [hx,hy] of geo.hubs)add({x:hx,y:hy});
     const joined=[endpoints[0]||SPAWN],waiting=endpoints.slice(1);
-    while(waiting.length){let best=null;for(const from of joined)for(let i=0;i<waiting.length;i++){const to=waiting[i],distance=Math.abs(from.x-to.x)+Math.abs(from.y-to.y);if(!best||distance<best.distance)best={from,to,index:i,distance};}const route=routePath(a,best.from,best.to);if(route.length)routes.push(route);joined.push(best.to);waiting.splice(best.index,1);}
+    const dog=(f,t,hf)=>{const cells=[{x:f.x,y:f.y}];let x=f.x,y=f.y;const sx=()=>{while(x!==t.x){x+=Math.sign(t.x-x);cells.push({x,y});}},sy=()=>{while(y!==t.y){y+=Math.sign(t.y-y);cells.push({x,y});}};if(hf){sx();sy();}else{sy();sx();}return cells;};
+    const bm=geo?blockMask(geo,width,height):null,clear=cells=>!cells.some(c=>bm[c.y*width+c.x]);
+    while(waiting.length){
+     let best=null;
+     for(const from of joined)for(let i=0;i<waiting.length;i++){
+      const to=waiting[i],distance=Math.abs(from.x-to.x)+Math.abs(from.y-to.y);if(best&&distance>=best.distance)continue;
+      if(geo){const first=hash(`${from.x},${from.y}|${to.x},${to.y}|road`)%2===0,r=[dog(from,to,first),dog(from,to,!first)].find(clear);if(!r)continue;best={from,to,index:i,distance,route:r};}
+      else best={from,to,index:i,distance};
+     }
+     if(!best){for(const from of joined)for(let i=0;i<waiting.length;i++){const to=waiting[i],distance=Math.abs(from.x-to.x)+Math.abs(from.y-to.y);if(!best||distance<best.distance)best={from,to,index:i,distance};}
+      if(geo&&best){const detour=wallAwareRoute(geo,width,height,best.from,best.to);if(detour)best.route=detour;}}
+     const route=best.route||(geo&&(geo.water.size||geo.c.outer.poly)?[]:routePath(a,best.from,best.to));if(route.length)routes.push(route);joined.push(best.to);waiting.splice(best.index,1);
+    }
    }else{let from=endpoints[0]||SPAWN;for(const endpoint of endpoints.slice(1)){const route=routePath(a,from,endpoint);if(route.length)routes.push(route);from=endpoint;}}
    if(includeActors)for(const point of points||[])if(['npc','rival'].includes(point.type)){
     const target={x:clamp(Math.round(Number(point.x)),1,width-2),y:clamp(Math.round(Number(point.y)),1,height-2)};
     if(endpoints.some(p=>p.x===target.x&&p.y===target.y))continue;
     const from=endpoints.reduce((best,p)=>Math.abs(p.x-target.x)+Math.abs(p.y-target.y)<Math.abs(best.x-target.x)+Math.abs(best.y-target.y)?p:best,endpoints[0]||SPAWN);
-    const route=routePath(a,from,target);if(route.length)routes.push(route);endpoints.push(target);
+    const geo=citadelGeometry(map),route=geo&&(geo.water.size||geo.c.outer.poly)?(wallAwareRoute(geo,width,height,from,target)||[]):routePath(a,from,target);if(route.length)routes.push(route);endpoints.push(target);
    }
    const cells=new Set(),renderCells=new Set();
-   const addCell=(x,y)=>{if(x>0&&x<width-1&&y>0&&y<height-1)renderCells.add(cellKey(x,y));};
+   const addCell=(x,y)=>{if(x>0&&x<width-1&&y>0&&y<height-1&&!citadelGeometry(map)?.water.has(cellKey(x,y)))renderCells.add(cellKey(x,y));};
    for(const route of routes){for(const cell of route)cells.add(cellKey(cell.x,cell.y));for(let i=0;i<route.length;i++){
      const cell=route[i],previous=route[Math.max(0,i-1)],next=route[Math.min(route.length-1,i+1)],horizontal=Math.abs(next.x-previous.x)>=Math.abs(next.y-previous.y);
      if(horizontal)for(let oy=-1;oy<=1;oy++)addCell(cell.x,cell.y+oy);else for(let ox=-1;ox<=1;ox++)addCell(cell.x+ox,cell.y);
@@ -429,16 +565,16 @@
   function countMaskNeighbours(mask,x,y){let count=0;for(const [dx,dy] of DIRECTIONS)if(mask.has(cellKey(x+dx,y+dy)))count++;return count;}
   function component(mask,width,height,start){const out=[],seen=new Set([cellKey(start[0],start[1])]),queue=[start];while(queue.length){const [x,y]=queue.shift();out.push([x,y]);for(const [dx,dy] of DIRECTIONS){const nx=x+dx,ny=y+dy,k=cellKey(nx,ny);if(nx>0&&nx<width-1&&ny>0&&ny<height-1&&mask.has(k)&&!seen.has(k)){seen.add(k);queue.push([nx,ny]);}}}return out;}
   function habitats(a){const height=a.length,width=a[0]?.length||0,seen=new Set(),groups=[];for(let y=0;y<height;y++)for(let x=0;x<width;x++){const k=cellKey(x,y);if(a[y][x]!==2||seen.has(k))continue;const cells=[],queue=[[x,y]];seen.add(k);for(let i=0;i<queue.length;i++){const [cx,cy]=queue[i];cells.push({x:cx,y:cy});for(const [dx,dy] of DIRECTIONS){const nx=cx+dx,ny=cy+dy,nk=cellKey(nx,ny);if(a[ny]?.[nx]===2&&!seen.has(nk)){seen.add(nk);queue.push([nx,ny]);}}}groups.push({id:'habitat_'+(groups.length+1),cells,count:cells.length,center:{x:cells.reduce((v,c)=>v+c.x,0)/cells.length,y:cells.reduce((v,c)=>v+c.y,0)/cells.length}});}return groups;}
- function selectEncounterCells(a,reserved,seedValue){
+ function selectEncounterCells(a,reserved,seedValue,skip=0){
   const height=a.length,width=a[0].length,cells=[],candidates=[],candidateSet=new Set();
   for(let y=1;y<height-1;y++)for(let x=1;x<width-1;x++)if(walkable(a[y][x])){cells.push({x,y});a[y][x]=0;if(!reserved.has(cellKey(x,y))){candidates.push({x,y});candidateSet.add(cellKey(x,y));}}
   const visited=new Set(),components=[];
   for(const cell of candidates){const k=cellKey(cell.x,cell.y);if(visited.has(k))continue;const group=[],queue=[cell];visited.add(k);for(let i=0;i<queue.length;i++){const c=queue[i];group.push(c);for(const [dx,dy] of DIRECTIONS){const x=c.x+dx,y=c.y+dy,nk=cellKey(x,y);if(candidateSet.has(nk)&&!visited.has(nk)){visited.add(nk);queue.push({x,y});}}}if(group.length>=16)components.push(group);}
-  components.sort((a,b)=>b.length-a.length);const eligible=components.flat(),count=2+hash(seedValue+'|habitats')%3,seeds=[];
+  components.sort((a,b)=>b.length-a.length);const eligible=components.flat(),count=skip>0?4:2+hash(seedValue+'|habitats')%3,seeds=[];
   const centroid=group=>{const cx=group.reduce((v,c)=>v+c.x,0)/group.length,cy=group.reduce((v,c)=>v+c.y,0)/group.length;return group.reduce((best,c)=>Math.hypot(c.x-cx,c.y-cy)<Math.hypot(best.x-cx,best.y-cy)?c:best,group[0]);};
   for(const group of components.slice(0,count))seeds.push(centroid(group));
   while(seeds.length<count&&eligible.length){let best=null,distance=-1;for(const cell of eligible){const d=Math.min(...seeds.map(seed=>Math.hypot(seed.x-cell.x,seed.y-cell.y)));if(d>distance){distance=d;best=cell;}}if(!best||distance<6)break;seeds.push(best);}
-  const owners=new Map(),groups=seeds.map((seed,id)=>{owners.set(cellKey(seed.x,seed.y),id);return {id,seed,queue:[seed],at:0,size:1};}),target=Math.min(Math.round(cells.length*.25),eligible.length),allowed=new Set(eligible.map(c=>cellKey(c.x,c.y)));
+  const owners=new Map(),groups=seeds.map((seed,id)=>{owners.set(cellKey(seed.x,seed.y),id);return {id,seed,queue:[seed],at:0,size:1};}),target=Math.min(Math.round((cells.length-skip)*.25),eligible.length),allowed=new Set(eligible.map(c=>cellKey(c.x,c.y)));
   // Separate flood fills leave a safe one-cell boundary, so there are exactly
   // two to four contiguous habitats instead of scattered encounter tiles.
   let changed=true;while(owners.size<target&&changed){changed=false;for(const group of groups){if(owners.size>=target)break;while(group.at<group.queue.length){const cell=group.queue[group.at++];let grown=false;const dirs=DIRECTIONS.slice().sort((a,b)=>Math.hypot(cell.x+a[0]-group.seed.x,cell.y+a[1]-group.seed.y)-Math.hypot(cell.x+b[0]-group.seed.x,cell.y+b[1]-group.seed.y));for(const [dx,dy] of dirs){const x=cell.x+dx,y=cell.y+dy,k=cellKey(x,y);if(!allowed.has(k)||owners.has(k)||DIRECTIONS.some(([ox,oy])=>owners.has(cellKey(x+ox,y+oy))&&owners.get(cellKey(x+ox,y+oy))!==group.id))continue;owners.set(k,group.id);group.queue.push({x,y});group.size++;grown=true;changed=true;if(owners.size>=target)break;}if(grown)break;}}}
@@ -448,7 +584,8 @@
  function normalizeEncounters(a,points,seedValue,spawn=SPAWN,options={}){
     if(options.noEncounters)return a;
     const reserved=new Set([cellKey(spawn.x,spawn.y)]);for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)reserved.add(cellKey(spawn.x+dx,spawn.y+dy));for(const p of points||[])reserved.add(cellKey(p.x,p.y));for(const k of options.reservedCells||[])reserved.add(k);
-    selectEncounterCells(a,reserved,seedValue);return a;
+    let skip=0;for(const k of options.cityCells||[]){const [x,y]=k.split(',').map(Number);if(walkable(a[y]?.[x]))skip++;}
+    selectEncounterCells(a,reserved,seedValue,skip);return a;
   }
   function zoneOrientation(zones,x,y){const road=ZONES.ROAD,up=zones[y-1]?.[x]===road,right=zones[y]?.[x+1]===road,down=zones[y+1]?.[x]===road,left=zones[y]?.[x-1]===road,mask=(up?1:0)|(right?2:0)|(down?4:0)|(left?8:0);if(mask===0)return 'cap';if(mask===5)return 'vertical';if(mask===10)return 'horizontal';if(mask===15)return 'crossing';if(mask===3)return 'corner-ne';if(mask===6)return 'corner-se';if(mask===12)return 'corner-sw';if(mask===9)return 'corner-nw';if(mask===7)return 't-junction-s';if(mask===11)return 't-junction-w';if(mask===13)return 't-junction-n';if(mask===14)return 't-junction-e';if(mask===1)return 'cap-n';if(mask===2)return 'cap-e';if(mask===4)return 'cap-s';return 'cap-w';}
   function cleanZoneComponents(zones,width,height){
@@ -473,25 +610,30 @@
   }
   function zoneModel(map,a,points=[],options={}){
     const width=a?.[0]?.length||WIDTH,height=a?.length||HEIGHT,network=roadNetwork(map,a,points,options.extraEndpoints||[],!!options.includeActors),roadCells=network.renderCells,plazas=plazaCells(map,a,points,options);
-    if(options.carveRoads)for(const k of roadCells){const [x,y]=k.split(',').map(Number);if(x>0&&x<width-1&&y>0&&y<height-1)a[y][x]=0;}
-    const zones=Array.from({length:height},(_,y)=>Array.from({length:width},(_,x)=>{const k=cellKey(x,y),tile=a[y]?.[x];if(tile===1)return ZONES.WALL;if(roadCells.has(k))return ZONES.ROAD;if(plazas.has(k))return ZONES.PLAZA;if(tile===3)return ZONES.LIQUID;if(tile===2)return ZONES.WILD;const shore=DIRECTIONS.some(([dx,dy])=>a[y+dy]?.[x+dx]===3);if(shore)return ZONES.SHORE;return ZONES.GROUND;}));
+    if(options.carveRoads)for(const k of roadCells){const [x,y]=k.split(',').map(Number);if(x>0&&x<width-1&&y>0&&y<height-1&&!citadelBlocked(map,k))a[y][x]=0;}
+    const zones=Array.from({length:height},(_,y)=>Array.from({length:width},(_,x)=>{const k=cellKey(x,y),tile=a[y]?.[x];if(tile===1)return ZONES.WALL;if(citadelGeometry(map)?.water.has(k))return ZONES.LIQUID;if(roadCells.has(k))return ZONES.ROAD;if(plazas.has(k))return ZONES.PLAZA;if(tile===3)return ZONES.LIQUID;if(tile===2)return ZONES.WILD;const shore=DIRECTIONS.some(([dx,dy])=>a[y+dy]?.[x+dx]===3);if(shore)return ZONES.SHORE;return ZONES.GROUND;}));
+    // Roads cut after the habitats were chosen can leave crumbs of wild ground; fold them back into plain ground.
+    {const seen=new Set();for(let y=1;y<height-1;y++)for(let x=1;x<width-1;x++){const k0=cellKey(x,y);if(zones[y][x]!==ZONES.WILD||seen.has(k0))continue;const group=[[x,y]];seen.add(k0);for(let i=0;i<group.length;i++){const [cx,cy]=group[i];for(const [dx,dy] of DIRECTIONS){const nx=cx+dx,ny=cy+dy,nk=cellKey(nx,ny);if(zones[ny]?.[nx]===ZONES.WILD&&!seen.has(nk)){seen.add(nk);group.push([nx,ny]);}}}if(group.length<12)for(const [gx,gy] of group){zones[gy][gx]=ZONES.GROUND;if(a[gy][gx]===2)a[gy][gx]=0;}}}
     cleanZoneComponents(zones,width,height);const orientations=zones.map((row,y)=>row.map((zone,x)=>zone===ZONES.ROAD?zoneOrientation(zones,x,y):null));const counts={};for(const row of zones)for(const zone of row)counts[zone]=(counts[zone]||0)+1;
     return {zones,roadCells,plazaCells:plazas,routes:network.routes,endpoints:network.endpoints,orientations,stats:counts};
   }
    function connectMap(a,points,seedValue,layout={}){
     const width=a?.[0]?.length||WIDTH,height=a?.length||HEIGHT,spawn=layout?.spawn||SPAWN;
      if(layout?.kind==='lair'||layout?.layout==='lair')return a;
-    for(let y=spawn.y-4;y<=spawn.y+4;y++)for(let x=spawn.x-4;x<=spawn.x+4;x++)if(x>0&&x<width-1&&y>0&&y<height-1)a[y][x]=0;
-    const network=roadNetwork(layout,a,points,[],true),roadCells=network.renderCells;for(const k of roadCells){const [x,y]=k.split(',').map(Number);if(x>0&&x<width-1&&y>0&&y<height-1)a[y][x]=0;}
+    for(let y=spawn.y-4;y<=spawn.y+4;y++)for(let x=spawn.x-4;x<=spawn.x+4;x++)if(x>0&&x<width-1&&y>0&&y<height-1&&!citadelBlocked(layout,cellKey(x,y)))a[y][x]=0;
+    const network=roadNetwork(layout,a,points,[],true),roadCells=network.renderCells;for(const k of roadCells){const [x,y]=k.split(',').map(Number);if(x>0&&x<width-1&&y>0&&y<height-1&&!citadelBlocked(layout,k))a[y][x]=0;}
     const plazas=plazaCells(layout,a,points);for(const k of plazas){const [x,y]=k.split(',').map(Number);if(a[y]?.[x]===2)a[y][x]=0;}
-    return normalizeEncounters(a,points,seedValue,spawn,{...layout,reservedCells:new Set([...roadCells,...plazas])});
+    const cit=new Set(),cg=citadelGeometry(layout);if(cg){for(const O of citadelRects(layout))for(let y=O.y;y<O.y+O.h;y++)for(let x=O.x;x<O.x+O.w;x++)if(wardContains(O,x,y))cit.add(cellKey(x,y));}
+    const done=normalizeEncounters(a,points,seedValue,spawn,{...layout,reservedCells:new Set([...roadCells,...plazas,...cit]),cityCells:cit});
+    return finalizeCitadel(done,layout,points);
   }
- function stats(a){let walkableTiles=0,encounterTiles=0;for(const row of a)for(const tile of row){if(walkable(tile)){walkableTiles++;if(tile===2)encounterTiles++;}}return {walkable:walkableTiles,encounters:encounterTiles,ratio:walkableTiles?encounterTiles/walkableTiles:0};}
+ // Encounter coverage is measured on the open land; the walled city is a safe zone and is excluded when a map is given.
+ function stats(a,map=null){let walkableTiles=0,encounterTiles=0;for(let y=0;y<a.length;y++)for(let x=0;x<a[y].length;x++){const tile=a[y][x];if(map&&inCitadel(map,x,y))continue;if(walkable(tile)){walkableTiles++;if(tile===2)encounterTiles++;}}return {walkable:walkableTiles,encounters:encounterTiles,ratio:walkableTiles?encounterTiles/walkableTiles:0};}
  function build(map,npcs=[]){
    const a=terrainGrid(map),anchors=pointAnchors(map),blocked=new Set(anchors.map(p=>cellKey(p.x,p.y))),occupied=new Set(blocked),homes=[];
   npcs.forEach((n,index)=>{const home=npcHome(n,index,a,blocked,occupied);occupied.add(cellKey(home.x,home.y));homes.push({x:home.x,y:home.y,type:'npc',id:n.id});});
     const points=anchors.concat(homes);connectMap(a,points,map?.id||'map',map);const zones=zoneModel(map,a,points);return {grid:a,points,anchors,homes,zones:zones.zones,zoneModel:zones};
  }
 
-  g.VTN_MAP_LAYOUTS={WIDTH,HEIGHT,LAIR_WIDTH,LAIR_HEIGHT,REGION_WIDTH,REGION_HEIGHT,SPAWN,ZONES,hash,unit,dimensions,walkable,terrainGrid,pointAnchors,npcHome,routePath,roadNetwork,plazaCells,zoneModel,habitats,connectMap,normalizeEncounters,stats,build,lairAsset,lairGeometry,lairWalkable,lairSpawn,lairWake};
+  g.VTN_MAP_LAYOUTS={regionSize,frameScale,wardContains,buildingLots,citadelOf,citadelGeometry,citadelZone,citadelRects,inCitadel,finalizeCitadel,WIDTH,HEIGHT,LAIR_WIDTH,LAIR_HEIGHT,REGION_WIDTH,REGION_HEIGHT,SPAWN,ZONES,hash,unit,dimensions,walkable,terrainGrid,pointAnchors,npcHome,routePath,roadNetwork,plazaCells,zoneModel,habitats,connectMap,normalizeEncounters,stats,build,lairAsset,lairGeometry,lairWalkable,lairSpawn,lairWake};
 })(typeof window!=='undefined'?window:globalThis);

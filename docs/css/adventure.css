@@ -44,8 +44,8 @@
 .atlas-tabs,.storage-tabs,.admin-toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
 .atlas-tabs button,.storage-tabs button{min-height:40px}.atlas-tabs .is-active,.storage-tabs .is-active{border-color:#d9b879;background:#3a2a43}
 .atlas-heading{display:flex;justify-content:space-between;gap:12px;align-items:start;flex-wrap:wrap;margin-bottom:12px}.atlas-heading h3{margin:0;color:#ead5b2;font:600 28px var(--vtn-title)}
-.atlas-canvas-wrap{position:relative;border:1px solid #947344;padding:8px;background:#100e19;overflow:hidden}
-.atlas-canvas{display:block;width:100%;height:auto;image-rendering:pixelated;cursor:crosshair;touch-action:manipulation}
+.atlas-canvas-wrap{position:relative;border:1px solid #947344;padding:8px;background:#2a1c14;overflow:hidden}
+.atlas-canvas{display:block;width:100%;height:auto;cursor:crosshair;touch-action:manipulation}
 .atlas-legend{display:flex;gap:10px;flex-wrap:wrap;color:#c7bbce;font-size:11px;margin:12px 0}.atlas-legend span{display:flex;align-items:center;gap:5px}.atlas-legend i{width:10px;height:10px;border:1px solid #bcb09b;display:inline-block;background:var(--mark)}
 .atlas-selection{margin-top:12px;padding:12px;border-left:2px solid #baa06a;background:#20182c;min-height:60px;font-size:12px;line-height:1.7}
 .storage-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.storage-toolbar input,.storage-toolbar select{padding:10px;min-height:42px;min-width:0;background:#15111e;border:1px solid #766044;color:#eadfc8}
@@ -56,3 +56,8 @@
 @media(max-width:760px){.story-dialogue{width:calc(100% - 20px);padding:18px 16px 14px;grid-template-columns:105px minmax(0,1fr);gap:14px;bottom:10px}.story-dialogue .story-portrait{min-height:125px}.story-dialogue .story-speaker{font-size:22px}.story-dialogue .story-controls>span{display:none}.story-dialogue .story-text{font-size:14px;line-height:1.75}.story-copy{min-height:150px}.creation-shell .class-grid .choice-card{min-height:240px}.creation-shell .preview-art .class-battle-sprite{transform:none!important}.creation-shell .preview-art:not(.confirm-art){min-height:190px;height:190px}.storage-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:460px){.story-dialogue{grid-template-columns:82px minmax(0,1fr);padding:14px 12px;gap:12px}.story-dialogue .story-portrait{min-height:110px;max-height:160px}.story-dialogue .story-speaker{font-size:20px;line-height:1.4}.story-dialogue .story-text{font-size:13px;line-height:1.8}.story-dialogue .story-controls{gap:8px}.story-dialogue .story-controls .story-advance{padding:7px 12px}.story-dialogue .story-controls .story-back{margin-left:0}.storage-grid{gap:8px}.storage-grid .card{padding:10px}}
 @media(max-height:500px) and (orientation:landscape){.story-dialogue{padding:12px 18px;grid-template-columns:105px minmax(0,1fr);gap:16px;min-height:0;max-height:85dvh}.story-dialogue .story-portrait{min-height:100px;max-height:155px}.story-dialogue .story-copy{min-height:110px}.story-dialogue .story-speaker{font-size:20px;margin:0}.story-dialogue .story-text{font-size:13px;line-height:1.6;min-height:3em}.story-dialogue .story-controls{margin-top:5px}}
+
+/* Four readable touch targets for logic questions. */
+.riddle-options{display:grid;grid-template-columns:1fr;gap:.7rem;margin:1rem 0}
+.riddle-options button{min-height:52px;width:100%;white-space:normal;text-align:left;line-height:1.5;padding:.85rem 1rem}
+#content [data-riddle-id] h2{text-transform:none;letter-spacing:0;font-weight:600;font-size:clamp(1.1rem,3vw,1.5rem);line-height:1.6;overflow-wrap:anywhere}

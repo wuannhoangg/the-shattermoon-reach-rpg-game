@@ -1,0 +1,19 @@
+/* RPG Button 7 skin for the main action buttons (assets/ui/rpgbtn). Applied to action rows only so cards and icon buttons keep their own look. */
+:is(#overlay #content :is(.row,.qbtn,.atlas-tabs,.atlas-heading,.tutorial-actions),.quest-tools,.vtn-button):is(*,*)>button,
+.vtn-button{
+  background:url("../assets/ui/rpgbtn/violet_normal.png") center/100% 100% no-repeat;
+  border:0;border-radius:6px;color:#fff3d6;text-shadow:0 1px 2px #000b;
+  min-height:44px;padding:8px 18px;font-weight:700;letter-spacing:.01em;
+  box-shadow:0 2px 0 #0007,0 6px 14px #0005;transition:filter .12s,transform .08s}
+:is(#overlay #content :is(.row,.qbtn,.atlas-tabs,.atlas-heading,.tutorial-actions),.quest-tools)>button:hover:not([disabled]),.vtn-button:hover:not([disabled]){
+  background-image:url("../assets/ui/rpgbtn/violet_hover.png");filter:brightness(1.08)}
+:is(#overlay #content :is(.row,.qbtn,.atlas-tabs,.atlas-heading,.tutorial-actions),.quest-tools)>button:active:not([disabled]),.vtn-button:active:not([disabled]){
+  background-image:url("../assets/ui/rpgbtn/violet_pressed.png");transform:translateY(1px)}
+:is(#overlay #content :is(.row,.qbtn,.atlas-tabs,.atlas-heading,.tutorial-actions),.quest-tools)>button[disabled],.vtn-button[disabled]{
+  background-image:url("../assets/ui/rpgbtn/disabled.png");color:#9a97a3;box-shadow:none;cursor:not-allowed}
+:is(#overlay #content :is(.row,.qbtn),.quest-tools)>button.route-cancel,.vtn-button.danger{background-image:url("../assets/ui/rpgbtn/red_normal.png")}
+:is(#overlay #content :is(.row,.qbtn),.quest-tools)>button.route-cancel:hover,.vtn-button.danger:hover{background-image:url("../assets/ui/rpgbtn/red_hover.png")}
+.vtn-button.primary,#overlay #content .row>button[data-act="q-accept"],#overlay #content .row>button[data-act="start"]{background-image:url("../assets/ui/rpgbtn/yellow_normal.png");color:#2a1a08;text-shadow:0 1px 0 #fff5;}
+#overlay #content .row>button[data-act="q-accept"]:hover:not([disabled]){background-image:url("../assets/ui/rpgbtn/yellow_hover.png")}
+.qtabs button{background:url("../assets/ui/rpgbtn/blue_normal.png") center/100% 100% no-repeat!important;border:0!important;color:#eaf1ff!important;text-shadow:0 1px 2px #000a}
+.qtabs button.is-on{background-image:url("../assets/ui/rpgbtn/yellow_normal.png")!important;color:#2a1a08!important;text-shadow:none}

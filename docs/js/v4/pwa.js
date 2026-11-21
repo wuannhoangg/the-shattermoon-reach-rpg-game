@@ -8,10 +8,11 @@
     g.addEventListener('load', () => { nav.serviceWorker.register('sw.js').catch(() => {}); });
   }
   const ios = /iPad|iPhone|iPod/.test(nav.userAgent) || (nav.platform === 'MacIntel' && nav.maxTouchPoints > 1);
+  if (!ios || !web) return;   // matchMedia forces a full style recalc; only iOS needs the answer
   const standalone = nav.standalone === true || (g.matchMedia && g.matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches);
   let dismissed = false;
   try { dismissed = g.localStorage.getItem('vtn-install-hint') === '1'; } catch { /* ignore */ }
-  if (!ios || standalone || dismissed || !web) return;
+  if (standalone || dismissed) return;
   const bar = d.createElement('div');
   bar.id = 'install-hint';
   bar.setAttribute('role', 'note');

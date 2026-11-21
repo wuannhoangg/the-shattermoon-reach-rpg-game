@@ -6,7 +6,7 @@
       <p>Bạn là một người bị triệu hồi từ thế giới khác tới Vực Tàn Nguyệt. Bạn có một năng lực hiếm: lập <b>Khế Hồn</b> với những sinh linh đã mất trái tim và trả lại trái tim cho chúng.</p>
       <ul>
         <li><b>Đi theo nhiệm vụ.</b> Thẻ nhiệm vụ ở góc màn hình luôn nói bước tiếp theo. Bấm nút <b>Hành trình</b> (phím <kbd>J</kbd>) để xem đầy đủ và để nhân vật tự tìm đường tới nơi cần đến.</li>
-        <li><b>Thu phục khế thú</b> để lập đội. Khế thú ra trận cùng bạn.</li>
+        <li><b>Lập khế khế thú</b> để lập đội. Khế thú ra trận cùng bạn.</li>
         <li><b>Hạ trùm vùng</b> để lấy Mảnh Trăng và mở vùng mới.</li>
         <li><b>Trò chơi tự động lưu</b>. Bạn cũng có thể lưu thủ công trong mục <b>Lưu / Tải</b>.</li>
       </ul>`},
@@ -19,13 +19,13 @@
         <li><b>Phím tắt:</b> <kbd>J</kbd> Hành trình · <kbd>B</kbd> Bách Quái Lục · <kbd>P</kbd> Đội hình · <kbd>C</kbd> Nhân vật · <kbd>I</kbd> Hành trang · <kbd>R</kbd> Vạn Tộc Chí. <kbd>Esc</kbd> quay lại một bước.</li>
       </ul>
       <p class="small">Trên điện thoại: chạm để đi, dùng thanh nút phía trên để mở các mục trên.</p>`},
-    {t: 'Gặp quái và thu phục', h: `
+    {t: 'Gặp quái và lập khế', h: `
       <ul>
         <li><b>Chỉ gặp quái trong vùng sinh sống</b> của chúng (cỏ, rừng, nước… được tô màu trên bản đồ). Đi trên đường thì an toàn.</li>
         <li><b>Thẻ KHU SĂN</b> (dưới thẻ nhiệm vụ) liệt kê loài trong vùng và tỉ lệ gặp. Chọn một loài rồi bấm nút tự tìm để nhân vật tự đi săn cho tới khi bạn bấm dừng.</li>
-        <li><b>Thu phục:</b> chỉ với quái hoang dã. Trong trận chọn <b>Khế Hồn</b>, chọn loại phong ấn, mỗi loại hiện sẵn tỉ lệ thành công.</li>
+        <li><b>Lập khế:</b> chỉ với quái hoang dã. Trong trận chọn <b>Khế Hồn</b>, chọn loại phong ấn, mỗi loại hiện sẵn tỉ lệ thành công.</li>
         <li><b>Tỉ lệ cao hơn khi:</b> quái còn ít máu, phong ấn hợp hệ, đã tìm ra điểm yếu, nhân vật có thiên phú Khế Hồn cao.</li>
-        <li><b>Quái mất tim</b> có mắt vô hồn. Thu phục sẽ trả lại trái tim cho chúng. Một số Bá Chủ cần vật phẩm đặc biệt.</li>
+        <li><b>Quái mất tim</b> có mắt vô hồn. Lập khế sẽ trả lại trái tim cho chúng. Một số Bá Chủ cần vật phẩm đặc biệt.</li>
         <li>Đội tối đa 5 khế thú, số thừa vào <b>kho</b>.</li>
       </ul>`},
     {t: 'Chiến đấu: lượt và đội hình', h: `
@@ -41,7 +41,7 @@
       <ul>
         <li><b>Tấn công:</b> mở tab Kỹ năng. Chọn <b>mục tiêu</b> ở hàng trên, rồi chọn một trong bốn kỹ năng hoặc <b>Đòn thường</b> (không tốn MP). Đang ở tab Kỹ năng mà bấm sang thẻ khác thì tab vẫn mở, bạn chỉ việc chọn kỹ năng cho người đó.</li>
         <li><b>Hệ khắc nhau:</b> thẻ kỹ năng ghi <i>Hiệu quả ×2</i> (khắc), <i>Bình thường ×1</i> hoặc <i>Tác dụng yếu ×0.5</i>. Chọn kỹ năng khắc hệ của đối thủ sẽ gây sát thương gấp đôi.</li>
-        <li><b>Khế Hồn:</b> thu phục quái hoang dã (chỉ nhân vật dùng được). Nút <b>Nói chuyện</b> thử làm quái dịu lại (hiệu quả khi đã lộ điểm yếu).</li>
+        <li><b>Khế Hồn:</b> lập khế quái hoang dã (chỉ nhân vật dùng được). Nút <b>Nói chuyện</b> thử làm quái dịu lại (hiệu quả khi đã lộ điểm yếu).</li>
         <li><b>Vật phẩm:</b> hồi HP, hồi MP, giải trạng thái. Bấm nút <b>i</b> bên cạnh mỗi vật phẩm để xem tác dụng chi tiết trước khi dùng. Dùng vật phẩm tốn lượt của nhân vật.</li>
         <li><b>Đổi vị trí:</b> đưa khế thú dự bị lên sân.</li>
         <li><b>Phòng thủ:</b> giảm mạnh sát thương nhận vào trong vòng này.</li>
@@ -63,14 +63,14 @@
         <li><b>Nuôi dưỡng:</b> cho ăn thức ăn hoặc vật phẩm kinh nghiệm để tăng cấp; thức ăn còn tăng gắn kết. Gắn kết cao giúp khế thú nghe lệnh và mở tiến hóa.</li>
         <li><b>Tiến hóa:</b> khi đủ điều kiện (cấp, gắn kết, nguyên liệu…), nút Tiến hóa sẽ sáng lên.</li>
         <li><b>Bộ kỹ năng:</b> mỗi người mang tối đa 4 kỹ năng chủ động. Đổi bộ này ngoài trận, không đổi được trong giao tranh.</li>
-        <li><b>Bách Quái Lục</b> (<kbd>B</kbd>) ghi mọi loài đã gặp và đã thu phục, kèm điểm yếu đã khám phá.</li>
+        <li><b>Bách Quái Lục</b> (<kbd>B</kbd>) ghi mọi loài đã gặp và đã lập khế, kèm điểm yếu đã khám phá.</li>
       </ul>`},
     {t: 'Nhân vật, hành trang và trang bị', h: `
       <ul>
         <li><b>Nhân vật</b> (<kbd>C</kbd>): khi lên cấp bạn có điểm chỉ số (bấm +1 vào chỉ số muốn tăng) và điểm kỹ năng để học kỹ năng mới của lớp.</li>
         <li><b>Hành trang</b> (<kbd>I</kbd>): dùng vật phẩm hồi phục, thức ăn, nến. Bấm một vật phẩm để xem chi tiết.</li>
         <li><b>Bảo Vật Chí:</b> thư viện mọi vật phẩm và trang bị, ghi tác dụng và nơi tìm. Với trang bị bạn có, mở trang chi tiết để <b>mặc</b>, <b>rèn +1</b> (tốn tro vàng) hoặc <b>khảm ngọc</b> tăng phòng thủ.</li>
-        <li><b>Cửa hàng</b> bán phong ấn thu phục và thuốc. Tro vàng kiếm được từ trận thắng và nhiệm vụ.</li>
+        <li><b>Cửa hàng</b> bán phong ấn lập khế và thuốc. Tro vàng kiếm được từ trận thắng và nhiệm vụ.</li>
         <li>Trang bị bị nguyền sẽ rút máu, hãy giải nguyền trước khi thay.</li>
       </ul>`},
     {t: 'Khám phá, lưu và thoát', h: `

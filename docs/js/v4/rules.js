@@ -1,5 +1,5 @@
 (function(g){'use strict';
-  const D=g.VTN_DATA,by=(key,id)=>D[key].find(v=>v.id===id||(key==='encounters'&&v.regionId===id)),clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),clone=v=>JSON.parse(JSON.stringify(v));
+  const D=g.VTN_DATA,by=(key,id)=>D[key].find(v=>v.id===id||(key==='encounters'&&v.regionId===id))||(key==='maps'?D.interiorMaps?.find(v=>v.id===id):undefined),clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),clone=v=>JSON.parse(JSON.stringify(v));
   const defaultWeights={
    weaponFamilyByIndex:{0:'sword',1:'greatsword',2:'dagger',3:'spear',4:'axe',5:'hammer',6:'scythe',7:'bow',8:'crossbow',9:'staff',10:'spellbook',11:'bell',12:'chainWhip',13:'warFan',14:'trident',15:'claw',16:'spiritCage'},
    weaponBase:{dagger:1.5,sword:3,greatsword:7,spear:4,axe:5,hammer:7,scythe:5,bow:2,crossbow:4,staff:2.5,spellbook:1.5,bell:2,chainWhip:3,warFan:1.5,trident:4.5,claw:2,spiritCage:2.5},
@@ -24,7 +24,7 @@
   D.maps??=[];for(const map of maps)if(map?.id&&!D.maps.some(v=>v.id===map.id))D.maps.push(map);
   for(const map of maps){const surface=D.maps.find(v=>v.id===map.parentId);if(surface){surface.links??=[];if(!surface.links.includes(map.id))surface.links.push(map.id);}}
   for(const map of D.maps){
-   if(map?.kind==='region'){map.width=80;map.height=60;}
+   if(map?.kind==='region'){const cz=D.citadels?.regions?.[map.regionId],ms=cz&&cz.enabled!==false?cz.mapSize:null;map.width=ms?.w||80;map.height=ms?.h||60;}
    if(map?.kind==='lair'){map.width=36;map.height=17;map.spawn={x:18,y:16};}
   }
   D.overlords??=[];D.overlords=D.overlords.filter(v=>v?.id);
@@ -78,11 +78,33 @@ function order(actors,rng=Math.random){const slowest=Math.max(1,Math.min(...acto
 const affinity=(type,targets)=>{const factor=targets.reduce((v,t)=>v*(D.types.matrix[type]?.[t]??1),1);return factor===0?0:clamp(factor,.25,4);};
 function damage(attack,defense,power,modifier=1,rng=Math.random){return Math.max(2,Math.round((power+1.7*attack)*100/(100+1.8*defense)*modifier*(.9+rng()*.2)));}
 function price(s,item){const cha=heroStats(s).CHA,rep=Math.max(...Object.values(s.factions),0);return Math.max(1,Math.round(item.price*clamp(1-cha*.004-rep*.001,.6,1.2)*(s.hero.raceId==='R-06'&&s.mapId==='region_06'?.9:1)));}
- const captureRefusal='Con quái này đã mất tim. Không ai thu phục được nó.';
+ const captureRefusal='Con quái này đã mất tim. Không ai lập khế được nó.';
  function talentInfo(s){const talent=s?.hero?.talent||{},ranks=D.hearts?.talent?.ranks||{},valid=talent.id==='khe_hon'&&!!ranks[talent.rank];return {id:valid?'khe_hon':talent.id||null,rank:valid?talent.rank:'D',config:valid?ranks[talent.rank]:{captureBonus:0,heartlessTierCap:-1}};}
  function canCaptureHeartless(s,mon){if(mon?.heart!=='heartless')return true;const talent=talentInfo(s);return talent.id==='khe_hon'&&by('monsters',mon.speciesId).tierIndex<=talent.config.heartlessTierCap;}
  function captureBlockReason(s,mon){return mon?.heart==='heartless'&&!canCaptureHeartless(s,mon)?captureRefusal:null;}
-  function catchChance(s,mon,item,weak=false){if(item?.id==='nguyet_tam_an')return mon?.speciesId==='M-200'?0:1;const sp=by('monsters',mon.speciesId),st=monsterStats(mon),blocked=captureBlockReason(s,mon);if(blocked||!item)return 0;const talent=talentInfo(s);return clamp(item.power+(1-mon.hp/st.hp)*.35+heroStats(s).CHA*.005+(item.affinity&&sp.types.includes(item.affinity)?.15:0)+(item.category&&sp.category.includes(item.category)?.15:0)+(mon.status?.12:0)+(weak?.22:0)+((s.hero.raceId==='R-05'&&sp.types.includes('Mộc')||s.hero.raceId==='R-33'&&sp.types.includes('Long')||s.hero.raceId==='R-35'&&sp.types.includes('Quang'))?.15:0)+talent.config.captureBonus-sp.tierIndex*.045,.01,.92);}
+  function catchChance(s,mon,item,weak=false,difficulty=g.VTNPrefs?.difficulty()){if(item?.id==='nguyet_tam_an')return mon?.speciesId==='M-200'?0:1;const sp=by('monsters',mon.speciesId),st=monsterStats(mon),blocked=captureBlockReason(s,mon);if(blocked||!item)return 0;const talent=talentInfo(s);return clamp(item.power+(1-mon.hp/st.hp)*.35+heroStats(s).CHA*.005+(item.affinity&&sp.types.includes(item.affinity)?.15:0)+(item.category&&sp.category.includes(item.category)?.15:0)+(mon.status?.12:0)+(weak?.22:0)+((s.hero.raceId==='R-05'&&sp.types.includes('Mộc')||s.hero.raceId==='R-33'&&sp.types.includes('Long')||s.hero.raceId==='R-35'&&sp.types.includes('Quang'))?.15:0)+talent.config.captureBonus-sp.tierIndex*.045+(difficulty?.capture||0),.01,.92);}
+  function difficultyDamage(amount,d,enemyAttack,enemyDefence,opening=false){
+    if(amount<=0)return 0;
+    const factor=enemyAttack&&!enemyDefence?d.foe*(opening?.6:1):enemyDefence&&!enemyAttack?d.hero*(opening?1.35:1):1;
+    return Math.max(1,Math.round(amount*factor));
+  }
+  function difficultyRewards(base,d){return {exp:Math.round(base*d.exp),gold:Math.round(base*d.gold)};}
+  function difficultyFallen(s,b){
+    const threshold=b?.difficulty?.permanentBelow||0;
+    if(!threshold||b.practice||s.hardcore)return [];
+    const lost=s.party.filter(m=>m.hp<=0&&m.bond<threshold);
+    if(lost.length){s.lostMonsters??=[];s.lostMonsters.push(...lost.map(m=>({uid:m.uid,speciesId:m.speciesId,bond:m.bond})));s.party=s.party.filter(m=>!lost.includes(m));}
+    return lost;
+  }
+  function difficultyDefeat(s,b){
+    const d=b.difficulty,h=s.hero,lost=difficultyFallen(s,b),gold=Math.floor(h.gold*d.goldLoss),candles=Math.min(Math.max(0,h.candles-1),d.candleLoss);
+    h.gold-=gold;h.candles-=candles;
+    for(const m of s.party)if(m.hp<=0)m.bond=Math.max(0,m.bond-d.bondLoss);
+    Object.assign(s,{mapId:s.lastShrine.mapId,x:s.lastShrine.x,y:s.lastShrine.y});
+    const hs=heroStats(s);h.hp=hs.hp;h.mp=hs.mp;h.status=null;
+    for(const m of s.party){const st=monsterStats(m);m.hp=st.hp;m.mp=st.mp;m.status=null;}
+    return {gold,candles,lost};
+  }
   function talentRankUp(s){if(!s?.hero)return 'D';s.hero.talent??={id:'khe_hon',rank:'D',xp:0};s.hero.talent.id??='khe_hon';s.hero.talent.rank??='D';s.hero.talent.xp??=0;const order=rankOrder(),current=order.includes(s.hero.talent.rank)?s.hero.talent.rank:'D',shards=Array.isArray(s.shards)?s.shards.length:0,resolved=Math.max(shards,Number(s.overlordsResolved)||0),bosses=resolved+(s.flags?.abyssBossDefeated?1:0),target=bosses>=6?'S':bosses>=4?'A':bosses>=2?'B':bosses>=1?'C':'D';if(order.indexOf(target)>order.indexOf(current)&&order.indexOf(current)<order.indexOf('S+'))s.hero.talent.rank=target;if(s.hero.talent.rank==='S'||order.indexOf(s.hero.talent.rank)>order.indexOf('S'))s.flags.talentRevealed=true;return s.hero.talent.rank;}
   function requirementStatus(s,requires={}){
    if(requires.rank){const order=rankOrder(),rank=talentInfo(s).rank;if(order.indexOf(rank)<order.indexOf(requires.rank))return {ok:false,reason:`Cần Khế Hồn bậc ${requires.rank}.`};}
@@ -94,7 +116,7 @@ function price(s,item){const cha=heroStats(s).CHA,rep=Math.max(...Object.values(
    const isHeart=option?.id==='return_heart'||option?.id==='restore_heart';
    if(isHeart&&talentInfo(s).rank!=='S'&&rankOrder().indexOf(talentInfo(s).rank)<rankOrder().indexOf('S'))return {ok:false,label:'Chạm vào nó',reason:'',hidden:true};
    const status=requirementStatus(s,option?.requires||{});if(status.ok&&isHeart&&(s.homeMemories||0)<1)return {ok:false,label:option.label,reason:'Không còn ký ức về nhà để trao.'};
-   return {ok:status.ok,label:option?.label||'',reason:status.reason||''};
+   return {ok:status.ok,label:option?.label||'',reason:status.reason||(isHeart&&status.ok?'tốn 1 ký ức quê nhà (Home Anchor); có thể khóa điều kiện của một kết cục':'')};
   }
   const overlordByRegion=region=>D.overlords?.find(v=>v.region===region)||null,overlordById=id=>D.overlords?.find(v=>v.id===id)||null;
 function gainMonster(m,xp){const nature=by('natures',m.natureId);m.exp+=Math.round(xp*nature.experienceMultiplier);while(m.exp>=m.level*65&&m.level<60){m.exp-=m.level*65;m.level++;}const st=monsterStats(m);m.hp=Math.min(st.hp,m.hp);m.mp=Math.min(st.mp,m.mp);m.bond=clamp(m.bond+2*nature.bondMultiplier,0,100);}
@@ -106,7 +128,7 @@ function encode(s){return JSON.stringify({format:'vuc-tan-nguyet',version:4,date
  const currentMap=by('maps',s.mapId);if(!by('races',s.hero?.raceId)||!by('classes',s.hero?.classId)||!currentMap)throw Error('Danh tính/bản đồ không hợp lệ.');
  for(const k of ['gold','candles','level','hp','mp','corruption','statPoints','skillPoints'])if(!Number.isFinite(s.hero[k])||s.hero[k]<0)throw Error('Chỉ số không hợp lệ.');
  if(s.hero.candles>9||s.hero.corruption>100||s.hero.level>60)throw Error('Chỉ số vượt giới hạn.');
- if(!Array.isArray(s.party)||!s.party.length||s.party.length>5||!Array.isArray(s.storage)||s.storage.length>3000)throw Error('Đội hình không hợp lệ.');
+ if(!Array.isArray(s.party)||s.party.length>5||!Array.isArray(s.storage)||s.storage.length>3000)throw Error('Đội hình không hợp lệ.');
  const uids=new Set();for(const m of [...s.party,...s.storage]){if(!by('monsters',m.speciesId)||!by('evolutions',m.formId)||by('evolutions',m.formId).speciesId!==m.speciesId||!by('natures',m.natureId)||!D.potential.some(p=>p.rank===m.potential)||!Number.isFinite(m.hp)||m.hp<0||!Number.isInteger(m.level)||m.level<1||m.level>60||!Number.isFinite(m.bond)||m.bond<0||m.bond>100||uids.has(m.uid))throw Error('Quái vật đồng hành không hợp lệ.');uids.add(m.uid);}
  for(const a of [s.hero,...s.party,...s.storage])if(a.equippedSkills!==undefined){
   const isHero=a===s.hero,owned=isHero?a.learned:by('monsters',a.speciesId).learnset.filter(v=>v.level<=a.level).map(v=>v.skillId),slots=a.equippedSkills;
@@ -127,5 +149,5 @@ function encode(s){return JSON.stringify({format:'vuc-tan-nguyet',version:4,date
  for(const eq of [...Object.values(s.hero.equipment),...s.hero.ownedEquipment]){if(eq&&(!by('equipment',eq.id)||!Number.isInteger(eq.plus)||eq.plus<0||eq.plus>10))throw Error('Trang bị không hợp lệ.');}
  for(const v of Object.values(s.hero.bag))if(!Number.isInteger(v)||v<0)throw Error('Vật phẩm không hợp lệ.');
    const lair=currentMap.kind==='lair',width=Number(currentMap.width)||(currentMap.kind==='region'?80:40),height=Number(currentMap.height)||(currentMap.kind==='region'?60:30),min=lair?0:1,maxX=lair?width-1:width-2,maxY=lair?height-1:height-2;if(!Number.isInteger(s.x)||!Number.isInteger(s.y)||s.x<min||s.x>maxX||s.y<min||s.y>maxY)throw Error('Vị trí không hợp lệ.');s.hero.name=String(s.hero.name).replace(/[<>&"']/g,'').slice(0,24);return s;}
-  g.VTNRules={D,by,clamp,clone,effective,weighted,availableLooks,lookWeights,chooseLook,isRareLook,heartStates,heartFor,instantiate,spawnWild,spawnBoss,monsterStats,heroStats,equipmentWeight,equippedWeight,carryCapacity,speedFactor,movementSpeed,BASE_WALK_SPEED,initiative,order,affinity,damage,price,captureRefusal,talentInfo,canCaptureHeartless,captureBlockReason,catchChance,talentRankUp,requirementStatus,overlordOptionStatus,overlordByRegion,overlordById,gainMonster,newState,canEvolve,encode,decode,raceGroup,kingdomForRace,abyssMap,abyssEncounter};
+  g.VTNRules={difficultyDamage,difficultyRewards,difficultyFallen,difficultyDefeat,D,by,clamp,clone,effective,weighted,availableLooks,lookWeights,chooseLook,isRareLook,heartStates,heartFor,instantiate,spawnWild,spawnBoss,monsterStats,heroStats,equipmentWeight,equippedWeight,carryCapacity,speedFactor,movementSpeed,BASE_WALK_SPEED,initiative,order,affinity,damage,price,captureRefusal,talentInfo,canCaptureHeartless,captureBlockReason,catchChance,talentRankUp,requirementStatus,overlordOptionStatus,overlordByRegion,overlordById,gainMonster,newState,canEvolve,encode,decode,raceGroup,kingdomForRace,abyssMap,abyssEncounter};
 })(globalThis);

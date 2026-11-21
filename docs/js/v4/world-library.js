@@ -7,6 +7,15 @@
   // file.
   const TILE = 32;
   const CHUNK_TILES = 16;
+  // camera height: how many 32-px tiles fit across the longer side of the screen (player setting "Tầm nhìn")
+  const VIEW_RANGES = { near: 20, mid: 30, far: 40, vfar: 54, ultra: 84 };
+  g.VTNViewZoom = (canvas, map) => {
+    const mode = g.VTNPrefs?.get?.().viewRange;
+    if (mode === 'whole' && map?.width) return Math.max(.08, Math.min(1, Math.min(canvas.width / (map.width * 32), canvas.height / (map.height * 32))));   // the whole region in one frame
+    const r = VIEW_RANGES[mode] || VIEW_RANGES.far;
+    return Math.max(.12, Math.min(3, Math.max(canvas.width, canvas.height) / (r * 32)));
+  };
+  g.VTNViewZoom.ranges = VIEW_RANGES;
   const CHUNK_PX = TILE * CHUNK_TILES;
   const library = g.VTN_WORLD || {};
   const imageCache = new Map();
@@ -67,10 +76,12 @@
   });
   const key = (x, y) => `${x},${y}`;
   const hash = value => {
-    let h = 2166136261;
-    for (const char of String(value ?? '')) h = Math.imul(h ^ char.charCodeAt(0), 16777619);
+    const str = String(value ?? ''); let h = 2166136261;
+    for (let i = 0; i < str.length; i++) h = Math.imul(h ^ str.charCodeAt(i), 16777619);
     return h >>> 0;
   };
+  // integer mix for per-pixel noise (no string building in hot loops)
+  const mix3 = (h, a, b) => { h = Math.imul(h ^ (a * 374761393), 668265263); h = Math.imul(h ^ (b * 1274126177), 2246822519); h ^= h >>> 15; return (h >>> 0) / 4294967296; };
   const unit = value => hash(value) / 4294967296;
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const boxesOverlap = (a, b) => !!a && !!b && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
@@ -91,7 +102,9 @@
     if (typeof Image !== 'undefined') {
       const image = new Image();
       entry.image = image;
-      image.onload = () => { entry.status = 'ready'; };
+      // decode off the main thread before anything draws it (a first drawImage would decode synchronously)
+      image.decoding = 'async';
+      image.onload = () => { const done = () => { entry.status = 'ready'; }; if (image.decode) image.decode().then(done, done); else done(); };
       image.onerror = () => { entry.status = 'missing'; };
       image.src = file;
     } else {
@@ -205,13 +218,18 @@
 
   function drawDithered(context, texture, x, y, amountAt, seed) {
     if (!texture) return;
+    // fast path: the blend amount varies smoothly, so 9 samples tell a fully covered / fully empty tile apart
+    let lo = 1, hi = 0;
+    for (const sy of [0, 15, 31]) for (const sx of [0, 15, 31]) { const v = Number(amountAt(sx, sy)) || 0; if (v < lo) lo = v; if (v > hi) hi = v; }
+    if (lo >= .995) { context.drawImage(texture, x, y); return; }
+    if (hi <= .01) return;
     let allVisible = true, anyVisible = false;
-    const mask = new Uint8ClampedArray(TILE * TILE * 4);
+    const mask = new Uint8ClampedArray(TILE * TILE * 4), base = hash(seed);
     for (let py = 0; py < TILE; py++) for (let px = 0; px < TILE; px++) {
       const amount = clamp(Number(amountAt(px, py)) || 0, 0, 1);
       // A hashed threshold keeps the seam dither organic at game scale; a
       // pure 4x4 Bayer pattern would itself read as another square grid.
-      const threshold = unit(`${seed}|${px}|${py}`) * .78 + ((DITHER_4[py & 3][px & 3] + .5) / 16) * .22;
+      const threshold = mix3(base, px, py) * .78 + ((DITHER_4[py & 3][px & 3] + .5) / 16) * .22;
       const visible = amount >= .995 || (amount > .01 && threshold < amount);
       if (visible) { anyVisible = true; mask[(py * TILE + px) * 4 + 3] = 255; }
       else allVisible = false;
@@ -413,7 +431,7 @@
   function generatedLots(map, grid, points) {
     if (map?.architecture === 'hell' || map?.id?.startsWith('hell_')) return [];
     const { width, height } = mapSize(map);
-    if (map?.kind === 'region') return g.VTN_DATA?.buildings?.regions?.[map.regionId]?.lots || [];
+    if (map?.kind === 'region') return g.VTN_MAP_LAYOUTS?.buildingLots?.(map) || g.VTN_DATA?.buildings?.regions?.[map.regionId]?.lots || [];
     const count = map?.layout === 'abyss_cave' ? 2 : map?.kind === 'area' ? 3 : map?.kind === 'realm' ? 2 : 2;
     const out = [];
     const candidates = [
@@ -447,14 +465,15 @@
 
   function makeBuildings(map, grid, points, config) {
     const setName = config?.set || setForMap(map), lots = generatedLots(map, grid, points), used = new Set(), buildings = [];
+    const lotKit = regionKit(g.VTN_MAP_LAYOUTS?.citadelOf?.(map));
     for (const lot of lots) {
-      const asset = chooseBuilding(setName, lot, map, config, used);
+      const asset = (lot.asset && lotKit?.buildings?.[lot.asset]) ? { ...lotKit.buildings[lot.asset], gate: false } : chooseBuilding(setName, lot, map, config, used);
       if (!asset) continue;
       const door = Array.isArray(lot.door) ? { x: Number(lot.door[0]), y: Number(lot.door[1]) } : { x: Number(lot.x) + Math.floor(Number(lot.w || 6) / 2), y: Number(lot.y) + Number(lot.h || 5) - 1 };
       const assetDoor = asset.door || [asset.w / 2, asset.h - 1];
       const drawX = Math.round((door.x + 0.5) * TILE - Number(assetDoor[0]));
       const drawY = Math.round((door.y + 1) * TILE - Number(assetDoor[1]));
-      const foot = asset.foot || [0, Math.max(0, asset.h - 12), asset.w, 12];
+      const foot = asset.collider || asset.foot || [0, Math.max(0, asset.h - 12), asset.w, 12];
       const fullBox = { left: drawX, top: drawY, right: drawX + asset.w, bottom: drawY + asset.h };
       const footBox = { left: drawX + foot[0], top: drawY + foot[1], right: drawX + foot[0] + foot[2], bottom: drawY + foot[1] + foot[3] };
       buildings.push({
@@ -478,7 +497,7 @@
     // A few POIs become proper landmark buildings instead of the old generic
     // altar silhouette.  Their door remains the original interaction tile.
     const landmarks = (points || []).filter(point => ['boss', 'shrine', 'puzzle', 'arena'].includes(point.type));
-    for (const point of landmarks.slice(0, map?.kind === 'region' ? 3 : 1)) {
+    for (const point of (lotKit ? [] : landmarks).slice(0, map?.kind === 'region' ? 3 : 1)) {
       if (buildings.some(building => distance(building.door, point) <= 5)) continue;
       const lot = {
         name: `${map?.id || 'map'}|landmark|${point.id || point.type}`,
@@ -503,6 +522,29 @@
     return buildings;
   }
 
+  // Walled anchor city: towers, gatehouse and courtyard props are building-like sprites (kit from CastleKingdom, graded).
+  const regionKit = c => (c?.kit && g.VTN_KINGDOM_KITS?.[c.kit]) || null;
+  function makeStructures(map) {
+    const geo = g.VTN_MAP_LAYOUTS?.citadelGeometry?.(map), rk = regionKit(geo?.c), kit = rk || g.VTN_KINGDOM;
+    if (!geo || !kit) return [];
+    const out = [];
+    for (const s of [...(geo.c.towers || []), ...(geo.c.props || [])]) {
+      const asset = (rk && rk.structures?.[s.t]) || kit.buildings?.[s.t] || kit.props?.[s.t];
+      if (!asset) continue;
+      const door = { x: s.x, y: s.y }, foot = asset.collider || asset.foot, drawX = Math.round((door.x + 0.5) * TILE - asset.door[0]), drawY = Math.round((door.y + 1) * TILE - asset.door[1]);
+      const fullBox = { left: drawX, top: drawY, right: drawX + asset.w, bottom: drawY + asset.h };
+      const footBox = Array.isArray(s.foot) ? { left: (s.x + s.foot[0]) * TILE, top: (s.y + s.foot[1]) * TILE, right: (s.x + s.foot[0] + s.foot[2]) * TILE, bottom: (s.y + s.foot[1] + s.foot[3]) * TILE }
+        : { left: drawX + foot[0], top: drawY + foot[1], right: drawX + foot[0] + foot[2], bottom: drawY + foot[1] + foot[3] };
+      out.push({
+        noCollide: s.solid === false || (asset.noCollider && !Array.isArray(s.foot) && s.solid !== true),
+        dataFoot: Array.isArray(s.foot),
+        id: `cit|${s.t}|${s.x},${s.y}`, lot: { name: '', x: s.x, y: s.y, w: 1, h: 1 }, asset, image: imageFor(asset.file), drawX, drawY, door, name: s.t === 'gatehouse' ? 'Cổng Nội Thành' : s.t.startsWith('tower') ? 'Tháp canh' : 'Quảng trường',
+        fullBox, footBox, sortY: footBox.bottom, gate: false, structure: true, solidDoor: asset.kind !== 'gate', noFade: asset.kind === 'prop', district: null, landmark: false, ward: s.ward
+      });
+    }
+    return out;
+  }
+
   function propCandidates(map, config, seed) {
     const names = setNamesForMap(map, config), all = [];
     for (const setName of names) {
@@ -524,6 +566,8 @@
 
   function makePropPlacement(prop, cell, index, buildings, points, state) {
     if (!prop || !cell) return null;
+    const ward = state.ward?.(cell.x, cell.y);
+    if (ward === 'inner' || ward === 'keep' || (ward === 'outer' && prop.shape === 'tall')) return null;
     const w = Number(prop.w) || TILE, h = Number(prop.h) || TILE;
     const drawX = Math.round((cell.x + 0.5) * TILE - w / 2), drawY = Math.round((cell.y + 1) * TILE - h);
     const box = { left: drawX, top: drawY, right: drawX + w, bottom: drawY + h };
@@ -532,7 +576,7 @@
     if ((points || []).some(point => distance(point, cell) <= 1)) return null;
     if (state.pathCells.has(key(cell.x, cell.y)) || state.encounterCells.has(key(cell.x, cell.y))) return null;
     if (prop.shape === 'tall' && state.tallCells.some(other => distance(other, cell) < 3)) return null;
-    if (isSharedProp(prop) && state.placed > 0 && (state.sharedPlaced + 1) / (state.placed + 1) > (terrainData().sharedPropLimit || 0.3)) return null;
+    if (isSharedProp(prop) && (state.sharedPlaced + 1) / (state.placed + 1) > (terrainData().sharedPropLimit || 0.3)) return null;
     state.boxes.push(box);
     state.placed++;
     if (isSharedProp(prop)) state.sharedPlaced++;
@@ -545,6 +589,7 @@
   }
 
   function makeProps(map, grid, points, buildings, config, path) {
+    const wardOf = g.VTN_MAP_LAYOUTS?.citadelOf?.(map) ? (x, y) => g.VTN_MAP_LAYOUTS.citadelZone(map, x, y) : null;
     const seed = `${map?.id || 'map'}|${config?.set || setForMap(map)}`, pool = propCandidates(map, config, seed);
     const state = {
       pathCells: new Set([...(path.cells || []), ...(path.renderCells || [])]),
@@ -554,7 +599,8 @@
       placements: [],
       collisionCells: new Set(),
       placed: 0,
-      sharedPlaced: 0
+      sharedPlaced: 0,
+      ward: wardOf
     };
     for (let y = 0; y < grid.length; y++) for (let x = 0; x < (grid[0]?.length || 0); x++) if (grid[y][x] === 2) state.encounterCells.add(key(x, y));
     let index = 0;
@@ -596,6 +642,7 @@
     // Wide silhouettes read as settlement fences, railings, and cliff edging.
     // Keep the cadence sparse so they frame routes without turning into walls.
     for (const building of buildings) {
+      if (building.structure) continue;
       const lot = building.lot || {};
       const candidates = [
         [Number(lot.x) - 1, Number(lot.y) + Math.floor(Number(lot.h || 5) / 2)],
@@ -611,6 +658,7 @@
       if (nearLiquid && unit(`${seed}|liquid-edge|${x}|${y}`) < 0.22) add('wide', x, y);
     }
     for (const building of buildings) {
+      if (building.structure) continue;
       const door = building.door;
       const offsets = [[-2, 0], [2, 0], [0, -2], [0, 2], [-1, -1], [1, -1]];
       for (let i = 0; i < offsets.length; i++) {
@@ -870,7 +918,8 @@
       return [snapshot.data[offset], snapshot.data[offset + 1], snapshot.data[offset + 2]];
     };
     const width = plan.size.width, height = plan.size.height;
-    const isGround = (x, y) => planZone(plan, x, y) === zoneNames().GROUND;
+    const inCity = (x, y) => !!plan.citadel && g.VTN_MAP_LAYOUTS.inCitadel(plan.map, x, y);
+    const isGround = (x, y) => planZone(plan, x, y) === zoneNames().GROUND && !inCity(x, y);
     let borders = 0, highContrast = 0;
     const compare = (x, y, nx, ny, horizontal) => {
       if (!isGround(x, y) || !isGround(nx, ny)) return;
@@ -891,24 +940,194 @@
     return { threshold: GROUND_EDGE_THRESHOLD, borders, highContrast, ratio: borders ? highContrast / borders : 0 };
   }
 
-  function buildChunks(plan) {
-    if (plan.chunks || typeof document === 'undefined') return;
+  function citadelFiles(map) {
+    const kit = g.VTN_KINGDOM, c = g.VTN_MAP_LAYOUTS?.citadelOf?.(map), rk = regionKit(c);
+    if (rk) return [rk.wall.cap.file, rk.wall.body.file, ...(rk.wall.caps || []).map(t => t.file), ...(rk.wall.bodies || []).map(t => t.file), ...Object.values(rk.floor).flat()];
+    if (!kit || !c) return [];
+    return [kit.wall.inner.file, kit.wall.outer.file, kit.courtyard.file];
+  }
+  function blobKey(isWall, x, y) {
+    const n = (dx, dy) => isWall(x + dx, y + dy);
+    const T_ = n(0, -1), R = n(1, 0), B = n(0, 1), L = n(-1, 0);
+    const TR = T_ && R && n(1, -1), BR = B && R && n(1, 1), BL = B && L && n(-1, 1), TL = T_ && L && n(-1, -1);
+    return [T_, TR, R, BR, B, BL, L, TL].map(v => v ? 1 : 2).join(',');
+  }
+  // Ground of the two wards: paved cobbles in the outer ward, flagstone slabs (with a cobbled avenue) in the inner ward.
+  function drawCitadelGround(plan, chunkFor, scope = null) {
+    const geo = plan.citadel, rk = regionKit(geo?.c);
+    if (rk) {
+      const I0 = geo.c.inner, O0 = geo.c.outer, paving = geo.c.paving || [];
+      // later zones win; a zone with `every` only claims every n-th cell (medallions along an avenue)
+      const pavingAt = (x, y, base) => {
+        let out = base;
+        for (const z of paving) {
+          const inside = z.poly ? g.VTN_MAP_LAYOUTS.wardContains(z, x, y) : (x >= z.x && x < z.x + z.w && y >= z.y && y < z.y + z.h);
+          if (!inside || !rk.floor[z.floor]) continue;
+          if (z.every && ((x - z.x) % z.every || (y - z.y) % z.every)) continue;
+          out = { list: rk.floor[z.floor], dim: z.dim ?? (out?.dim ?? (rk.dim || [.42, .58])[0]) };
+        }
+        return out;
+      };
+      const paintFloor = (ctx, dx, dy, x, y, f) => {
+        if (!f) return;
+        const img = imageFor(f.list[hash(`${x},${y}|f`) % f.list.length])?.image; if (img) ctx.drawImage(img, dx, dy);
+        if (f.dim) { ctx.fillStyle = `rgba(14,8,30,${f.dim})`; ctx.fillRect(dx, dy, 32, 32); }
+      };
+      for (let y = O0.y; y < O0.y + O0.h; y++) for (let x = O0.x; x < O0.x + O0.w; x++) {
+        if (scope && !scope(x, y)) continue;
+        if ((geo.wall.has(key(x, y)) && !rk.wall.pieces) || plan.grid[y]?.[x] === 3 || !g.VTN_MAP_LAYOUTS.wardContains(O0, x, y)) continue;   // edge-drawn walls stand on paving
+        const cx = Math.floor(x / CHUNK_TILES), cy = Math.floor(y / CHUNK_TILES), ctx = chunkFor(cx, cy).ctx, dx = (x - cx * CHUNK_TILES) * TILE, dy = (y - cy * CHUNK_TILES) * TILE;
+        const inner = g.VTN_MAP_LAYOUTS.wardContains(I0, x, y), avenue = !paving.length && Math.abs(x - 58) <= 2 && (inner || y >= I0.y + I0.h);
+        const street = paving.length && rk.floor.avenue && plan.path?.renderCells?.has(key(x, y));
+        const base = street ? { list: rk.floor.avenue, dim: .12 } : { list: (inner || avenue) ? rk.floor.slab : rk.floor.cobble, dim: avenue ? .05 : inner ? (rk.dim || [.42, .58])[0] : (rk.dim || [.42, .58])[1] };
+        paintFloor(ctx, dx, dy, x, y, pavingAt(x, y, base));
+      }
+      // canals, ponds and moat: kit water tiles with a stone rim where they meet land
+      if (rk.floor.water && geo.water?.size) for (const k of geo.water) {
+        const [x, y] = k.split(',').map(Number); if (scope && !scope(x, y)) continue; const cx = Math.floor(x / CHUNK_TILES), cy = Math.floor(y / CHUNK_TILES), ctx = chunkFor(cx, cy).ctx, dx = (x - cx * CHUNK_TILES) * TILE, dy = (y - cy * CHUNK_TILES) * TILE;
+        const img = imageFor(rk.floor.water[hash(`${x},${y}|w`) % rk.floor.water.length])?.image; if (img) ctx.drawImage(img, dx, dy);
+        ctx.fillStyle = 'rgba(10,6,30,.25)'; ctx.fillRect(dx, dy, 32, 32);
+        const dry = (ax, ay) => !geo.water.has(key(ax, ay));
+        ctx.fillStyle = '#3a2c4a';
+        if (dry(x, y - 1)) ctx.fillRect(dx, dy, 32, 5);
+        if (dry(x, y + 1)) ctx.fillRect(dx, dy + 29, 32, 3);
+        if (dry(x - 1, y)) ctx.fillRect(dx, dy, 3, 32);
+        if (dry(x + 1, y)) ctx.fillRect(dx + 29, dy, 3, 32);
+        ctx.fillStyle = 'rgba(190,160,220,.35)';
+        if (dry(x, y - 1)) ctx.fillRect(dx, dy + 5, 32, 1);
+      }
+      // paving zones that run outside the walls (approach avenues, plazas in front of gates)
+      for (const z of paving) if (z.outside) for (let y = z.y; y < z.y + z.h; y++) for (let x = z.x; x < z.x + z.w; x++) {
+        if (scope && !scope(x, y)) continue;
+        if (g.VTN_MAP_LAYOUTS.inCitadel(plan.map, x, y) || geo.wall.has(key(x, y)) || plan.grid[y]?.[x] === 3 || plan.grid[y]?.[x] === undefined) continue;
+        const cx = Math.floor(x / CHUNK_TILES), cy = Math.floor(y / CHUNK_TILES), ctx = chunkFor(cx, cy).ctx, dx = (x - cx * CHUNK_TILES) * TILE, dy = (y - cy * CHUNK_TILES) * TILE;
+        paintFloor(ctx, dx, dy, x, y, pavingAt(x, y, null));
+      }
+      for (const K of geo.c.keeps || []) for (let y = K.y; y < K.y + K.h; y++) for (let x = K.x; x < K.x + K.w; x++) {
+        if (scope && !scope(x, y)) continue;
+        if (geo.wall.has(key(x, y)) || plan.grid[y]?.[x] === 3 || !g.VTN_MAP_LAYOUTS.wardContains(K, x, y)) continue;
+        const cx = Math.floor(x / CHUNK_TILES), cy = Math.floor(y / CHUNK_TILES), ctx = chunkFor(cx, cy).ctx, dx = (x - cx * CHUNK_TILES) * TILE, dy = (y - cy * CHUNK_TILES) * TILE;
+        paintFloor(ctx, dx, dy, x, y, pavingAt(x, y, { list: rk.floor.slab, dim: (rk.dim || [.42, .58])[0] }));
+      }
+      return;
+    }
+    const kit = g.VTN_KINGDOM;
+    if (!geo || !kit) return;
+    const court = imageFor(kit.courtyard.file)?.image, I = geo.c.inner, O = geo.c.outer;
+    for (let y = O.y; y < O.y + O.h; y++) for (let x = O.x; x < O.x + O.w; x++) {
+      if (scope && !scope(x, y)) continue;
+      if (geo.wall.has(key(x, y)) || plan.grid[y]?.[x] === 3 || !g.VTN_MAP_LAYOUTS.wardContains(O, x, y)) continue;
+      const cx = Math.floor(x / CHUNK_TILES), cy = Math.floor(y / CHUNK_TILES), ctx = chunkFor(cx, cy).ctx, dx = (x - cx * CHUNK_TILES) * TILE, dy = (y - cy * CHUNK_TILES) * TILE;
+      const inner = g.VTN_MAP_LAYOUTS.wardContains(I, x, y);
+      const avenue = inner && (Math.abs(x - 58) <= 3 || y >= I.y + I.h - 3);
+      ctx.drawImage(court, (hash(`${x},${y}|c`) % 2) * 32, (inner ? (avenue ? 1 : 0) : 1) * 32, 32, 32, dx, dy, 32, 32);
+      if (!inner) { ctx.fillStyle = 'rgba(12,8,24,.34)'; ctx.fillRect(dx, dy, 32, 32); }
+    }
+  }
+  // Sprite walls (per-region kit): a front-facing battlement tile along the north/south bands, a body tile down the side bands.
+  // Polygon wards: walk every edge and lay the wall piece that matches its direction (front run, end-on run, "/" or "\" run).
+  function edgeWallPieces(geo, R, t, ward, rk, outer) {
+    const P = R.poly, pcs = rk.wall.pieces, caps = rk.wall.caps || [rk.wall.cap], out = [], shift = (t - 1) / 2;
+    const onOuter = (x, y) => { if (!outer || outer === R) return false; const Q = outer.poly; for (let i = 0; i < Q.length; i++) { const [ax, ay] = Q[i], [bx, by] = Q[(i + 1) % Q.length], dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy || 1, u = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / L2)); if (Math.hypot(ax + u * dx - x, ay + u * dy - y) < .35) return true; } return false; };
+    const gateNear = (px, py, r = 1) => { const cx = Math.floor(px / TILE), cy = Math.floor(py / TILE); for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) if (geo.open.has(key(cx + dx, cy + dy))) return true; return false; };
+    for (let i = 0; i < P.length; i++) {
+      const [ax, ay] = P[i], [bx, by] = P[(i + 1) % P.length], dx = bx - ax, dy = by - ay, len = Math.hypot(dx, dy);
+      if (len < .01 || onOuter((ax + bx) / 2, (ay + by) / 2)) continue;
+      let nx = -dy / len, ny = dx / len;                                    // inward normal (tested against the ward itself)
+      if (!g.VTN_MAP_LAYOUTS.wardContains(R, Math.floor((ax + bx) / 2 + nx * .7), Math.floor((ay + by) / 2 + ny * .7))) { nx = -nx; ny = -ny; }
+      const A = [(ax + nx * shift) * TILE, (ay + ny * shift) * TILE], B = [(bx + nx * shift) * TILE, (by + ny * shift) * TILE];
+      const drop = shift * TILE;                                           // pieces stand on the near (lower) half of the band
+      if (Math.abs(dy) < 1e-6) {                                            // east-west run: front-facing battlements, one 32-px column per tile
+        const baseY = Math.round(Math.max(A[1], B[1]) + drop), c0 = Math.round(Math.min(ax, bx)), c1 = Math.round(Math.max(ax, bx));
+        for (let cx = c0; cx < c1; cx++) { if (gateNear(cx * TILE + 16, baseY - 8, 0)) continue; const f = caps[((cx % caps.length) + caps.length) % caps.length]; out.push({ f, x: cx * TILE, y: baseY - f.h, by: Math.floor((baseY - 1) / TILE), sortY: baseY - 1, ward }); }
+        continue;
+      }
+      if (Math.abs(dx) < 1e-6) {                                            // north-south run seen end-on: stack the side pieces
+        const f = pcs.v, x = A[0], y0 = Math.min(A[1], B[1]), y1 = Math.max(A[1], B[1]);
+        for (let y = y0 + TILE; y <= y1 + 1; y += TILE) { if (gateNear(x, y - 16, 1)) continue; out.push({ f, x: Math.round(x - f.ax), y: Math.round(y + drop * .25 - f.ay), by: Math.floor((y - 1) / TILE), sortY: y - 1, ward }); }
+        continue;
+      }
+      const L = A[0] <= B[0] ? A : B, Rt = A[0] <= B[0] ? B : A, rising = Rt[1] < L[1], f = rising ? pcs.d1 : pcs.d2;
+      const n = Math.max(1, Math.round((Rt[0] - L[0]) / (f.run[0] * .8)));
+      for (let k = 0; k < n; k++) {
+        const px = L[0] + (Rt[0] - L[0]) * (k + .5) / n, py = L[1] + (Rt[1] - L[1]) * (k + .5) / n + drop * .5;
+        if (gateNear(px, py - 16, 1)) continue;
+        out.push({ f, x: Math.round(px - f.ax), y: Math.round(py - f.ay), by: Math.floor(py / TILE), sortY: py, ward });
+      }
+    }
+    return out;
+  }
+  function drawSpriteWalls(plan, chunkFor, rk) {
+    const geo = plan.citadel, c = geo.c, draws = [];
+    const bands = [[c.outer, c.outerThickness || 1, 'outer'], [c.inner, c.innerThickness || 2, 'inner'], ...(c.keeps || []).map((K, i) => [K, K.thickness || 2, 'keep' + i])];
+    const pickTile = (list, one, x) => (list && list.length ? list[((x % list.length) + list.length) % list.length] : one);
+    for (const [R, t, ward] of bands) if (R?.poly && rk.wall.pieces) draws.push(...edgeWallPieces(geo, R, t, ward, rk, c.outer));
+    for (const [R, t, ward] of bands) {
+      if (R?.poly && rk.wall.pieces) continue;
+      for (const cell of geo.wall.keys()) {
+        if (geo.wall.get(cell) !== ward) continue;
+        const [x, y] = cell.split(',').map(Number), top = y - R.y < t, bottom = R.y + R.h - 1 - y < t;
+        if (R.poly) { const cap = geo.wall.get(key(x, y + 1)) !== ward, f = cap ? pickTile(rk.wall.caps, rk.wall.cap, x) : pickTile(rk.wall.bodies, rk.wall.body, y); draws.push({ f, x: x * TILE, y: (y + 1) * TILE - f.h, by: y }); }
+        else if (top || bottom) { if ((top && y === R.y + t - 1) || (bottom && y === R.y + R.h - 1)) { const f = pickTile(rk.wall.caps, rk.wall.cap, x); draws.push({ f, x: x * TILE, y: (y + 1) * TILE - f.h, by: y }); } }
+        else { const f = pickTile(rk.wall.bodies, rk.wall.body, y); draws.push({ f, x: x * TILE, y: (y + 1) * TILE - f.h, by: y }); }
+      }
+    }
+    draws.sort((a, b) => (a.sortY ?? a.by * TILE) - (b.sortY ?? b.by * TILE) || a.x - b.x);
+    if (!chunkFor) { plan.wallDraws = draws; for (const d of draws) imageFor(d.f.file); return; }   // drawn y-sorted with the actors
+    const cols = Math.ceil(plan.size.width / CHUNK_TILES), rows = Math.ceil(plan.size.height / CHUNK_TILES);
+    for (const d of draws) {
+      const im = imageFor(d.f.file)?.image; if (!im) continue;
+      const minCx = Math.max(0, Math.floor(d.x / CHUNK_PX)), maxCx = Math.min(cols - 1, Math.floor((d.x + d.f.w - 1) / CHUNK_PX)), minCy = Math.max(0, Math.floor(d.y / CHUNK_PX)), maxCy = Math.min(rows - 1, Math.floor((d.y + d.f.h - 1) / CHUNK_PX));
+      for (let cy = minCy; cy <= maxCy; cy++) for (let cx = minCx; cx <= maxCx; cx++) chunkFor(cx, cy).ctx.drawImage(im, d.x - cx * CHUNK_PX, d.y - cy * CHUNK_PX);
+    }
+  }
+  function drawCitadel(plan, chunkFor) {
+    const geo = plan.citadel, rk0 = regionKit(geo?.c);
+    if (rk0) { if (!plan.wallDraws) { plan.wallDraws = []; drawSpriteWalls(plan, null, rk0); } return; }
+    const kit = g.VTN_KINGDOM;
+    if (!geo || !kit) return;
+    for (const [cell, ward] of geo.wall) {
+      const [x, y] = cell.split(',').map(Number), def = kit.wall[ward], sheet = imageFor(def.file)?.image;
+      const k = blobKey((xx, yy) => geo.wall.get(key(xx, yy)) === ward, x, y), id = def.map[k] ?? 0;
+      const cx = Math.floor(x / CHUNK_TILES), cy = Math.floor(y / CHUNK_TILES), ctx = chunkFor(cx, cy).ctx;
+      ctx.drawImage(sheet, (id % def.cols) * 32, Math.floor(id / def.cols) * 32, 32, 32, (x - cx * CHUNK_TILES) * TILE, (y - cy * CHUNK_TILES) * TILE, 32, 32);
+    }
+  }
+
+  // Chunks are baked on demand (Unity-style streaming): `ids` = the chunk ids to bake now; others are skipped.
+  const NOOP_CHUNK = { ctx: new Proxy({}, { get: (t, k) => (k in t ? t[k] : () => {}), set: (t, k, v) => { t[k] = v; return true; } }) };
+  function chunkIdsAround(plan, tx, ty, rx = 2, ry = 2) {
+    const cols = Math.ceil(plan.size.width / CHUNK_TILES), rows = Math.ceil(plan.size.height / CHUNK_TILES), cx = Math.floor(tx / CHUNK_TILES), cy = Math.floor(ty / CHUNK_TILES), out = [];
+    for (let y = Math.max(0, cy - ry); y <= Math.min(rows - 1, cy + ry); y++) for (let x = Math.max(0, cx - rx); x <= Math.min(cols - 1, cx + rx); x++) out.push(`${x},${y}`);
+    return out;
+  }
+  function allChunkIds(plan) { return chunkIdsAround(plan, 0, 0, 999, 999); }
+  function buildChunks(plan, ids = null) {
+    if (typeof document === 'undefined') return;
     const { width, height } = plan.size, cols = Math.ceil(width / CHUNK_TILES), rows = Math.ceil(height / CHUNK_TILES);
-    const chunks = new Map();
+    plan.chunks ??= new Map();
+    const chunks = plan.chunks, want = new Set((ids || allChunkIds(plan)).filter(id => !chunks.has(id)));
+    if (!want.size) return;
+    const scope = (x, y) => want.has(`${Math.floor(x / CHUNK_TILES)},${Math.floor(y / CHUNK_TILES)}`);
+    const fresh = new Map();
     const chunkFor = (cx, cy) => {
       const id = `${cx},${cy}`;
-      if (chunks.has(id)) return chunks.get(id);
+      if (!want.has(id)) return NOOP_CHUNK;
+      if (fresh.has(id)) return fresh.get(id);
       const canvas = document.createElement('canvas');
       canvas.width = Math.min(CHUNK_TILES, width - cx * CHUNK_TILES) * TILE;
       canvas.height = Math.min(CHUNK_TILES, height - cy * CHUNK_TILES) * TILE;
       const ctx = canvas.getContext('2d');
       ctx.imageSmoothingEnabled = false;
-      chunks.set(id, { canvas, ctx, cx, cy });
-      return chunks.get(id);
+      fresh.set(id, { canvas, ctx, cx, cy });
+      return fresh.get(id);
     };
     preparePlanTextures(plan);
     const grid = plan.grid, cfg = plan.config, tiles = cfg.tiles, ground = tiles.ground || [];
-    for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+    const cells = [];
+    for (const id of want) { const [cx, cy] = id.split(',').map(Number); for (let y = cy * CHUNK_TILES; y < Math.min(height, (cy + 1) * CHUNK_TILES); y++) for (let x = cx * CHUNK_TILES; x < Math.min(width, (cx + 1) * CHUNK_TILES); x++) cells.push(x, y); }
+    for (let n = 0; n < cells.length; n += 2) {
+      const x = cells[n], y = cells[n + 1];
       const cx = Math.floor(x / CHUNK_TILES), cy = Math.floor(y / CHUNK_TILES), chunk = chunkFor(cx, cy), ctx = chunk.ctx;
       const dx = (x - cx * CHUNK_TILES) * TILE, dy = (y - cy * CHUNK_TILES) * TILE, tile = grid[y]?.[x] ?? 1;
       const baseGround = materialPatch(plan.groundTextures?.[0] || imageFor(ground[0])?.image,x,y);
@@ -954,23 +1173,19 @@
       wildDecal(ctx, plan, x, y);
       wildAccent(ctx, plan, x, y);
     }
+    drawCitadelGround(plan, chunkFor, scope);
     // Transitions are a separate deterministic pass: no ground variant or
     // decal can leak into a road/plaza, and a bridge can cleanly cover water.
-    for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+    for (let n = 0; n < cells.length; n += 2) {
+      const x = cells[n], y = cells[n + 1];
       const cx = Math.floor(x / CHUNK_TILES), cy = Math.floor(y / CHUNK_TILES), chunk = chunkFor(cx, cy), ctx = chunk.ctx;
       const dx = (x - cx * CHUNK_TILES) * TILE, dy = (y - cy * CHUNK_TILES) * TILE, zone = planZone(plan, x, y);
       if (zone === zoneNames().LIQUID || zone === zoneNames().SHORE) drawLiquidShore(ctx, plan, x, y, dx, dy);
+      if (plan.citadel && (regionKit(plan.citadel.c) ? g.VTN_MAP_LAYOUTS.citadelZone(plan.map, x, y) !== 'rim' : g.VTN_MAP_LAYOUTS.citadelZone(plan.map, x, y) === 'inner')) continue;
       if (zone === zoneNames().PLAZA) drawPlazaTile(ctx, plan, x, y, dx, dy);
       if (zone === zoneNames().ROAD) { drawRoadTile(ctx, plan, x, y, dx, dy); drawRoadCurb(ctx, plan, x, y, dx, dy); }
     }
-    try {
-      plan.groundEdgeContrast = computeGroundEdgeContrast(plan, chunks);
-    } catch (error) {
-      // Offline file:// play can taint a canvas after an image draw.  The
-      // browser QA runs over HTTP for the real pixel metric; keep the game
-      // playable offline and expose an explicit unavailable marker here.
-      plan.groundEdgeContrast = { threshold: GROUND_EDGE_THRESHOLD, borders: 1, highContrast: 0, ratio: 0, unavailable: true };
-    }
+    drawCitadel(plan, chunkFor);
     for (const prop of plan.props.placements.filter(item => !item.dynamic)) {
       const resource = imageFor(prop.prop.file);
       if (!imageReady(resource)) continue;
@@ -981,15 +1196,31 @@
         chunk.ctx.drawImage(resource.image, prop.drawX - cx * CHUNK_PX, prop.drawY - cy * CHUNK_PX);
       }
     }
-    plan.chunks = chunks;
+    for (const [id, chunk] of fresh) chunks.set(id, chunk);
+    plan.groundEdgeContrast = null;   // QA-only metric, computed lazily by edgeContrastOf()
   }
+  // bake a few more chunks within a time budget (called once per frame after drawing)
+  function streamChunks(plan, budgetMs = 5) {
+    if (!plan.pendingChunks?.length) return;
+    const t0 = performance.now();
+    while (plan.pendingChunks.length && performance.now() - t0 < budgetMs) buildChunks(plan, [plan.pendingChunks.shift()]);
+  }
+  function bakeAll(plan) { if (plan.pendingChunks?.length) { buildChunks(plan, plan.pendingChunks); plan.pendingChunks = []; } }
 
+  function edgeContrastOf(plan) {
+    if (plan.groundEdgeContrast || !plan.chunks) return plan.groundEdgeContrast;
+    bakeAll(plan);
+    try { plan.groundEdgeContrast = computeGroundEdgeContrast(plan, plan.chunks); }
+    catch (error) { plan.groundEdgeContrast = { threshold: GROUND_EDGE_THRESHOLD, borders: 1, highContrast: 0, ratio: 0, unavailable: true }; }
+    return plan.groundEdgeContrast;
+  }
   function allAssetsReady(plan) {
     const entries = plan.files.map(file => imageFor(file));
     const missing = entries.filter(entry => entry.status === 'missing').length;
     const ready = entries.filter(imageReady).length;
     plan.assetStats = { total: entries.length, ready, missing };
-    return missing === 0 && ready === entries.length;
+    const bake = (plan.bakeFiles || plan.files).map(file => imageFor(file));
+    return bake.every(entry => imageReady(entry) || entry.status === 'missing');
   }
 
   const forestSilhouettes=['J049','J053','J054','J055'].map(id=>'assets/world/region_01/props/'+id+'.png');
@@ -1010,46 +1241,104 @@
     }
     return result;
   }
+  // occ = coarse opacity grid of a sprite (tools/art/compute_colliders.py): hex per row, bit c = column c
+  function occAt(occ, c, r) {
+    if (c < 0 || r < 0 || c >= occ.w || r >= occ.h) return 0;
+    const row = occ.rows[r], d = row.length - 1 - (c >> 2);
+    return d < 0 ? 0 : (parseInt(row[d], 16) >> (c & 3)) & 1;
+  }
+  // every tile whose area is at least half covered by the opaque picture
+  function coveredTiles(occ, drawX, drawY, out, minShare = .5) {
+    const S8 = occ.s, x0 = Math.floor(drawX / TILE), y0 = Math.floor(drawY / TILE), x1 = Math.floor((drawX + occ.w * S8 - 1) / TILE), y1 = Math.floor((drawY + occ.h * S8 - 1) / TILE);
+    for (let ty = y0; ty <= y1; ty++) for (let tx = x0; tx <= x1; tx++) {
+      let hit = 0;
+      for (let py = ty * TILE; py < (ty + 1) * TILE; py += S8) for (let px = tx * TILE; px < (tx + 1) * TILE; px += S8)
+        hit += occAt(occ, Math.floor((px + S8 / 2 - drawX) / S8), Math.floor((py + S8 / 2 - drawY) / S8));
+      if (hit / ((TILE / S8) * (TILE / S8)) >= minShare) out.push([tx, ty]);
+    }
+    return out;
+  }
+  // Colliders must never cut a door, NPC or portal off from the spawn: open the fewest collider cells along a grid path.
+  function ensureReachable(map, grid, points, cells, protectedCells = new Set()) {
+    const H = grid.length, W = grid[0]?.length || 0, spawn = map?.spawn || g.VTN_MAP_LAYOUTS?.SPAWN || { x: 8, y: 8 };
+    const free = (x, y) => x >= 0 && y >= 0 && x < W && y < H && grid[y][x] !== 1 && grid[y][x] !== 3;
+    const flood = () => { const seen = new Uint8Array(W * H), q = [spawn.y * W + spawn.x]; seen[q[0]] = 1; for (let i = 0; i < q.length; i++) { const c = q[i], x = c % W, y = (c - x) / W; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy; if (!free(nx, ny)) continue; const j = ny * W + nx; if (seen[j] || cells.has(key(nx, ny))) continue; seen[j] = 1; q.push(j); } } return seen; };
+    let reach = flood(); const relieved = [];
+    for (const p of points || []) {
+      const px = Math.round(p.x), py = Math.round(p.y); if (!free(px, py)) continue;
+      const targets = [[px, py], [px, py + 1], [px - 1, py], [px + 1, py], [px, py - 1]].filter(([x, y]) => free(x, y));
+      if (targets.some(([x, y]) => reach[y * W + x])) continue;
+      // grid-only BFS from the point back to the reachable area, then clear colliders on that path
+      const prev = new Int32Array(W * H).fill(-1), start = py * W + px, q = [start]; prev[start] = start; let hit = -1;
+      for (let i = 0; i < q.length && hit < 0; i++) { const c = q[i], x = c % W, y = (c - x) / W; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy; if (!free(nx, ny) || protectedCells.has(key(nx, ny))) continue; const j = ny * W + nx; if (prev[j] >= 0) continue; prev[j] = c; if (reach[j]) { hit = j; break; } q.push(j); } }
+      if (hit < 0) continue;
+      for (let c = hit; c !== start; c = prev[c]) { const x = c % W, y = (c - x) / W; if (cells.delete(key(x, y))) relieved.push(key(x, y)); }
+      if (cells.delete(key(px, py))) relieved.push(key(px, py));
+      reach = flood();
+    }
+    cells.relieved = relieved;
+    return cells;
+  }
   function createPlan(info) {
     const map = info.map, config = configForMap(map);
     if (!config?.tiles) return null;
-    const grid = info.grid, points = info.points || [], buildings = makeBuildings(map, grid, points, config);
-    const path = pathNetwork(map, grid, points, buildings), zoneModel = path.zones || g.VTN_MAP_LAYOUTS?.zoneModel?.(map, grid, points, { extraEndpoints: buildings.map(building => building.door), plazaSources: buildings, carveRoads: true });
+    const grid = info.grid, points = info.points || [], lotBuildings = makeBuildings(map, grid, points, config), structures = makeStructures(map), buildings = lotBuildings.concat(structures);
+    const path = pathNetwork(map, grid, points, lotBuildings), zoneModel = path.zones || g.VTN_MAP_LAYOUTS?.zoneModel?.(map, grid, points, { extraEndpoints: lotBuildings.map(building => building.door), plazaSources: lotBuildings, carveRoads: true });
     if (zoneModel) { path.zones = zoneModel; path.cells = new Set(zoneModel.roadCells); path.renderCells = new Set(zoneModel.roadCells); }
     const props = makeProps(map, grid, points, buildings, config, path),canopies=forestCanopies(map,grid,buildings);
+    let wallDraws = null;
     const files = [...new Set([
       ...filesForConfig(config),
-      ...buildings.map(building => building.asset.file),
+      ...buildings.map(building => building.asset.file), ...citadelFiles(map),
       ...props.placements.map(prop => prop.prop.file),...canopies.map(tree=>tree.file),...Object.values(markerSprites).map(id=>'assets/world/region_01/props/'+id+'.png')
     ])];
     for (const file of files) imageFor(file);
+    // only what gets baked into the static chunks gates "ready"; buildings and tall props pop in as their images arrive
+    const bakeFiles = [...new Set([...filesForConfig(config), ...citadelFiles(map), ...props.placements.filter(prop => !prop.dynamic).map(prop => prop.prop.file)])];
     return {
+      bakeFiles,
       map,
       config,
       grid,
       points,
-      size: mapSize(map),
+      size: grid?.length ? { width: grid[0].length, height: grid.length } : mapSize(map),
       buildings,
       path,
       zoneModel,
       zoneGrid: zoneModel?.zones || null,
       orientationGrid: zoneModel?.orientations || null,
-      props,canopies,
+      props,canopies,citadel: g.VTN_MAP_LAYOUTS?.citadelGeometry?.(map) || null,
+      get wallDraws() { return this._wallDraws ?? wallDraws; }, set wallDraws(v) { this._wallDraws = v; },
       files,
       chunks: null,
       ready: false,
       assetStats: { total: files.length, ready: 0, missing: 0 },
-      doorCells: new Set(buildings.map(building => key(building.door.x, building.door.y))),
+      doorCells: new Set(buildings.filter(building => !building.solidDoor).map(building => key(building.door.x, building.door.y))),
       collisionCells: (() => {
-        const cells = new Set(props.collisionCells);
+        const cells = new Set(), soft = new Set(), T2 = TILE * TILE;
         for (const building of buildings) {
-          const x0 = Math.floor(building.footBox.left / TILE), x1 = Math.floor((building.footBox.right - 1) / TILE);
-          const y0 = Math.floor(building.footBox.top / TILE), y1 = Math.floor((building.footBox.bottom - 1) / TILE);
+          if (building.noCollide) continue;
+          // decor (trees, lamps, statues, forest dressing) may be opened to keep a door or NPC reachable; houses, towers and walls never
+          const hard = !building.structure || building.asset.kind === 'tower' || building.asset.kind === 'gate' || building.asset.kind === 'building';
+          const b = building.footBox, x0 = Math.floor(b.left / TILE), x1 = Math.floor((b.right - 1) / TILE), y0 = Math.floor(b.top / TILE), y1 = Math.floor((b.bottom - 1) / TILE);
           for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
-            if (key(x, y) !== key(building.door.x, building.door.y)) cells.add(key(x, y));
+            const ow = Math.min(b.right, (x + 1) * TILE) - Math.max(b.left, x * TILE), oh = Math.min(b.bottom, (y + 1) * TILE) - Math.max(b.top, y * TILE);
+            if (ow * oh < T2 * .35) continue;          // a sliver of a footprint does not block a whole tile
+            if (building.solidDoor || key(x, y) !== key(building.door.x, building.door.y)) { cells.add(key(x, y)); if (!hard) soft.add(key(x, y)); }
           }
         }
-        return cells;
+        const geo = g.VTN_MAP_LAYOUTS?.citadelGeometry?.(map), rkw = regionKit(geo?.c);
+        if (geo && rkw) {
+          const tmp = { citadel: geo, size: { width: grid[0].length, height: grid.length } };
+          drawSpriteWalls(tmp, null, rkw); wallDraws = tmp.wallDraws || [];
+          for (const d of wallDraws) { if (d.f.occ) { for (const [x, y] of coveredTiles(d.f.occ, d.x, d.y, [])) cells.add(key(x, y)); continue; } const tx = Math.floor(d.x / TILE); for (let ty = Math.floor(d.y / TILE); ty <= d.by; ty++) { const cover = Math.min((ty + 1) * TILE, d.y + d.f.h) - Math.max(ty * TILE, d.y); if (cover >= TILE / 2) cells.add(key(tx, ty)); } }
+        }
+        const protectedCells = new Set([...cells].filter(k => !soft.has(k)));
+        for (const k of props.collisionCells) cells.add(k);
+        for (const tree of canopies || []) cells.add(key(Math.round(tree.x), Math.round(tree.y)));
+        if (geo) { for (const k of geo.open) cells.delete(k); for (const [hx, hy] of geo.hubs || []) cells.delete(key(hx, hy)); }
+        for (const building of buildings) cells.delete(key(building.door.x, building.door.y + 1));   // the step in front of every door
+        return ensureReachable(map, grid, points, cells, protectedCells);
       })()
     };
   }
@@ -1059,14 +1348,18 @@
     if (!mapId) return null;
     let plan = plans.get(mapId);
     if (!plan) {
-      plan = createPlan(info);
+      const t0 = performance.now(); plan = createPlan(info); if (plan) plan.timing = { plan: Math.round(performance.now() - t0) };
       if (plan) plans.set(mapId, plan);
     }
     if (!plan) return null;
     plan.points = info.points || plan.points;
     plan.grid = info.grid || plan.grid;
     if (!plan.ready && allAssetsReady(plan)) {
-      buildChunks(plan);
+      const t1 = performance.now(), hx = Number(info.px) || 0, hy = Number(info.py) || 0;
+      buildChunks(plan, chunkIdsAround(plan, hx, hy, 1, 1));
+      const hcx = Math.floor(hx / CHUNK_TILES), hcy = Math.floor(hy / CHUNK_TILES);
+      plan.pendingChunks = allChunkIds(plan).filter(id => !plan.chunks.has(id)).sort((a, b) => { const [ax, ay] = a.split(',').map(Number), [bx, by] = b.split(',').map(Number); return Math.hypot(ax - hcx, ay - hcy) - Math.hypot(bx - hcx, by - hcy); });
+      plan.timing = { ...(plan.timing || {}), chunks: Math.round(performance.now() - t1) };
       plan.ready = !!plan.chunks;
     }
     return plan;
@@ -1098,7 +1391,7 @@
   }
   function fadeBuildingFor(plan, heroBox, heroFeetY, heroCenterX, heroCenterY, heroHeight, now) {
     plan.fadeState ||= new Map();
-    const radius = Math.max(1, heroHeight * 1.5), candidates = plan.buildings.filter(building => heroFeetY < building.sortY && buildingHasOpaqueOverlap(building, heroBox)).map(building => ({ building, distance: Math.hypot((building.fullBox.left + building.fullBox.right) / 2 - heroCenterX, (building.fullBox.top + building.fullBox.bottom) / 2 - heroCenterY) })).filter(value => value.distance <= radius).sort((a, b) => a.distance - b.distance);
+    const radius = Math.max(1, heroHeight * 1.5), candidates = plan.buildings.filter(building => !building.noFade && heroFeetY < building.sortY && buildingHasOpaqueOverlap(building, heroBox)).map(building => ({ building, distance: Math.hypot((building.fullBox.left + building.fullBox.right) / 2 - heroCenterX, (building.fullBox.top + building.fullBox.bottom) / 2 - heroCenterY) })).filter(value => value.distance <= radius).sort((a, b) => a.distance - b.distance);
     const active = candidates[0]?.building || null;
     const audit = [];
     for (const building of plan.buildings) {
@@ -1129,7 +1422,8 @@
     ctx.save();
     ctx.globalAlpha = alpha;
     ctx.filter = 'none';
-    ctx.drawImage(building.image.image, building.drawX, building.drawY);
+    if (building.asset.frames > 1) { const fw = building.asset.w, frame = Math.floor(performance.now() / 160) % building.asset.frames; ctx.drawImage(building.image.image, frame * fw, 0, fw, building.asset.h, building.drawX, building.drawY, fw, building.asset.h); }
+    else ctx.drawImage(building.image.image, building.drawX, building.drawY);
     ctx.restore();
     return true;
   }
@@ -1145,36 +1439,50 @@
     }
   }
 
+  // Camera, Cinemachine-style: critically damped follow (Unity SmoothDamp) + look-ahead along the hero's velocity + a HARD ZONE
+  // that never lets the hero leave the middle of the screen (so a fast auto-run can not outrun the view) + centring when the whole
+  // map fits in the viewport ("Toàn cảnh").
+  const smoothDamp = (cur, target, vel, smoothTime, dt) => {
+    const omega = 2 / smoothTime, x = omega * dt, e = 1 / (1 + x + .48 * x * x + .235 * x * x * x), change = cur - target, temp = (vel + omega * change) * dt;
+    return [target + (change + temp) * e, (vel - omega * temp) * e];
+  };
   function smoothCamera(map, targetX, targetY, now) {
-    const maxX = Math.max(0, (Number(map.width) || 40) * TILE - targetX.viewportW);
-    const maxY = Math.max(0, (Number(map.height) || 30) * TILE - targetY.viewportH);
-    const tx = clamp(targetX.x, 0, maxX), ty = clamp(targetY.y, 0, maxY);
-    if (cameraState.mapId !== map.id || !cameraState.lastAt) {
-      cameraState = { mapId: map.id, x: tx, y: ty, vx: 0, vy: 0, lastAt: now, renderX: Math.round(tx), renderY: Math.round(ty) };
-      return { x: Math.round(tx), y: Math.round(ty) };
+    const VW = targetX.viewportW, VH = targetY.viewportH, mapW = (Number(map.width) || 40) * TILE, mapH = (Number(map.height) || 30) * TILE;
+    const place = (pos, view, total) => (total <= view ? -(view - total) / 2 : clamp(pos, 0, total - view));
+    if (mapW <= VW + 1 && mapH <= VH + 1) {                                  // the whole map is on screen: the camera stays put, centred
+      cameraState = { ...cameraState, mapId: map.id, lastAt: now, hx: targetX.x + VW / 2, hy: targetY.y + VH / 2, x: 0, y: 0, vx: 0, vy: 0, lx: 0, ly: 0, hvx: 0, hvy: 0, renderX: Math.round(place(0, VW, mapW)), renderY: Math.round(place(0, VH, mapH)) };
+      return { x: cameraState.renderX, y: cameraState.renderY };
     }
-    const dt = clamp(now - cameraState.lastAt, 0, .05);
-    cameraState.lastAt = now;
-    const omega = 15;
-    const integrate = (position, velocity, target) => {
-      const acceleration = omega * omega * (target - position) - 2 * omega * velocity;
-      // The cap keeps a clamped, pixel-snapped camera from producing a large
-      // one-frame correction when the hero reaches a map edge.
-      const nextVelocity = clamp(velocity + acceleration * dt, -32, 32);
-      return [position + nextVelocity * dt, nextVelocity];
-    };
-    [cameraState.x, cameraState.vx] = integrate(cameraState.x, cameraState.vx, tx);
-    [cameraState.y, cameraState.vy] = integrate(cameraState.y, cameraState.vy, ty);
-    cameraState.x = clamp(cameraState.x, 0, maxX); cameraState.y = clamp(cameraState.y, 0, maxY);
-    const targetRenderX = Math.round(cameraState.x), targetRenderY = Math.round(cameraState.y);
-    cameraState.renderX += Math.max(-1, Math.min(1, targetRenderX - cameraState.renderX));
-    cameraState.renderY += Math.max(-1, Math.min(1, targetRenderY - cameraState.renderY));
+    const hcx = targetX.x + VW / 2, hcy = targetY.y + VH / 2;               // hero centre in world px
+    const st = cameraState;
+    if (st.mapId !== map.id || !st.lastAt || Math.hypot(hcx - st.hx, hcy - st.hy) > Math.max(VW, VH)) {
+      cameraState = { mapId: map.id, x: targetX.x, y: targetY.y, vx: 0, vy: 0, lastAt: now, hx: hcx, hy: hcy, hvx: 0, hvy: 0, lx: 0, ly: 0 };
+      const x = place(targetX.x, VW, mapW), y = place(targetY.y, VH, mapH);
+      cameraState.renderX = Math.round(x); cameraState.renderY = Math.round(y);
+      return { x: cameraState.renderX, y: cameraState.renderY };
+    }
+    const dt = clamp(now - st.lastAt, 1 / 240, .1);
+    st.lastAt = now;
+    const k = Math.min(1, dt * 14);
+    st.hvx += ((hcx - st.hx) / dt - st.hvx) * k; st.hvy += ((hcy - st.hy) / dt - st.hvy) * k; st.hx = hcx; st.hy = hcy;
+    const lookX = clamp(st.hvx * .2, -.17 * VW, .17 * VW), lookY = clamp(st.hvy * .2, -.17 * VH, .17 * VH), kl = Math.min(1, dt * 6);
+    st.lx += (lookX - st.lx) * kl; st.ly += (lookY - st.ly) * kl;
+    const wantX = hcx + st.lx - VW / 2, wantY = hcy + st.ly - VH / 2;
+    [st.x, st.vx] = smoothDamp(st.x, wantX, st.vx, .075, dt);
+    [st.y, st.vy] = smoothDamp(st.y, wantY, st.vy, .075, dt);
+    // hard zone: hero stays within 26% of the half-size from the screen centre, whatever the speed
+    const limX = .26 * VW, limY = .26 * VH, offX = hcx - (st.x + VW / 2), offY = hcy - (st.y + VH / 2);
+    if (offX > limX) st.x = hcx - limX - VW / 2; else if (offX < -limX) st.x = hcx + limX - VW / 2;
+    if (offY > limY) st.y = hcy - limY - VH / 2; else if (offY < -limY) st.y = hcy + limY - VH / 2;
+    cameraState.renderX = Math.round(place(st.x, VW, mapW)); cameraState.renderY = Math.round(place(st.y, VH, mapH));
     return { x: cameraState.renderX, y: cameraState.renderY };
   }
 
+  // Built once per plan; anything costly is a getter so it only runs when QA reads it (inspect/debug), never per frame.
   function updateDebug(plan, info) {
+    if (plan.debugInfo) { lastDebug = plan.debugInfo; return lastDebug; }
     const old = oldPropsCounts(info.map.regionId), total = plan.props.placed || 0;
-    lastDebug = {
+    lastDebug = plan.debugInfo = {
       regionId: info.map.regionId,
       mapId: info.map.id,
       scriptState: 'loaded',
@@ -1184,7 +1492,6 @@
       propAvailable: old.prop,
       tallSprites: plan.props.tallPlaced,
       fallbackTrees: info.map.regionId === 'region_01' ? 1 : 0,
-      smallProps: plan.props.placements.filter(prop => !prop.dynamic).length,
       alphaAnchors: old.tall,
       tallPlaced: plan.props.tallPlaced,
       tallCap: plan.props.cap,
@@ -1197,18 +1504,14 @@
       worldImagesMissing: plan.assetStats.missing,
       staticChunks: plan.chunks?.size || 0,
       buildingsPlaced: plan.buildings.length,
-      landmarkBuildings: plan.buildings.filter(building => building.landmark).length,
       propsPlaced: total,
       sharedProps: plan.props.sharedPlaced,
       sharedPropRatio: total ? plan.props.sharedPlaced / total : 0,
       pathTiles: (plan.path.renderCells || plan.path.cells).size,
-      liquidPathTiles: [...(plan.path.renderCells || plan.path.cells)].filter(cell => { const [x, y] = cell.split(',').map(Number); return plan.grid[y]?.[x] === 3; }).length,
       zoneStats: plan.zoneModel?.stats || {},
       roadOrientations: plan.orientationGrid || [],
       buildingFadeAudit: plan.buildingFadeAudit || [],
-      groundEdgeContrast: plan.groundEdgeContrast || { threshold: GROUND_EDGE_THRESHOLD, borders: 0, highContrast: 0, ratio: 0 },
       collisionProps: plan.props.collisionCells.size,
-      doorsClear: plan.buildings.every(building => !plan.props.placements.some(prop => boxesOverlap(prop.box, { left: building.door.x * TILE, top: building.door.y * TILE, right: (building.door.x + 1) * TILE, bottom: (building.door.y + 1) * TILE })))
     };
     return lastDebug;
   }
@@ -1235,19 +1538,31 @@
     }
     const frameStart = performance.now();
     const now = frameStart / 1000;
-    const Z = Math.max(1, Math.min(2, Math.floor(Math.min(canvas.width / 480, canvas.height / 320))));
+    const Z = g.VTNViewZoom(canvas, info.map);
     const VW = canvas.width / Z, VH = canvas.height / Z;
     const heroX = Number.isFinite(info.heroRenderX) ? info.heroRenderX : info.px;
     const heroY = Number.isFinite(info.heroRenderY) ? info.heroRenderY : info.py;
     const camera = smoothCamera(info.map, {x: heroX*TILE-VW/2+16, viewportW: VW}, {y: heroY*TILE-VH/2+16, viewportH: VH}, now), camX = camera.x, camY = camera.y;
     const x0 = Math.floor(camX / CHUNK_PX) - 1, x1 = Math.ceil((camX + VW) / CHUNK_PX) + 1;
     const y0 = Math.floor(camY / CHUNK_PX) - 1, y1 = Math.ceil((camY + VH) / CHUNK_PX) + 1;
-    ctx.imageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = Z < .85;   // zoomed out: smooth down-scaling instead of aliased pixels
+    ctx.imageSmoothingQuality = 'medium';
     ctx.fillStyle = '#080d12';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.save();
     ctx.scale(Z, Z);
     ctx.translate(-camX, -camY);
+    { // streaming: anything on screen is baked now, the rest a few chunks per frame
+      const cols = Math.ceil(plan.size.width / CHUNK_TILES), rows = Math.ceil(plan.size.height / CHUNK_TILES), missing = [];
+      for (let cy = Math.max(0, y0); cy <= Math.min(rows - 1, y1); cy++) for (let cx = Math.max(0, x0); cx <= Math.min(cols - 1, x1); cx++) if (!plan.chunks.has(`${cx},${cy}`)) missing.push(`${cx},${cy}`);
+      if (missing.length) {
+        // nearest first; a wide view (many chunks missing) is baked over several frames instead of one long stall
+        const ccx = (camX + VW / 2) / CHUNK_PX, ccy = (camY + VH / 2) / CHUNK_PX;
+        missing.sort((a, b) => { const [ax, ay] = a.split(',').map(Number), [bx, by] = b.split(',').map(Number); return Math.hypot(ax + .5 - ccx, ay + .5 - ccy) - Math.hypot(bx + .5 - ccx, by + .5 - ccy); });
+        buildChunks(plan, missing.slice(0, missing.length > 10 ? 6 : 10));
+        plan.pendingChunks = (plan.pendingChunks || []).filter(id => !plan.chunks.has(id));
+      } else streamChunks(plan, 4);
+    }
     for (let cy = y0; cy <= y1; cy++) for (let cx = x0; cx <= x1; cx++) {
       const chunk = plan.chunks.get(`${cx},${cy}`);
       if (chunk) ctx.drawImage(chunk.canvas, cx * CHUNK_PX, cy * CHUNK_PX);
@@ -1266,13 +1581,18 @@
       drawables.push({ sortY: prop.sortY, priority: 1, prop });
     }
     for (const point of info.points || []) {
-      if (point.type === 'building' || point.type === 'boss-gate') continue;
+      if (point.type === 'building' || point.type === 'boss-gate' || point.type === 'anchor') continue;
       drawables.push({ sortY: (point.renderY ?? point.y) * TILE + TILE - 1, priority: 3, point });
+    }
+    for (const wall of plan.wallDraws || []) {
+      if (wall.x + wall.f.w < camX - 40 || wall.x > camX + VW + 40 || wall.y + wall.f.h < camY - 40 || wall.y > camY + VH + 40) continue;
+      drawables.push({ sortY: wall.sortY ?? (wall.by + 1) * TILE - 1, priority: 0, wall });
     }
     for(const tree of plan.canopies||[])if(tree.x*TILE>camX-100&&tree.x*TILE<camX+VW+100&&tree.y*TILE>camY-100&&tree.y*TILE<camY+VH+100)drawables.push({sortY:tree.y*TILE+TILE,priority:1,canopy:tree});
     drawables.push({ sortY: heroY * TILE + TILE - 1, priority: 4, hero: true });
     drawables.sort((a, b) => a.sortY - b.sortY || a.priority - b.priority);
     for (const drawable of drawables) {
+      if (drawable.wall) { const r = imageFor(drawable.wall.f.file); if (imageReady(r)) ctx.drawImage(r.image, drawable.wall.x, drawable.wall.y); continue; }
       if(drawable.canopy){
         const tree=drawable.canopy,resource=imageFor(tree.file);
         if(imageReady(resource)){const im=resource.image,x=tree.x*TILE+16,y=tree.y*TILE+32;ctx.save();if(Math.abs(heroX-tree.x)<1.2&&heroY<tree.y&&heroY>tree.y-2)ctx.globalAlpha=.5;ctx.drawImage(im,Math.round(x-im.naturalWidth/2),y-im.naturalHeight,im.naturalWidth,im.naturalHeight);ctx.restore();}
@@ -1316,11 +1636,25 @@
     return true;
   }
 
+  // QA-only numbers that cost real time; never computed per frame
+  function heavyDebug(mapId) {
+    const plan = plans.get(mapId); if (!plan?.ready) return {};
+    allAssetsReady(plan);
+    return {
+      smallProps: plan.props.placements.filter(prop => !prop.dynamic).length,
+      landmarkBuildings: plan.buildings.filter(building => building.landmark).length,
+      liquidPathTiles: [...(plan.path.renderCells || plan.path.cells)].filter(cell => { const [x, y] = cell.split(',').map(Number); return plan.grid[y]?.[x] === 3; }).length,
+      groundEdgeContrast: edgeContrastOf(plan) || { threshold: GROUND_EDGE_THRESHOLD, borders: 0, highContrast: 0, ratio: 0 },
+      doorsClear: plan.buildings.every(building => !plan.props.placements.some(prop => boxesOverlap(prop.box, { left: building.door.x * TILE, top: building.door.y * TILE, right: (building.door.x + 1) * TILE, bottom: (building.door.y + 1) * TILE }))),
+      worldImagesLoaded: plan.assetStats.ready, worldImagesMissing: plan.assetStats.missing, staticChunks: plan.chunks?.size || 0
+    };
+  }
   function inspect(mapId) {
     const plan = plans.get(mapId);
     if (!plan) return { ...lastDebug };
     return {
       ...lastDebug,
+      ...heavyDebug(mapId),
       worldLibraryState: plan.ready ? 'ready' : 'loading',
       mapId: plan.map.id,
       librarySet: setForMap(plan.map),
@@ -1331,10 +1665,24 @@
        roadOrientations: plan.orientationGrid || [],
        zoneStats: plan.zoneModel?.stats || {},
        buildingFadeAudit: plan.buildingFadeAudit || [],
-      groundEdgeContrast: plan.groundEdgeContrast || { threshold: GROUND_EDGE_THRESHOLD, borders: 0, highContrast: 0, ratio: 0 },
+      groundEdgeContrast: edgeContrastOf(plan) || { threshold: GROUND_EDGE_THRESHOLD, borders: 0, highContrast: 0, ratio: 0 },
       collisionCells: [...plan.collisionCells],
-      encounterRatio: (() => { let walk = 0, encounter = 0; for (const row of plan.grid) for (const tile of row) { if (walkable(tile)) walk++; if (tile === 2) encounter++; } return walk ? encounter / walk : 0; })()
+      encounterRatio: (() => { let walk = 0, encounter = 0; for (let y = 0; y < plan.grid.length; y++) for (let x = 0; x < plan.grid[y].length; x++) { if (plan.citadel && g.VTN_MAP_LAYOUTS.inCitadel(plan.map, x, y)) continue; const tile = plan.grid[y][x]; if (walkable(tile)) walk++; if (tile === 2) encounter++; } return walk ? encounter / walk : 0; })()
     };
+  }
+
+  // QA helper: render a tile rectangle (static chunks + buildings + props) to a PNG data URL.
+  function snapshot(mapId, rect = {}) {
+    const plan = plans.get(mapId);
+    if (!plan || !plan.ready) return null;
+    const x0 = (rect.x ?? 0) * TILE, y0 = (rect.y ?? 0) * TILE, w = (rect.w ?? plan.size.width) * TILE, h = (rect.h ?? plan.size.height) * TILE, scale = rect.scale || 1;
+    const c = document.createElement('canvas'); c.width = Math.round(w * scale); c.height = Math.round(h * scale);
+    const ctx = c.getContext('2d'); ctx.imageSmoothingEnabled = false; ctx.scale(scale, scale); ctx.translate(-x0, -y0);
+    bakeAll(plan);
+    for (const chunk of plan.chunks.values()) ctx.drawImage(chunk.canvas, chunk.cx * CHUNK_PX, chunk.cy * CHUNK_PX);
+    const list = [...plan.buildings.map(b => ({ y: b.sortY, b })), ...plan.props.placements.filter(p => p.dynamic).map(p => ({ y: p.sortY, p })), ...(plan.wallDraws || []).map(w => ({ y: w.sortY ?? (w.by + 1) * TILE - 1, w }))].sort((a, b) => a.y - b.y);
+    for (const d of list) { if (d.w) { const r = imageFor(d.w.f.file); if (imageReady(r)) ctx.drawImage(r.image, d.w.x, d.w.y); } else if (d.b) drawBuilding(ctx, d.b, 1); else drawDynamicProp(ctx, d.p); }
+    return c.toDataURL('image/png');
   }
 
   function isTileBlocked(map, x, y) {
@@ -1348,9 +1696,14 @@
   const previousWorld = g.VTNWorld || {};
   g.VTNWorld = Object.assign(previousWorld, { buildingName, worldLibrary: true });
   g.VTNWorldLibrary = {
+    ready: mapId => !!plans.get(mapId)?.ready,
+    blockedCells: mapId => plans.get(mapId)?.collisionCells || null,
+    heavyDebug,
+    timing: mapId => plans.get(mapId)?.timing || null,
     render,
     inspect,
     isTileBlocked,
+    snapshot,
     buildingName,
     reset(mapId) { if (mapId) plans.delete(mapId); else plans.clear(); cameraState = { mapId: null, x: 0, y: 0, vx: 0, vy: 0, lastAt: 0, renderX: null, renderY: null }; },
     debug: () => ({ ...lastDebug })

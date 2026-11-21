@@ -1,0 +1,541 @@
+{
+ "floors": {
+  "parquet_red": "assets/world/interiors/floor_parquet_red.png",
+  "plank_red": "assets/world/interiors/floor_plank_red.png",
+  "plank_brown": "assets/world/interiors/floor_plank_brown.png",
+  "flag_brown": "assets/world/interiors/floor_flag_brown.png",
+  "stone_grey": "assets/world/interiors/floor_stone_grey.png",
+  "check_brown": "assets/world/interiors/floor_check_brown.png",
+  "check_green": "assets/world/interiors/floor_check_green.png",
+  "check_blue": "assets/world/interiors/floor_check_blue.png",
+  "cobble": "assets/world/interiors/floor_cobble.png"
+ },
+ "walls": {
+  "brick_grey": "assets/world/interiors/wall_brick_grey.png",
+  "cobble_grey": "assets/world/interiors/wall_cobble_grey.png",
+  "plaster_rose": "assets/world/interiors/wall_plaster_rose.png",
+  "plaster_olive": "assets/world/interiors/wall_plaster_olive.png",
+  "rubble_dark": "assets/world/interiors/wall_rubble_dark.png",
+  "stone_pale": "assets/world/interiors/wall_stone_pale.png",
+  "moss_brown": "assets/world/interiors/wall_moss_brown.png",
+  "moss_olive": "assets/world/interiors/wall_moss_olive.png"
+ },
+ "deco": {
+  "win_a": {
+   "file": "assets/world/interiors/win_a.png",
+   "w": 64,
+   "h": 64
+  },
+  "win_b": {
+   "file": "assets/world/interiors/win_b.png",
+   "w": 64,
+   "h": 64
+  },
+  "win_c": {
+   "file": "assets/world/interiors/win_c.png",
+   "w": 64,
+   "h": 64
+  },
+  "win_d": {
+   "file": "assets/world/interiors/win_d.png",
+   "w": 32,
+   "h": 64
+  },
+  "win_e": {
+   "file": "assets/world/interiors/win_e.png",
+   "w": 64,
+   "h": 64
+  },
+  "curtain_a": {
+   "file": "assets/world/interiors/curtain_a.png",
+   "w": 64,
+   "h": 64
+  },
+  "curtain_b": {
+   "file": "assets/world/interiors/curtain_b.png",
+   "w": 64,
+   "h": 64
+  },
+  "door_a": {
+   "file": "assets/world/interiors/door_a.png",
+   "w": 64,
+   "h": 96
+  },
+  "door_b": {
+   "file": "assets/world/interiors/door_b.png",
+   "w": 64,
+   "h": 96
+  },
+  "door_c": {
+   "file": "assets/world/interiors/door_c.png",
+   "w": 64,
+   "h": 96
+  }
+ },
+ "furn": {
+  "bed": {
+   "file": "assets/world/interiors/furn/bed.png",
+   "w": 64,
+   "h": 96,
+   "fw": 2,
+   "fh": 2,
+   "light": 0
+  },
+  "bed2": {
+   "file": "assets/world/interiors/furn/bed2.png",
+   "w": 64,
+   "h": 96,
+   "fw": 2,
+   "fh": 2,
+   "light": 0
+  },
+  "bed3": {
+   "file": "assets/world/interiors/furn/bed3.png",
+   "w": 64,
+   "h": 96,
+   "fw": 2,
+   "fh": 2,
+   "light": 0
+  },
+  "bed4": {
+   "file": "assets/world/interiors/furn/bed4.png",
+   "w": 64,
+   "h": 96,
+   "fw": 2,
+   "fh": 2,
+   "light": 0
+  },
+  "bench": {
+   "file": "assets/world/interiors/furn/bench.png",
+   "w": 96,
+   "h": 32,
+   "fw": 3,
+   "fh": 1,
+   "light": 0
+  },
+  "table_big": {
+   "file": "assets/world/interiors/furn/table_big.png",
+   "w": 128,
+   "h": 64,
+   "fw": 4,
+   "fh": 2,
+   "light": 0
+  },
+  "stool_barrel": {
+   "file": "assets/world/interiors/furn/stool_barrel.png",
+   "w": 32,
+   "h": 64,
+   "fw": 1,
+   "fh": 1,
+   "light": 0
+  },
+  "chair": {
+   "file": "assets/world/interiors/furn/chair.png",
+   "w": 32,
+   "h": 32,
+   "fw": 1,
+   "fh": 1,
+   "light": 0
+  },
+  "table_small": {
+   "file": "assets/world/interiors/furn/table_small.png",
+   "w": 64,
+   "h": 64,
+   "fw": 2,
+   "fh": 2,
+   "light": 0
+  },
+  "stool_red": {
+   "file": "assets/world/interiors/furn/stool_red.png",
+   "w": 32,
+   "h": 32,
+   "fw": 1,
+   "fh": 1,
+   "light": 0
+  },
+  "desk": {
+   "file": "assets/world/interiors/furn/desk.png",
+   "w": 64,
+   "h": 64,
+   "fw": 2,
+   "fh": 1,
+   "light": 0
+  },
+  "cabinet": {
+   "file": "assets/world/interiors/furn/cabinet.png",
+   "w": 96,
+   "h": 96,
+   "fw": 3,
+   "fh": 1,
+   "light": 0
+  },
+  "cabinet2": {
+   "file": "assets/world/interiors/furn/cabinet2.png",
+   "w": 64,
+   "h": 96,
+   "fw": 2,
+   "fh": 1,
+   "light": 0
+  },
+  "bookcase": {
+   "file": "assets/world/interiors/furn/bookcase.png",
+   "w": 64,
+   "h": 96,
+   "fw": 2,
+   "fh": 1,
+   "light": 0
+  },
+  "bookcase2": {
+   "file": "assets/world/interiors/furn/bookcase2.png",
+   "w": 64,
+   "h": 96,
+   "fw": 2,
+   "fh": 1,
+   "light": 0
+  },
+  "wardrobe": {
+   "file": "assets/world/interiors/furn/wardrobe.png",
+   "w": 64,
+   "h": 96,
+   "fw": 2,
+   "fh": 1,
+   "light": 0
+  },
+  "candelabra": {
+   "file": "assets/world/interiors/furn/candelabra.png",
+   "w": 32,
+   "h": 64,
+   "fw": 1,
+   "fh": 1,
+   "light": 96
+  },
+  "chandelier": {
+   "file": "assets/world/interiors/furn/chandelier.png",
+   "w": 96,
+   "h": 128,
+   "fw": 0,
+   "fh": 0,
+   "light": 160
+  },
+  "chest": {
+   "file": "assets/world/interiors/furn/chest.png",
+   "w": 64,
+   "h": 32,
+   "fw": 2,
+   "fh": 1,
+   "light": 0
+  },
+  "chest2": {
+   "file": "assets/world/interiors/furn/chest2.png",
+   "w": 64,
+   "h": 64,
+   "fw": 2,
+   "fh": 1,
+   "light": 0
+  },
+  "crates": {
+   "file": "assets/world/interiors/furn/crates.png",
+   "w": 64,
+   "h": 96,
+   "fw": 2,
+   "fh": 2,
+   "light": 0
+  },
+  "crates_supply": {
+   "file": "assets/world/interiors/furn/crates_supply.png",
+   "w": 96,
+   "h": 64,
+   "fw": 3,
+   "fh": 1,
+   "light": 0
+  },
+  "barrel": {
+   "file": "assets/world/interiors/furn/barrel.png",
+   "w": 32,
+   "h": 64,
+   "fw": 1,
+   "fh": 1,
+   "light": 0
+  },
+  "barrels": {
+   "file": "assets/world/interiors/furn/barrels.png",
+   "w": 64,
+   "h": 64,
+   "fw": 2,
+   "fh": 1,
+   "light": 0
+  },
+  "sacks": {
+   "file": "assets/world/interiors/furn/sacks.png",
+   "w": 64,
+   "h": 32,
+   "fw": 2,
+   "fh": 1,
+   "light": 0
+  },
+  "shield_wall": {
+   "file": "assets/world/interiors/furn/shield_wall.png",
+   "w": 64,
+   "h": 64,
+   "fw": 0,
+   "fh": 0,
+   "light": 0
+  },
+  "armor_stand": {
+   "file": "assets/world/interiors/furn/armor_stand.png",
+   "w": 32,
+   "h": 32,
+   "fw": 1,
+   "fh": 1,
+   "light": 0
+  },
+  "globe": {
+   "file": "assets/world/interiors/furn/globe.png",
+   "w": 32,
+   "h": 32,
+   "fw": 1,
+   "fh": 1,
+   "light": 0
+  },
+  "painting": {
+   "file": "assets/world/interiors/furn/painting.png",
+   "w": 32,
+   "h": 64,
+   "fw": 0,
+   "fh": 0,
+   "light": 0
+  },
+  "banner": {
+   "file": "assets/world/interiors/furn/banner.png",
+   "w": 32,
+   "h": 64,
+   "fw": 0,
+   "fh": 0,
+   "light": 0
+  },
+  "drinks": {
+   "file": "assets/world/interiors/furn/drinks.png",
+   "w": 128,
+   "h": 128,
+   "fw": 4,
+   "fh": 1,
+   "light": 0
+  },
+  "fireplace": {
+   "file": "assets/world/interiors/furn/fireplace.png",
+   "w": 128,
+   "h": 64,
+   "fw": 4,
+   "fh": 1,
+   "light": 220
+  },
+  "hearth": {
+   "file": "assets/world/interiors/furn/hearth.png",
+   "w": 96,
+   "h": 96,
+   "fw": 3,
+   "fh": 2,
+   "light": 180
+  },
+  "piano": {
+   "file": "assets/world/interiors/furn/piano.png",
+   "w": 64,
+   "h": 64,
+   "fw": 2,
+   "fh": 1,
+   "light": 0
+  },
+  "plant": {
+   "file": "assets/world/interiors/furn/plant.png",
+   "w": 32,
+   "h": 64,
+   "fw": 1,
+   "fh": 1,
+   "light": 0
+  },
+  "plant2": {
+   "file": "assets/world/interiors/furn/plant2.png",
+   "w": 32,
+   "h": 64,
+   "fw": 1,
+   "fh": 1,
+   "light": 0
+  },
+  "pots": {
+   "file": "assets/world/interiors/furn/pots.png",
+   "w": 32,
+   "h": 64,
+   "fw": 1,
+   "fh": 1,
+   "light": 0
+  },
+  "pot": {
+   "file": "assets/world/interiors/furn/pot.png",
+   "w": 32,
+   "h": 32,
+   "fw": 1,
+   "fh": 1,
+   "light": 0
+  },
+  "shelf": {
+   "file": "assets/world/interiors/furn/shelf.png",
+   "w": 96,
+   "h": 32,
+   "fw": 3,
+   "fh": 1,
+   "light": 0
+  },
+  "shelf2": {
+   "file": "assets/world/interiors/furn/shelf2.png",
+   "w": 96,
+   "h": 64,
+   "fw": 3,
+   "fh": 1,
+   "light": 0
+  },
+  "counter_l": {
+   "file": "assets/world/interiors/furn/counter_l.png",
+   "w": 64,
+   "h": 96,
+   "fw": 2,
+   "fh": 2,
+   "light": 0
+  },
+  "counter": {
+   "file": "assets/world/interiors/furn/counter.png",
+   "w": 64,
+   "h": 64,
+   "fw": 2,
+   "fh": 1,
+   "light": 0
+  },
+  "counter2": {
+   "file": "assets/world/interiors/furn/counter2.png",
+   "w": 128,
+   "h": 96,
+   "fw": 4,
+   "fh": 1,
+   "light": 0
+  },
+  "stove": {
+   "file": "assets/world/interiors/furn/stove.png",
+   "w": 64,
+   "h": 64,
+   "fw": 2,
+   "fh": 1,
+   "light": 0
+  },
+  "stove2": {
+   "file": "assets/world/interiors/furn/stove2.png",
+   "w": 64,
+   "h": 128,
+   "fw": 2,
+   "fh": 1,
+   "light": 60
+  },
+  "weapons": {
+   "file": "assets/world/interiors/furn/weapons.png",
+   "w": 32,
+   "h": 64,
+   "fw": 0,
+   "fh": 0,
+   "light": 0
+  },
+  "weapons2": {
+   "file": "assets/world/interiors/furn/weapons2.png",
+   "w": 32,
+   "h": 64,
+   "fw": 0,
+   "fh": 0,
+   "light": 0
+  },
+  "books": {
+   "file": "assets/world/interiors/furn/books.png",
+   "w": 32,
+   "h": 32,
+   "fw": 1,
+   "fh": 1,
+   "light": 0
+  },
+  "barrel_big": {
+   "file": "assets/world/interiors/furn/barrel_big.png",
+   "w": 32,
+   "h": 64,
+   "fw": 1,
+   "fh": 1,
+   "light": 0
+  },
+  "jars": {
+   "file": "assets/world/interiors/furn/jars.png",
+   "w": 32,
+   "h": 32,
+   "fw": 1,
+   "fh": 1,
+   "light": 0
+  },
+  "kitchen_a": {
+   "file": "assets/world/interiors/furn/kitchen_a.png",
+   "w": 32,
+   "h": 32,
+   "fw": 1,
+   "fh": 1,
+   "light": 0
+  },
+  "kitchen_b": {
+   "file": "assets/world/interiors/furn/kitchen_b.png",
+   "w": 32,
+   "h": 32,
+   "fw": 1,
+   "fh": 1,
+   "light": 0
+  },
+  "kitchen_c": {
+   "file": "assets/world/interiors/furn/kitchen_c.png",
+   "w": 32,
+   "h": 96,
+   "fw": 1,
+   "fh": 1,
+   "light": 0
+  },
+  "rack": {
+   "file": "assets/world/interiors/furn/rack.png",
+   "w": 95,
+   "h": 64,
+   "fw": 3,
+   "fh": 2,
+   "light": 0
+  },
+  "headboard": {
+   "file": "assets/world/interiors/furn/headboard.png",
+   "w": 64,
+   "h": 32,
+   "fw": 2,
+   "fh": 1,
+   "light": 0
+  },
+  "stand": {
+   "file": "assets/world/interiors/furn/stand.png",
+   "w": 32,
+   "h": 64,
+   "fw": 1,
+   "fh": 1,
+   "light": 0
+  },
+  "table_long": {
+   "file": "assets/world/interiors/furn/table_long.png",
+   "w": 96,
+   "h": 96,
+   "fw": 3,
+   "fh": 2,
+   "light": 0
+  },
+  "bench_long": {
+   "file": "assets/world/interiors/furn/bench_long.png",
+   "w": 128,
+   "h": 32,
+   "fw": 4,
+   "fh": 1,
+   "light": 0
+  }
+ }
+}

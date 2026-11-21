@@ -29,25 +29,17 @@
  function create(c){
   const {R,D}=c,by=R.by,esc=v=>String(v??'').replace(/[&<>"']/g,k=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[k]));
   const state=()=>c.state(),battle=()=>c.battle(),button=(text,act,id='',disabled=false)=>`<button data-act="${act}" data-id="${esc(id)}" ${disabled?'disabled':''}>${text}</button>`;
-  let route=null,issuing=false,lastRouteTick=0,atlasMode='local',atlasSelection=null,storageTab='party',storageQuery='',storageType='',storagePage=0,adminQuery='';
-  function cancelRoute(quiet=false){route=null;c.stopMovement?.();c.routeLabel?.('');if(!quiet)c.toast('Đã dừng tự tìm đường.');}
-  function go(mapId,point=null,label='Điểm đến'){
-   const s=state();if(!s||battle()||g.VTNStory?.isActive?.())return false;
-   if(!mapRoute(D.maps,s.mapId,mapId)){c.toast('Chưa tìm thấy đường nối tới nơi này.');return false;}
-   c.stopMovement?.();route={mapId,point,label,paused:false};c.close();c.routeLabel?.('Đang tìm đường: '+label);lastRouteTick=0;tick();return true;
+  let issuing=false,atlasMode='local',atlasSelection=null,storageTab='party',storageQuery='',storageType='',storagePage=0,adminQuery='';
+  const nav=g.VTNNav.create({D,by,state:()=>c.state(),battle:()=>c.battle(),grid:c.grid,points:c.points,move:(x,y)=>{issuing=true;try{return c.move(x,y);}finally{issuing=false;}},movement:c.movement,interact:c.interact,stopMovement:c.stopMovement,toast:c.toast,close:c.close,routeLabel:c.routeLabel});
+  const routeNow=()=>nav.route();
+  function cancelRoute(quiet=false){nav.cancel(quiet);}
+  function go(mapId,point=null,label='Điểm đến',options={}){
+   const real=point&&(point.npc?.id||point.id);
+   const dest={mapId,pointId:real&&!String(real).startsWith('habitat|')?real:null,x:point?.x,y:point?.y};
+   if(options.alts)dest.alts=options.alts;
+   return nav.goTo(dest,{label,arrive:options.arrive||(dest.pointId?'interact':'stop'),source:options.source||'manual',onArrive:options.onArrive});
   }
-  function tick(){
-   if(!route||!state()||performance.now()-lastRouteTick<220)return;lastRouteTick=performance.now();
-   if(battle()||g.VTNStory?.isActive?.()||document.getElementById('overlay').classList.contains('open'))return;
-   if(c.movement())return;
-   const s=state(),map=by('maps',s.mapId);let point=route.point;
-   if(s.mapId!==route.mapId){const chain=mapRoute(D.maps,s.mapId,route.mapId);if(!chain){cancelRoute(true);c.toast('Đường đi hiện không còn thông.');return;}point=c.points(map.id).find(p=>p.type==='portal'&&p.target===chain[1]);if(!point){cancelRoute(true);c.toast('Không tìm thấy cổng trên bản đồ hiện tại.');return;}}
-   else if(point&&(point.npc?.id||point.id)){const live=c.points(map.id).find(p=>(p.npc?.id||p.id)===(point.npc?.id||point.id));if(live)point=live;}
-   else{cancelRoute(true);c.toast('Đã đến '+map.name+'.');return;}
-   const near=Math.max(Math.abs(s.x-point.x),Math.abs(s.y-point.y))<=1;
-   if(near){const isDestination=s.mapId===route.mapId;const id=point.npc?.id||point.id;if(isDestination){const label=route.label;cancelRoute(true);c.toast('Đã đến '+label+'.');if(id)c.interact(id);return;}if(id)c.interact(id);else{cancelRoute(true);c.toast('Cổng này chưa có lối tương tác.');}return;}
-   issuing=true;const ok=c.move(point.x,point.y);issuing=false;if(!ok){cancelRoute(true);c.toast('Lối đi bị chặn. Hãy mở bản đồ để chọn một điểm khác.');}
-  }
+  function tick(){nav.tick();}
   function objective(){
    const s=state();if(!s)return null;
    if(!s.flags.prologueDone){
@@ -63,23 +55,36 @@
   const poiColor=p=>p.type==='portal'?'#99bfd9':p.type==='npc'?'#f3dab0':/boss|overlord|lair/.test(p.type)?'#ec8588':p.type==='shrine'?'#f1bc6c':'#bd9ddd';
   function localMap(){
    const s=state(),map=by('maps',s.mapId),a=c.grid(map.id),pts=c.points(map.id),habitats=R.D&&g.VTN_MAP_LAYOUTS?.habitats?.(a)||[];
-   c.show('Địa đồ · '+map.name,`<div class="atlas-tabs">${button('Bản đồ khu vực','atlas-local')}${button('Thế giới','atlas-world')}</div><div class="atlas-heading"><div><h3>${esc(map.name)}</h3><p>Chạm dấu mốc để tự đi tới. Đường màu cát an toàn; vùng màu xanh có quái.</p></div>${button('Tới nhiệm vụ đang theo dõi','quest-route')}</div><div class="atlas-canvas-wrap"><canvas class="atlas-canvas" id="local-atlas" width="960" height="640" aria-label="Bản đồ địa hình, vùng quái và các điểm tương tác"></canvas></div><div class="atlas-legend"><span><i style="--mark:#cfaa73"></i>Đường an toàn</span><span><i style="--mark:#426747"></i>Khu gặp quái (${habitats.length})</span><span><i style="--mark:#e8cf7e"></i>Vị trí của bạn</span><span><i style="--mark:#99bfd9"></i>Cổng</span><span><i style="--mark:#ec8588"></i>Bá Chủ</span></div><div class="atlas-selection" id="atlas-selection">${route?'Đang tìm đường tới '+esc(route.label):'Chọn một dấu mốc hoặc một ô đất trên bản đồ.'}</div>${route?button('Dừng tìm đường','route-stop'):''}${speciesPanel(map)}`,'atlas');
-   const cv=document.getElementById('local-atlas'),ctx=cv.getContext('2d'),w=a[0].length,h=a.length,pad=20,scale=Math.min((cv.width-pad*2)/w,(cv.height-pad*2)/h),ox=(cv.width-w*scale)/2,oy=(cv.height-h*scale)/2;
-   const zones=g.VTN_MAP_LAYOUTS.zoneModel(map,a,pts),roads=zones.roadCells;ctx.fillStyle='#110f1a';ctx.fillRect(0,0,cv.width,cv.height);
-   for(let y=0;y<h;y++)for(let x=0;x<w;x++){ctx.fillStyle=roads.has(`${x},${y}`)?'#b89766':colors[a[y][x]]||'#30313b';ctx.fillRect(ox+x*scale,oy+y*scale,Math.ceil(scale),Math.ceil(scale));}
-   ctx.font='600 13px "VTN UI",sans-serif';ctx.textAlign='center';
-   const labelled=[];for(const p of pts){if(!Number.isFinite(p.x))continue;const x=ox+(p.x+.5)*scale,y=oy+(p.y+.5)*scale;ctx.fillStyle='#090811';ctx.fillRect(x-5,y-5,10,10);ctx.fillStyle=poiColor(p);ctx.fillRect(x-3,y-3,6,6);if(p.type==='npc')continue;const label=p.name||p.type,ly=y+(y>cv.height*.7?-12:20);if(labelled.some(q=>Math.abs(q.x-x)<100&&Math.abs(q.y-ly)<18))continue;const text=label.length>28?label.slice(0,26)+'…':label;ctx.lineWidth=4;ctx.strokeStyle='#100d19';ctx.strokeText(text,x,ly);ctx.fillStyle=poiColor(p);ctx.fillText(text,x,ly);labelled.push({x,y:ly});}
-   ctx.fillStyle='#ffe6a5';ctx.beginPath();ctx.arc(ox+(s.x+.5)*scale,oy+(s.y+.5)*scale,6,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff3d0';ctx.lineWidth=2;ctx.stroke();
-   cv.onclick=e=>{const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*cv.width/r.width,y=(e.clientY-r.top)*cv.height/r.height,tx=Math.floor((x-ox)/scale),ty=Math.floor((y-oy)/scale);if(tx<0||ty<0||tx>=w||ty>=h)return;const p=pts.slice().sort((l,r)=>Math.hypot(l.x-tx,l.y-ty)-Math.hypot(r.x-tx,r.y-ty))[0],close=p&&Math.hypot(p.x-tx,p.y-ty)<2.5;atlasSelection={mapId:map.id,point:close?p:{x:tx,y:ty},label:close?p.name:`Ô ${tx}, ${ty}`};document.getElementById('atlas-selection').innerHTML=`<strong>${esc(atlasSelection.label)}</strong> ${button('Tự đi tới','atlas-go')}`;};
+   c.show('Địa đồ · '+map.name,`<div class="atlas-tabs">${button('Bản đồ khu vực','atlas-local')}${button('Thế giới','atlas-world')}</div><div class="atlas-heading"><div><h3>${esc(map.name)}</h3><p>Chạm dấu mốc để tự đi tới. Đường màu cát an toàn; vùng màu xanh có quái.</p></div>${button('Tới nhiệm vụ đang theo dõi','quest-route')}</div><div class="atlas-canvas-wrap"><canvas class="atlas-canvas" id="local-atlas" width="960" height="640" aria-label="Bản đồ địa hình, vùng quái và các điểm tương tác"></canvas></div><div class="atlas-legend"><span><i style="--mark:#e2c892"></i>Đường mòn an toàn</span><span><i style="--mark:#4f7a4a"></i>Rừng · khu gặp quái (${habitats.length})</span><span><i style="--mark:#f6c850"></i>Vị trí của bạn</span><span><i style="--mark:#99bfd9"></i>Cổng</span><span><i style="--mark:#a3282c"></i>Bá Chủ</span><span><i style="--mark:#7d6a58"></i>Núi đá</span></div><div class="atlas-selection" id="atlas-selection">${routeNow()?'Đang tìm đường tới '+esc(routeNow().label):'Chọn một dấu mốc hoặc một ô đất trên bản đồ.'}</div>${routeNow()?button('Dừng tìm đường','route-stop'):''}${speciesPanel(map)}`,'atlas');
+   const cv=document.getElementById('local-atlas'),w=a[0].length,h=a.length,RM=g.VTNRegionMap,WM=g.VTNWorldMap;
+   const zones=g.VTN_MAP_LAYOUTS.zoneModel(map,a,pts),roads=zones.roadCells;let lay={scale:Math.min(920/w,600/h),ox:20,oy:20},sel=null;
+   const frame=()=>{if(!cv.isConnected)return;const st=state(),L=RM.draw(cv,{map,grid:a,points:pts,roadCells:roads,hero:{x:st.x,y:st.y},selected:sel});if(L)lay=L;requestAnimationFrame(frame);};
+   WM.whenReady(frame);
+   const ox=()=>lay.ox,oy=()=>lay.oy,scale=()=>lay.scale;
+   cv.onclick=e=>{const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*cv.width/r.width,y=(e.clientY-r.top)*cv.height/r.height,tx=Math.floor((x-ox())/scale()),ty=Math.floor((y-oy())/scale());if(tx<0||ty<0||tx>=w||ty>=h)return;const p=pts.slice().sort((l,r)=>Math.hypot(l.x-tx,l.y-ty)-Math.hypot(r.x-tx,r.y-ty))[0],close=p&&Math.hypot(p.x-tx,p.y-ty)<2.5;atlasSelection={mapId:map.id,point:close?p:{x:tx,y:ty},label:close?p.name:`Ô ${tx}, ${ty}`};sel={x:atlasSelection.point.x,y:atlasSelection.point.y};document.getElementById('atlas-selection').innerHTML=`<strong>${esc(atlasSelection.label)}</strong> ${button('Tự đi tới','atlas-go')}`;};
   }
-  const worldPositions=[[.18,.68],[.1,.38],[.34,.82],[.38,.33],[.54,.69],[.51,.44],[.68,.47],[.75,.24],[.79,.76],[.88,.42]];
+  const worldPositions=[[.2,.64],[.1,.34],[.33,.8],[.36,.3],[.55,.68],[.52,.42],[.7,.46],[.76,.22],[.82,.74],[.9,.4]];
+  const RESOLVED=['sealed','heartRestored','permanentlyDead','temporarilyFreed'];
+  function worldData(){
+   const s=state(),here=by('maps',s.mapId)?.regionId,Q=g.VTNGame?.quests,regs=D.regions;
+   const badge={};if(Q){for(const q of Q.available())if(q.region)badge[q.region]=badge[q.region]||'available';for(const q of Q.active())if(q.region&&badge[q.region]!=='available')badge[q.region]='active';}
+   const ids=regs.map(r=>r.id),links=[],seen=new Set();
+   regs.forEach((r,i)=>{for(const id of by('maps',r.id)?.links||[]){const j=ids.indexOf(id);if(j<0)continue;const k=[i,j].sort().join('|');if(seen.has(k))continue;seen.add(k);links.push([i,j]);}});
+   let route=null;const r0=nav.route();if(r0){const plan=nav.legsFor(s.mapId,r0.dest);if(plan)route=[...new Set(plan.legs.map(l=>by('maps',l.mapId)?.regionId).filter(Boolean))];}
+   return {regions:regs.map((r,i)=>({id:r.id,name:r.name,level:r.recommendedLevel,palette:r.palette,px:worldPositions[i][0],py:worldPositions[i][1],visited:s.visited.some(id=>by('maps',id)?.regionId===r.id),current:here===r.id,resolved:RESOLVED.includes(s.overlordState?.[r.id]),badge:badge[r.id]||null,scale:1})),links,route,selected:atlasSelection?.mapId,hover:null};
+  }
   function worldMap(){
-   const s=state(),regions=D.regions,maps=regions.map(r=>by('maps',r.id));c.show('Địa đồ · Vực Tàn Nguyệt',`<div class="atlas-tabs">${button('Bản đồ khu vực','atlas-local')}${button('Thế giới','atlas-world')}</div><div class="atlas-heading"><div><h3>Mười miền dưới trăng vỡ</h3><p>Chọn một miền để xem cấp độ và tự tìm đường qua các cổng.</p></div></div><div class="atlas-canvas-wrap"><canvas class="atlas-canvas" id="world-atlas" width="1120" height="680" aria-label="Địa đồ thế giới với mười vùng và đường nối"></canvas></div><div class="atlas-selection" id="atlas-selection">${esc(by('regions',by('maps',s.mapId).regionId)?.name||'')} · Bạn đang ở đây.</div>`,'atlas');
-   const cv=document.getElementById('world-atlas'),ctx=cv.getContext('2d');ctx.fillStyle='#141322';ctx.fillRect(0,0,cv.width,cv.height);ctx.strokeStyle='#342c43';ctx.lineWidth=1;for(let i=0;i<17;i++){ctx.beginPath();ctx.ellipse(560,340,130+i*32,30+i*18,-.15,0,7);ctx.stroke();}
-   const links=new Set();maps.forEach((map,i)=>{for(const id of map?.links||[]){const j=maps.findIndex(m=>m?.id===id);if(j<0||links.has([i,j].sort().join('|')))continue;links.add([i,j].sort().join('|'));const [x,y]=worldPositions[i],[xx,yy]=worldPositions[j];ctx.strokeStyle='#8a745355';ctx.lineWidth=3;ctx.setLineDash([7,7]);ctx.beginPath();ctx.moveTo(x*1120,y*680);ctx.lineTo(xx*1120,yy*680);ctx.stroke();}});ctx.setLineDash([]);
-   regions.forEach((reg,i)=>{const [xx,yy]=worldPositions[i],x=xx*1120,y=yy*680,visited=s.visited.some(id=>by('maps',id)?.regionId===reg.id),current=by('maps',s.mapId).regionId===reg.id;ctx.beginPath();for(let n=0;n<12;n++){const angle=n*Math.PI/6,r=32+(g.VTN_MAP_LAYOUTS.hash(reg.id+n)%22),px=x+Math.cos(angle)*r,py=y+Math.sin(angle)*r*.7;n?ctx.lineTo(px,py):ctx.moveTo(px,py);}ctx.closePath();ctx.fillStyle=reg.palette?.[1]||'#3a3d46';ctx.fill();ctx.strokeStyle=current?'#ffe2a0':visited?'#b69562':'#625669';ctx.lineWidth=current?3:1;ctx.stroke();ctx.fillStyle=current?'#ffe4aa':visited?'#e0cfb1':'#a294ae';ctx.font='600 18px "VTN Title",Georgia,serif';ctx.textAlign='center';ctx.fillText(reg.name,x,y+65);ctx.font='11px "VTN UI",sans-serif';ctx.fillText('Cấp '+reg.recommendedLevel.join('–')+(current?' · Bạn ở đây':''),x,y+82);});
-   ctx.fillStyle='#c5b28a';ctx.font='italic 22px "VTN Title",serif';ctx.textAlign='center';ctx.fillText('Vực Tàn Nguyệt',560,48);
-   cv.onclick=e=>{const rect=cv.getBoundingClientRect(),x=(e.clientX-rect.left)/rect.width,y=(e.clientY-rect.top)/rect.height;let best=0,dist=Infinity;worldPositions.forEach(([xx,yy],i)=>{const d=Math.hypot((xx-x)*1120,(yy-y)*680);if(d<dist){dist=d;best=i;}});if(dist>100)return;const reg=regions[best];atlasSelection={mapId:reg.id,point:null,label:reg.name};document.getElementById('atlas-selection').innerHTML=`<strong>${esc(reg.name)}</strong> · Cấp ${reg.recommendedLevel.join('–')}<p>${esc(reg.theme)}</p>${button('Tự tìm đường tới vùng','atlas-go')}`;};
+   const s=state();c.show('Địa đồ · Vực Tàn Nguyệt',`<div class="atlas-tabs">${button('Bản đồ khu vực','atlas-local')}${button('Thế giới','atlas-world')}</div><div class="atlas-heading"><div><h3>Mười miền dưới trăng vỡ</h3><p>Chạm vào một miền để xem và tự tìm đường qua các cổng. Dấu <b>!</b> là lời hứa đang chờ, dấu <b>?</b> là lời hứa đang làm.</p></div>${button('Tới nhiệm vụ đang theo dõi','quest-route')}</div><div class="atlas-canvas-wrap"><canvas class="atlas-canvas" id="world-atlas" width="1120" height="680" aria-label="Địa đồ thế giới với mười vùng và đường nối"></canvas></div><div class="atlas-selection" id="atlas-selection">${esc(by('regions',by('maps',s.mapId).regionId)?.name||'')} · Bạn đang ở đây.</div>`,'atlas');
+   const cv=document.getElementById('world-atlas'),M=g.VTNWorldMap;if(!cv||!M)return;
+   M.whenReady(()=>{
+    const loop=()=>{if(!cv.isConnected)return;try{M.draw(cv,data());}catch(e){console.warn(e);return;}requestAnimationFrame(loop);};
+    let hover=null;const data=()=>{const d=worldData();d.hover=hover;return d;};loop();
+    const pos=e=>{const r=cv.getBoundingClientRect();return [(e.clientX-r.left)*cv.width/r.width,(e.clientY-r.top)*cv.height/r.height];};
+    cv.onmousemove=e=>{const d=worldData(),[x,y]=pos(e),i=M.hit(d,cv,x,y);hover=i>=0?d.regions[i].id:null;cv.style.cursor=i>=0?'pointer':'default';};
+    cv.onclick=e=>{const d=worldData(),[x,y]=pos(e),i=M.hit(d,cv,x,y);if(i<0)return;const reg=D.regions[i];atlasSelection={mapId:reg.id,point:null,label:reg.name};
+     const st=s.overlordState?.[reg.id],qs=g.VTNGame?.quests,n=qs?qs.all().filter(q=>q.region===reg.id&&!qs.isDone(q.id)&&(qs.isActive(q.id)||qs.isAvailable(q))).length:0;
+     document.getElementById('atlas-selection').innerHTML=`<strong>${esc(reg.name)}</strong> · Cấp ${reg.recommendedLevel.join('–')}${st?' · Bá Chủ: '+esc(({controlled:'đang bị khống chế',sleeping:'đang ngủ',sealed:'đã phong ấn',heartRestored:'đã Hoàn Tâm',permanentlyDead:'đã chết',temporarilyFreed:'tạm thoát'})[st]||st):''}${n?` · ${n} lời hứa`:''}<p>${esc(reg.theme)}</p>${button('Tự tìm đường tới vùng','atlas-go')}`;};
+   });
   }
 
   /* ---- Hunting guide: which monsters live where, with their chance, and auto-path to the habitat ---- */
@@ -132,8 +137,8 @@
    if(ov?.classList.contains('open')){if(ov.querySelector('.collectible')){if(!auto.closeAt)auto.closeAt=now+1.6;else if(now>=auto.closeAt){auto.closeAt=0;c.close();}}return;}
    auto.closeAt=0;if(document.querySelector('#story-overlay.is-active')||document.body.classList.contains('title-mode'))return;
    if(now<auto.next)return;
-   if(s.mapId!==auto.mapId){if(!route){const spot=nearestHabitat(auto.mapId);if(spot){issuing=true;go(auto.mapId,{id:'habitat|hunt',type:'habitat',x:spot.x,y:spot.y,name:'khu săn'},'khu săn');issuing=false;}else huntStop(true);auto.next=now+2;}return;}
-   if(route||c.movement())return;
+   if(s.mapId!==auto.mapId){if(!routeNow()){const spot=nearestHabitat(auto.mapId);if(spot){issuing=true;go(auto.mapId,{id:'habitat|hunt',type:'habitat',x:spot.x,y:spot.y,name:'khu săn'},'khu săn');issuing=false;}else huntStop(true);auto.next=now+2;}return;}
+   if(routeNow()||c.movement())return;
    const grid=c.grid(s.mapId),cells=wildCells(s.mapId);if(!cells.length){huntStop(true);c.toast('Bản đồ này không có khu gặp quái.');return;}
    let spot;
    if(grid[s.y]?.[s.x]!==2){spot=nearestHabitat(s.mapId);}
@@ -166,7 +171,7 @@
   function monsterCard(m,inStorage=false){const sp=by('monsters',m.speciesId),st=R.monsterStats(m),form=by('evolutions',m.formId),index=state().party.indexOf(m);return `<article class="card collectible">${c.sprite(m.speciesId,m.formId,m.variant,false,112,m.uid,m.look)}<h3>${esc(form?.name||sp.name)}</h3><p>${esc(sp.id)} · Cấp ${m.level} · ${esc(sp.types.join(' / '))}<br>HP ${m.hp}/${st.hp} · MP ${m.mp}/${st.mp}<br>Tiềm lực ${esc(m.potential)} · Gắn kết ${Math.round(m.bond)}<br>${inStorage?'Trong kho':index<2?'Đang đứng sân':'Dự bị'}</p><div class="row">${inStorage?button('Mang theo','withdraw',m.uid,state().party.length>=PARTY_LIMIT):button('Gửi vào kho','store',m.uid,state().party.length<=1)}${!inStorage&&index>=2?button('Đưa lên sân','lead',m.uid):''}${button('Quản lý','manage',m.uid)}${button('Kỹ năng','loadout-menu',m.uid)}${button('Hồ sơ','monster',m.speciesId)}${button('Cho ăn','feed',m.uid,!(state().hero.bag.food>0))}${R.canEvolve(state(),m).length?button('Tiến hóa','evolve',m.uid):''}</div></article>`;}
   function storage(tab=storageTab){
    storageTab=tab;const s=state(),all=tab==='party'?s.party:s.storage,query=storageQuery.toLocaleLowerCase('vi'),filtered=all.filter(m=>{const sp=by('monsters',m.speciesId),name=by('evolutions',m.formId)?.name||sp.name;return (!query||`${name} ${sp.id} ${sp.englishName}`.toLocaleLowerCase('vi').includes(query))&&(!storageType||sp.types.includes(storageType));}),pages=Math.max(1,Math.ceil(filtered.length/24));storagePage=Math.min(storagePage,pages-1);
-   c.show(tab==='party'?'Đội hình Khế Hồn':'Kho Khế Hồn',`<div class="storage-tabs">${button(`Mang theo · ${s.party.length}/${PARTY_LIMIT}`,'party-tab','party')}${button(`Trong kho · ${s.storage.length}`,'party-tab','storage')}${button('Bộ kỹ năng của người chơi','loadout-menu','hero')}</div><p class="storage-count">${tab==='party'?s.party.length+'/'+PARTY_LIMIT+' khế thú mang theo':s.storage.length+' khế thú trong kho'}</p><p>Hai khế thú đầu tiên đứng sân; tối đa ba dự bị. Khi đội đủ năm, quái thu phục thêm sẽ tự về kho.</p><div class="storage-toolbar"><input id="storage-search" type="search" value="${esc(storageQuery)}" placeholder="Tìm tên hoặc mã loài" aria-label="Tìm khế thú"><select id="storage-type" aria-label="Lọc theo hệ"><option value="">Mọi hệ</option>${D.types.entries.map(t=>`<option ${t.id===storageType?'selected':''}>${esc(t.id)}</option>`).join('')}</select></div><div class="storage-grid">${filtered.slice(storagePage*24,storagePage*24+24).map(m=>monsterCard(m,tab==='storage')).join('')||'<p>Chưa có khế thú phù hợp. Quái mới sẽ được đưa vào đây khi đội đầy.</p>'}</div><div class="row">${button('Trang trước','storage-page',storagePage-1,storagePage===0)}<span>Trang ${storagePage+1}/${pages} · ${filtered.length} khế thú</span>${button('Trang sau','storage-page',storagePage+1,storagePage>=pages-1)}</div>`,'party');
+   c.show(tab==='party'?'Đội hình Khế Hồn':'Kho Khế Hồn',`<div class="storage-tabs">${button(`Mang theo · ${s.party.length}/${PARTY_LIMIT}`,'party-tab','party')}${button(`Trong kho · ${s.storage.length}`,'party-tab','storage')}${button('Bộ kỹ năng của người chơi','loadout-menu','hero')}</div><p class="storage-count">${tab==='party'?s.party.length+'/'+PARTY_LIMIT+' khế thú mang theo':s.storage.length+' khế thú trong kho'}</p><p>Hai khế thú đầu tiên đứng sân; tối đa ba dự bị. Khi đội đủ năm, quái lập khế thêm sẽ tự về kho.</p><div class="storage-toolbar"><input id="storage-search" type="search" value="${esc(storageQuery)}" placeholder="Tìm tên hoặc mã loài" aria-label="Tìm khế thú"><select id="storage-type" aria-label="Lọc theo hệ"><option value="">Mọi hệ</option>${D.types.entries.map(t=>`<option ${t.id===storageType?'selected':''}>${esc(t.id)}</option>`).join('')}</select></div><div class="storage-grid">${filtered.slice(storagePage*24,storagePage*24+24).map(m=>monsterCard(m,tab==='storage')).join('')||'<p>Chưa có khế thú phù hợp. Quái mới sẽ được đưa vào đây khi đội đầy.</p>'}</div><div class="row">${button('Trang trước','storage-page',storagePage-1,storagePage===0)}<span>Trang ${storagePage+1}/${pages} · ${filtered.length} khế thú</span>${button('Trang sau','storage-page',storagePage+1,storagePage>=pages-1)}</div>`,'party');
    const input=document.getElementById('storage-search');input.onchange=()=>{storageQuery=input.value;storagePage=0;storage();};document.getElementById('storage-type').onchange=e=>{storageType=e.target.value;storagePage=0;storage();};
   }
   function grant(id,level){
@@ -230,6 +235,7 @@
   }
   function handle(action,id){
    const s=state();if(!s)return false;
+   if(action==='beat-go'){const b=(g.VTNBeats?.available()||[]).find(v=>v.scene===id);if(b){c.close?.();go(b.mapId,{id:b.pointId||'beat|'+b.scene,x:b.x,y:b.y,name:b.actor},b.title);}return true;}
    if(action==='quest-route'){const target=objective();if(target)go(target.mapId,target.point,target.label);else c.toast('Đã hoàn tất các nhiệm vụ đang theo dõi.');return true;}
    if(action==='quest-navigate'){questRoute(id);return true;}
    if(action==='route-stop'){cancelRoute();return true;}
@@ -269,7 +275,7 @@
    return true;
   }
   document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.shiftKey&&e.code==='KeyA'&&state()&&!battle()){e.preventDefault();admin();}});
-  return {handle,atlas,storage,admin,go,tick,hunt,huntPick,huntStop,huntStart,huntState:()=>({...auto}),whereHtml,spawnTable,questRoute,objective,cancelRoute,isRouting:()=>!!route,onInteract:id=>{if(route&&state()?.mapId===route.mapId&&(route.point?.npc?.id||route.point?.id)===id)cancelRoute(true);},manualMove:()=>{if(auto.on&&!issuing)huntStop();if(route&&!issuing)cancelRoute(true);},inspect:()=>route&&JSON.parse(JSON.stringify(route))};
+  return {handle,atlas,storage,admin,go,tick,hunt,huntPick,huntStop,huntStart,huntState:()=>({...auto}),whereHtml,spawnTable,questRoute,objective,cancelRoute,isRouting:()=>nav.isRouting(),nav,drawGuide:extra=>nav.drawGuide(extra),onInteract:id=>{const r=routeNow();if(r&&state()?.mapId===r.dest.mapId&&(r.dest.pointId===id||r.dest.npcId===id))cancelRoute(true);},manualMove:()=>{if(auto.on&&!issuing)huntStop();if(routeNow()&&!issuing)cancelRoute(true);},inspect:()=>{const r=routeNow();return r&&JSON.parse(JSON.stringify({mapId:r.dest.mapId,label:r.label,dest:r.dest}));}};
  }
  g.VTNAdventure={PARTY_LIMIT,effectiveness,mapRoute,humanOpponent,create};
 })(typeof window!=='undefined'?window:globalThis);

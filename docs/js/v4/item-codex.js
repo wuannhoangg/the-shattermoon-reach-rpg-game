@@ -39,7 +39,7 @@
     function describeItem(i) {
       const out = {type: 'item', id: i.id, title: i.name, kindLabel: KIND[i.kind] || i.kind, rarity: '', price: i.price, effects: [], where: [], lore: ''};
       out.lore = i.lore || '';
-      if (i.legendary) { out.kindLabel = 'Vật phẩm huyền thoại'; out.summary = 'Thu phục chắc chắn một Bá Chủ đã mất trái tim và trả lại trái tim cho nó.'; out.effects = ['Chỉ dùng được trong trận với Bá Chủ của các vùng, không dùng với con mắt cuối cùng.', 'Chỉ có một, không thể mua hay chế tạo.']; out.where = ['Nhận được qua cốt truyện, khi bạn đã đủ điều kiện về Khế Hồn.']; return out; }
+      if (i.legendary) { out.kindLabel = 'Vật phẩm huyền thoại'; out.summary = 'Lập khế chắc chắn một Bá Chủ đã mất trái tim và trả lại trái tim cho nó.'; out.effects = ['Chỉ dùng được trong trận với Bá Chủ của các vùng, không dùng với con mắt cuối cùng.', 'Chỉ có một, không thể mua hay chế tạo.']; out.where = ['Nhận được qua cốt truyện, khi bạn đã đủ điều kiện về Khế Hồn.']; return out; }
       if (i.kind === 'quest') { out.kindLabel = 'Vật phẩm cốt truyện'; out.summary = i.lore || 'Một vật quan trọng của câu chuyện.'; out.effects = ['Vật phẩm cốt truyện: không thể bán hoặc dùng trực tiếp.', 'Được dùng tự động khi đến đúng thời điểm của nhiệm vụ.']; out.where = ['Nhận được khi tiến triển cốt truyện.']; return out; }
       switch (i.kind) {
         case 'heal':
@@ -67,7 +67,7 @@
           out.effects = ['Khảm vào một trang bị đang mặc: +2 Phòng thủ mỗi viên, tối đa 3 viên cho mỗi món.', 'Có thể chế từ 2 nguyên liệu của cùng một loài.'];
           break;
         case 'capture':
-          out.summary = `Phong ấn thu phục sinh linh, nền tảng ${Math.round(i.power * 100)}% mỗi lần ném.`;
+          out.summary = `Phong ấn lập khế sinh linh, nền tảng ${Math.round(i.power * 100)}% mỗi lần ném.`;
           out.effects = [`Thêm 15% nếu sinh linh thuộc hệ ${i.affinity}.`, i.category ? `Thêm 15% nếu sinh linh thuộc nhóm ${i.category}.` : null, 'Cộng thêm theo máu còn lại của đối thủ (càng yếu càng dễ), Mị lực của bạn, trạng thái bất lợi và đòn khắc chế.', 'Chỉ dùng được với sinh linh hoang dã, trong trận.'].filter(Boolean);
           break;
         case 'exp':
@@ -85,7 +85,7 @@
           const evo = (D.evolutions || []).filter(e => e.speciesId === i.speciesId && e.lootRequired);
           if (evo.length) uses.push(`Cần 1 cái cho lần tiến hóa lên dạng cuối của ${sp?.name || 'loài này'}.`);
           out.effects = uses;
-          out.where = [`Rơi khi đánh bại hoặc thu phục ${sp?.name || 'sinh linh này'}${reg ? ' (vùng ' + reg + ')' : ''}.`];
+          out.where = [`Rơi khi đánh bại hoặc lập khế ${sp?.name || 'sinh linh này'}${reg ? ' (vùng ' + reg + ')' : ''}.`];
           if (sp?.dexQuote) out.lore = String(sp.dexQuote);
           break;
         }
@@ -167,7 +167,7 @@
       page = Math.min(page, pages - 1);
       const cards = list.slice(page * PAGE, (page + 1) * PAGE).map(x => {
         const ok = known(x, s), d = ok ? describe(x.id) : null, n = owned(x.id, s);
-        return `<article class="card codex-card ${ok ? '' : 'locked'}" data-act="item-detail" data-id="${esc(x.id)}" tabindex="0" role="button">${iconOf(x.id, ok ? x.name : '???')}<div><h3>${ok ? esc(x.name) : '???'}</h3><div class="codex-chips">${ok ? chips(d) : '<span class="codex-chip">Chưa gặp</span>'}</div><p>${ok ? esc((d.summary || '').slice(0, 96)) + ((d.summary || '').length > 96 ? '…' : '') : 'Đánh bại hoặc thu phục sinh linh này để mở trang.'}</p>${n ? `<small class="codex-own">Đang có ${n}</small>` : ''}</div></article>`;
+        return `<article class="card codex-card ${ok ? '' : 'locked'}" data-act="item-detail" data-id="${esc(x.id)}" tabindex="0" role="button">${iconOf(x.id, ok ? x.name : '???')}<div><h3>${ok ? esc(x.name) : '???'}</h3><div class="codex-chips">${ok ? chips(d) : '<span class="codex-chip">Chưa gặp</span>'}</div><p>${ok ? esc((d.summary || '').slice(0, 96)) + ((d.summary || '').length > 96 ? '…' : '') : 'Đánh bại hoặc lập khế sinh linh này để mở trang.'}</p>${n ? `<small class="codex-own">Đang có ${n}</small>` : ''}</div></article>`;
       }).join('');
       c.show('Bảo Vật Chí · Codex of Relics',
         `<div class="intro"><h2>Mọi vật đều có một công dụng và một cái giá.</h2><p>${D.items.length} vật phẩm và ${D.equipment.length} món trang bị. Bấm vào một món để xem tác dụng, nơi có được và cách dùng.</p></div>` +

@@ -27,10 +27,10 @@
   const state=game()?.storyState?.();if(!state)return;
   if(mapId!==state.mapId){mapId=state.mapId;mapGrid=game().grid(mapId);}
   const c=minimap.querySelector('canvas'),ctx=c.getContext('2d'),w=mapGrid[0].length,h=mapGrid.length,k=Math.min(136/w,136/h),ox=(144-w*k)/2,oy=(144-h*k)/2;
-  ctx.fillStyle='#15101e';ctx.fillRect(0,0,144,144);
-  const colors=['#7d687e','#272236','#566252','#304856'];
+  ctx.fillStyle='#e9d8ae';ctx.fillRect(0,0,144,144);
+  const colors=['#d8c18f','#8a7660','#9db487','#8fb2b8'];
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){ctx.fillStyle=colors[mapGrid[y][x]]||'#272236';ctx.fillRect(ox+x*k,oy+y*k,Math.ceil(k),Math.ceil(k));}
-  const position=game().heroVisual?.()||state;ctx.fillStyle='#f6d681';ctx.beginPath();ctx.arc(ox+(position.x+.5)*k,oy+(position.y+.5)*k,3,0,Math.PI*2);ctx.fill();
+  const position=game().heroVisual?.()||state;ctx.fillStyle='#f6c850';ctx.strokeStyle='#33221a';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(ox+(position.x+.5)*k,oy+(position.y+.5)*k,3.5,0,Math.PI*2);ctx.fill();ctx.stroke();
  }
  function decorate(){
   const modal=document.querySelector('#overlay .modal');modal.classList.toggle('npc-dialogue',!!content.querySelector('[data-typewriter]'));

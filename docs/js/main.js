@@ -394,12 +394,12 @@ window.Game = {
         if (state.party.length < 6) state.party.push(enemy);
         else {state.storage.push(enemy);logMsg('Đội hình đầy: khế thú đã chuyển an toàn vào Kho Khế Ước [P].');}
         if(b.mode==='boss' && !state.bosses.includes(enemy.speciesId))state.bosses.push(enemy.speciesId);
-        logMsg(`🔮 Thành công! Bạn đã thu phục <b style="color:${enemy.tier.color}">[${enemy.tier.en}] ${enemy.code} ${enemy.name}</b> (IV ${enemy.iv.rank} • ${enemy.personality.name})!`);
+        logMsg(`🔮 Thành công! Bạn đã lập khế <b style="color:${enemy.tier.color}">[${enemy.tier.en}] ${enemy.code} ${enemy.name}</b> (IV ${enemy.iv.rank} • ${enemy.personality.name})!`);
         this.endBattle();
         window.UI.showCaptureCard(enemy);
         return;
       } else {
-        b.logs.unshift(`💥 ${enemy.name} phá vỡ ${item.name}! (Tỷ lệ thu phục: ${Math.round(catchProb * 100)}%)`);
+        b.logs.unshift(`💥 ${enemy.name} phá vỡ ${item.name}! (Tỷ lệ lập khế: ${Math.round(catchProb * 100)}%)`);
       }
     }
 
@@ -667,7 +667,7 @@ window.UI = {
 
   openMonsterCodex() {
     const regions = [...new Set(MONSTERS_200.map(m => m.region))];
-    this.openDynamicModal(`📖 SÁCH BÁCH KHOA 200 QUÁI VẬT VỰC TÀN NGUYỆT (Đã Gặp: ${state.seenMonsters.size}/200 • Đã Thu Phục: ${state.caughtMonsters.size}/200)`, `
+    this.openDynamicModal(`📖 SÁCH BÁCH KHOA 200 QUÁI VẬT VỰC TÀN NGUYỆT (Đã Gặp: ${state.seenMonsters.size}/200 • Đã Lập Khế: ${state.caughtMonsters.size}/200)`, `
       <div class="filter-bar">
         <input id="dex-m-search" placeholder="Tìm mã M-001..M-200 hoặc tên quái..." oninput="window.UI.filterMonsterCodex()" style="flex:1;" />
         <select id="dex-m-region" onchange="window.UI.filterMonsterCodex()">
@@ -700,7 +700,7 @@ window.UI = {
       const t = MONSTER_TIERS[m.defaultTier];
       const caught = state.caughtMonsters.has(m.id);
       const seen = state.seenMonsters.has(m.id);
-      const badge = caught ? '<span style="color:#69db7c;">★ Đã Thu Phục</span>' : (seen ? '<span style="color:#ffd43b;">👁 Đã Gặp</span>' : '<span style="color:#888;">• Hồ Sơ Cổ</span>');
+      const badge = caught ? '<span style="color:#69db7c;">★ Đã Lập Khế</span>' : (seen ? '<span style="color:#ffd43b;">👁 Đã Gặp</span>' : '<span style="color:#888;">• Hồ Sơ Cổ</span>');
       return `
         <div class="dex-card" style="border-color:${t.border}" onclick="window.UI.inspectMonsterDetail('${m.id}')">
           <div style="display:flex;justify-content:space-between;font-size:11px;">

@@ -18,7 +18,7 @@
         ${row('Âm lượng hiệu ứng', range('sfxVolume', p.sfxVolume))}
       </section>
       <section class="set-group"><h3>Độ khó</h3>
-        <div class="set-diff" role="radiogroup" aria-label="Độ khó">${Object.entries(diffs).map(([id, d]) => `<label class="set-diff-card ${p.difficulty === id ? 'is-on' : ''}"><input type="radio" name="difficulty" data-pref="difficulty" value="${id}" ${p.difficulty === id ? 'checked' : ''}><strong>${esc(d.name)}</strong><small>${esc(d.note)}</small></label>`).join('')}</div>
+        <div class="set-diff" role="radiogroup" aria-label="Độ khó">${Object.entries(diffs).map(([id, d]) => `<div class="set-diff-card ${p.difficulty === id ? 'is-on' : ''}"><label><input type="radio" name="difficulty" data-pref="difficulty" value="${id}" ${p.difficulty === id ? 'checked' : ''}><strong>${esc(d.name)}</strong><small>${esc(d.note)}</small></label><details class="difficulty-info" onkeydown="if(event.target.tagName==='SUMMARY' &amp;&amp; (event.key==='Enter'||event.key===' ')){event.preventDefault();event.stopPropagation();this.open=!this.open;}if(event.key==='Escape'){event.preventDefault();event.stopPropagation();this.open=false;this.querySelector('summary').focus();}"><summary role="button" aria-label="Xem chi tiết độ khó ${esc(d.name)}">ⓘ</summary><div class="difficulty-rules" role="region" aria-label="Quy tắc ${esc(d.name)}"><p>${esc(d.summary)}</p><ul>${d.rules.map(rule => `<li>${esc(rule)}</li>`).join('')}</ul></div></details></div>`).join('')}</div>
       </section>
       <section class="set-group"><h3>Trận đấu</h3>
         ${row('Tốc độ trận', `<select data-pref="battleSpeed" data-num="1">${[1, 2, 3].map(v => opt(v, 'Nhịp ' + v + (v === 1 ? ' · chậm, dễ theo dõi' : v === 3 ? ' · rất nhanh' : ''), p.battleSpeed)).join('')}</select>`)}
@@ -27,7 +27,8 @@
         ${check('numbers', 'Hiện số sát thương nổi', p.numbers)}
       </section>
       <section class="set-group"><h3>Khám phá và giao diện</h3>
-        ${row('Tốc độ tự tìm đường', `<select data-pref="pathSpeed">${opt('slow', 'Chậm', p.pathSpeed)}${opt('normal', 'Vừa', p.pathSpeed)}${opt('fast', 'Nhanh', p.pathSpeed)}</select>`)}
+        ${row('Tầm nhìn (độ cao camera)', `<select data-pref="viewRange">${opt('near', 'Gần', p.viewRange)}${opt('mid', 'Vừa', p.viewRange)}${opt('far', 'Xa', p.viewRange)}${opt('vfar', 'Rất xa', p.viewRange)}${opt('ultra', 'Siêu xa', p.viewRange)}${opt('whole', 'Toàn cảnh (cả vùng một khung hình)', p.viewRange)}</select>`)}
+        ${row('Tốc độ tự tìm đường', `<select data-pref="pathSpeed">${opt('slow', 'Chậm', p.pathSpeed)}${opt('normal', 'Vừa', p.pathSpeed)}${opt('fast', 'Nhanh (bằng đi bộ)', p.pathSpeed)}${opt('rapid', 'Rất nhanh (x1,7)', p.pathSpeed)}${opt('turbo', 'Siêu nhanh (x2,6)', p.pathSpeed)}${opt('blitz', 'Tức tốc (x4)', p.pathSpeed)}</select>`)}
         ${row('Tốc độ chữ hội thoại', `<select data-pref="textSpeed" data-num="1">${[1, 2, 3].map(v => opt(v, 'Nhịp ' + v, p.textSpeed)).join('')}</select>`)}
         ${row('Bố cục hiển thị', `<select data-pref="layout">${opt('auto', 'Tự động theo màn hình', p.layout)}${opt('desktop', 'Máy tính · bố cục rộng', p.layout)}${opt('phone', 'Điện thoại · bố cục gọn', p.layout)}</select>`, 'Áp dụng trên điện thoại và máy tính bảng. Trên máy tính, bố cục tự đổi theo kích thước cửa sổ trình duyệt.')}${row('Chuyển động nền menu', `<select data-pref="motion">${opt('full', 'Đầy đủ', p.motion)}${opt('reduced', 'Giảm chuyển động', p.motion)}</select>`)}
       </section>

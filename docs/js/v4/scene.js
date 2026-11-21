@@ -235,10 +235,11 @@ function racePerson(ctx, point, frame, dx, dy, state){
   return true;
 }
  function raceFrontPerson(ctx, state, dx, dy, raceId=state?.hero?.raceId){
+   const forHero=arguments.length<5;                 // an NPC falling back to the front sprite must not overwrite the hero's debug record
    const list=racePeople?.races?.[raceId]||[],look=list.find(v=>v.key===state?.hero?.storyLook)||list[0],img=look&&raceFrontImg[`${raceId}:${look.key}`];
    if(!look?.front||!img?.complete||!img.naturalWidth)return false;
    const w=scaled(racePeople?.front?.w||80),h=scaled(racePeople?.front?.h||92),footX=dx+T/2,footY=dy+T,drawX=Math.round(footX-w/2),drawY=Math.round(footY-h);
-   ctx.fillStyle='rgba(0,0,0,0.38)';ctx.beginPath();ctx.ellipse(footX,footY-2,8,2.5,0,0,Math.PI*2);ctx.fill();ctx.drawImage(img,0,0,img.naturalWidth,img.naturalHeight,drawX,drawY,w,h);lastHeroSprite={kind:'race-people-front',raceId,look:look.key,path:look.front,source:img.src,w,h,left:drawX,top:drawY,right:drawX+w,bottom:drawY+h,feetX:footX,feetY:footY};return true;
+   ctx.fillStyle='rgba(0,0,0,0.38)';ctx.beginPath();ctx.ellipse(footX,footY-2,8,2.5,0,0,Math.PI*2);ctx.fill();ctx.drawImage(img,0,0,img.naturalWidth,img.naturalHeight,drawX,drawY,w,h);if(forHero)lastHeroSprite={kind:'race-people-front',raceId,look:look.key,path:look.front,source:img.src,w,h,left:drawX,top:drawY,right:drawX+w,bottom:drawY+h,feetX:footX,feetY:footY};return true;
  }
 function drawNpc(ctx, point, dx, dy, state, now = performance.now() / 1000){
   const bob = dy + Math.round(Math.sin(now * 2 + (point.x || 0)) * 0.6), frame = point.walkFrame ?? (point.moving ? 1 + (Math.floor((point.walkDistance || 0) * 3) % 2) : 0);
@@ -295,6 +296,7 @@ function drawBuilding(ctx,p){
     if(heroState.x!==null){const dx=info.px-heroState.x,dy=info.py-heroState.y;heroState.dir=facingRow(Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'));heroState.movedAt=stateNow;}
     heroState.x=info.px;heroState.y=info.py;
    }
+   if(info.map.kind==='interior'&&window.VTNInteriors)return window.VTNInteriors.render(ctx,canvas,info,{drawNpc,drawHero:(drawCtx,renderInfo,dx,dy,frame)=>classPerson(drawCtx,renderInfo.S,heroState.dir,frame,dx,dy)||raceFrontPerson(drawCtx,renderInfo.S,dx,dy)});
    requestTileset(regionId,info.map);
    if(window.VTNWorldLibrary?.render(ctx,canvas,info,{
     drawNpc,
@@ -319,7 +321,7 @@ function drawBuilding(ctx,p){
   const tallPlan = availableTall.length ? tallLayout(r, info, availableTall) : { placements: [], walkable: 0, cap: 0, restricted: 0 };
   const worldDebug = { regionId, scriptState: scriptStates[regionId] || 'loaded', tilesetLoaded: true, assetsReady: true, tallAvailable: r.tall.length, propAvailable: r.prop.length, tallSprites: 0, fallbackTrees: 0, smallProps: 0, alphaAnchors: r.tall.filter(item => !!item.anchor).length, tallPlaced: tallPlan.placements.length, tallCap: tallPlan.cap, tallRestricted: tallPlan.restricted };
   // integer zoom so pixel art reads at a comfortable size
-  const Z = Math.max(1, Math.min(2, Math.floor(Math.min(canvas.width / 480, canvas.height / 320))));
+  const Z = (window.VTNViewZoom ? window.VTNViewZoom(canvas) : 2);
   const VW = canvas.width / Z, VH = canvas.height / Z;
   const heroRenderX=Number.isFinite(info.heroRenderX)?info.heroRenderX:info.px,heroRenderY=Number.isFinite(info.heroRenderY)?info.heroRenderY:info.py;
   const camX = Math.round(Math.max(0,Math.min(heroRenderX*T-VW/2+16,Math.max(0,W*T-VW)))), camY = Math.round(Math.max(0,Math.min(heroRenderY*T-VH/2+16,Math.max(0,H*T-VH))));
@@ -530,5 +532,5 @@ function drawBuilding(ctx,p){
   return true;
 }
 
-window.VTNScene = { render, drawNpc, has: (regionId) => !!tilesets()[regionId], inspect: () => ({ hero: lastHeroSprite, npcs: lastNpcSprites.slice(), world: { ...lastWorldDebug }, ...lastWorldDebug }) };
+window.VTNScene = { render, drawNpc, has: (regionId) => !!tilesets()[regionId], inspect: () => ({ hero: lastHeroSprite, npcs: lastNpcSprites.slice(), world: { ...lastWorldDebug, ...(window.VTNWorldLibrary?.heavyDebug?.(lastWorldDebug?.mapId) || {}) }, ...lastWorldDebug }) };
 })();

@@ -83,7 +83,7 @@ h1,h2,h3{color:var(--moon-paper)}
 #party-hud{position:fixed;bottom:20px;right:16px;width:205px;font-size:10px;background:#181222dc!important}#party-hud p{margin:5px 0 2px}
 #objective{font-size:11px;line-height:1.7;margin:8px 0}#game-ui>main>aside button{font-size:10px;min-height:30px}
 .world-minimap{position:absolute;right:16px;top:16px;width:154px;height:154px;border:3px solid #aa8858;border-radius:50%;overflow:hidden;padding:0;background:#211832c9;z-index:3;box-shadow:0 3px 20px #0008}
-.world-minimap canvas{width:100%;height:100%;image-rendering:pixelated;display:block;opacity:.9}
+.world-minimap canvas{width:100%;height:100%;image-rendering:auto;display:block}
 .world-minimap span{position:absolute;bottom:9px;left:0;right:0;text-align:center;font:600 17px var(--vtn-title);color:#f0debc;text-shadow:0 2px 4px #000}
 #hint{bottom:16px;left:50%;top:auto;transform:translateX(-50%);max-width:420px;font-size:10px;padding:7px 12px;border:1px solid #6a5342;background:#15101ed9;pointer-events:none;text-align:center}
 /* Creation follows the reference: searchable list / portrait / attributes. */
@@ -755,3 +755,21 @@ body[data-screen='battle'] .battle-item-grid button{min-height:44px;text-align:l
 .coach-menu{display:grid;gap:10px;margin:10px 0}.coach-chapter{display:flex;justify-content:space-between;align-items:center;gap:12px}.coach-chapter small{display:block;color:#93a6bd}.coach-chapter p{margin:3px 0 0}
 @media (max-width:700px){.coach-card{font-size:13px;padding:10px 12px}.coach-title{font-size:15px}}
 @media (prefers-reduced-motion:reduce){.coach-ring,.coach-ring::after,.coach-arrow{animation:none!important}}
+
+/* painted armour/jewellery icons (64px) scale smoothly; pixel icons stay crisp */
+img[src*="/items/armor_"]{image-rendering:auto!important}
+/* Difficulty details: independent of the radio label so inspection never selects a mode. */
+.set-diff .set-diff-card { position:relative; display:block; padding-right:3.5rem; }
+.set-diff-card > label { display:grid; gap:.45rem; cursor:pointer; }
+.difficulty-info > summary { position:absolute; top:.6rem; right:.6rem; display:grid; place-items:center; width:2.5rem; height:2.5rem; border:1px solid #a78a52; border-radius:50%; background:#241b35; color:#ebd5a6; cursor:pointer; list-style:none; font-size:1.3rem; }
+.battle-skill-wrap{position:relative;min-width:0;height:100%}.battle-skill-wrap>.battle-skill{width:100%;height:100%}.battle-skill-wrap>.battle-skill>.skill-ico{right:39px}.battle-skill-info-button{position:absolute;top:.45rem;right:.45rem;z-index:2;display:grid!important;place-items:center;width:1.8rem!important;height:1.8rem!important;min-height:1.8rem!important;padding:0!important;border:1px solid #a78a52;border-radius:50%;background:#241b35;color:#ebd5a6;font-size:1rem;line-height:1;cursor:pointer}.battle-skill-info-button:hover,.battle-skill-info-button:focus-visible{border-color:#f4d78e;background:#483350;outline:2px solid #f4d78e;outline-offset:2px}.battle-skill-info-popover{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:12px;background:#080b12b8}.battle-skill-info-dialog{width:min(460px,100%);max-height:min(86dvh,560px);overflow:auto;padding:14px;background:#171d28;border:1px solid #a78a52;box-shadow:0 20px 70px #000c;color:#e8e1d5}.battle-skill-info-dialog header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:0 0 9px;border-bottom:1px solid #59677a;background:none}.battle-skill-info-dialog header h3{margin:3px 0 0;color:#e8d09a;font:600 23px/1.15 var(--vtn-title)}.battle-skill-info-dialog header button{min-height:34px;padding:5px 10px}.battle-skill-info-rows{display:grid;gap:5px;margin-top:10px}.battle-skill-info-rows p,.battle-skill-known-effect{margin:0;color:#c8d0da;font-size:11px;line-height:1.5}.battle-skill-known-effect{margin-top:10px;padding:8px;border:1px solid #668b63;background:#1d3426;color:#b8e1ad}.battle-skill-known-effect .battle-effectiveness{margin-left:4px}
+.difficulty-info > summary::-webkit-details-marker { display:none; }
+.difficulty-info > summary:focus-visible { outline:2px solid #f4d78e; outline-offset:3px; }
+.difficulty-info[open] > summary { background:#483350; }
+.difficulty-rules { margin-top:1rem; padding:.8rem; border:1px solid #927340; border-radius:.6rem; background:#171021; color:#eadfc9; font-size:.9rem; line-height:1.55; }
+.difficulty-rules ul { margin:.5rem 0; padding-left:1.25rem; }
+.difficulty-rules li + li { margin-top:.5rem; }
+.difficulty-creation-summary { color:#e8d5ae; line-height:1.5; }
+.set-diff-card:focus-within { outline:2px solid #d6b677; outline-offset:2px; }
+
+.memory-card.locked{opacity:.5;filter:grayscale(.6)}.memory-card .small{color:#b9a98a}.memory-read h2{margin-top:0}

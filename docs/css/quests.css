@@ -1,0 +1,56 @@
+/* Quest tracker, quest log, offer and choice modals (VTNQuests) */
+#objective{display:block}
+#objective b{display:block;color:#f0dfb4;font:700 12px/1.35 var(--vtn-ui);letter-spacing:.01em}
+#objective .tk-kind{display:inline-block;margin:2px 0 3px;padding:0 6px;border:1px solid #8a7550;border-radius:999px;color:#d7c390;font:600 9px/16px var(--vtn-ui);text-transform:uppercase}
+#objective .tk-sub{display:block;color:#e8dec8;font:500 11px/1.45 var(--vtn-ui)}
+#objective .tk-step{display:block;color:#8f8a9c;font:500 9px/1.6 var(--vtn-ui);margin-top:2px}
+.qintro p{margin:.2em 0}
+.qtabs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 12px}
+.qtabs button{min-height:40px;padding:6px 12px;border:1px solid #5b4d37;border-radius:8px;background:linear-gradient(#25222f,#1a1822);color:#d9ccb0;font:600 12px var(--vtn-ui);cursor:pointer}
+.qtabs button.is-on{border-color:#e0bf79;color:#fff2cf;background:linear-gradient(#3a3020,#251e14);box-shadow:inset 0 0 0 1px #e0bf7955}
+.qtabs button i{font-style:normal;margin-left:4px;padding:0 6px;border-radius:999px;background:#e0bf79;color:#1b1408;font-size:10px}
+.qlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.qcard{position:relative;padding:14px 14px 12px;border:1px solid #4b4358;border-radius:10px;background:linear-gradient(#1f1c29,#16141d)}
+.qcard.is-active{border-color:#e0bf79;box-shadow:0 0 0 1px #e0bf7944,0 6px 22px #0008}
+.qcard.is-done{opacity:.78}
+.qcard h3{margin:6px 0 4px;font:600 20px/1.2 var(--vtn-title);color:#f4e9d0}
+.qcard p{margin:.3em 0;color:#cbbfd8;font:400 13px/1.5 var(--vtn-ui)}
+.qhead{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.qhead .qreg,.qhead .qlvl{font:500 11px var(--vtn-ui);color:#9c93aa}
+.qk{border-color:#6f9eb1!important;color:#bfe0ee!important}
+.qk-main{border-color:#e0bf79!important;color:#ffe6a5!important}
+.qk-cast{border-color:#b98fd9!important;color:#e4ccf6!important}
+.qk-region,.qk-race,.qk-monster{border-color:#88b07e!important;color:#cde8c2!important}
+.qstages{margin:8px 0 6px;padding:0;list-style:none;counter-reset:q}
+.qstages li{position:relative;margin:3px 0;padding-left:24px;font:500 12px/1.45 var(--vtn-ui);color:#8c8498}
+.qstages li::before{content:"○";position:absolute;left:4px;top:0;color:#6c647a}
+.qstages li.is-done{color:#8fb584;text-decoration:line-through;text-decoration-color:#8fb58477}
+.qstages li.is-done::before{content:"✓";color:#8fe6a2;text-decoration:none}
+.qstages li.is-now{color:#fff0c8;font-weight:700}
+.qstages li.is-now::before{content:"➤";color:#ffd776}
+.qstages li.is-later{opacity:.7}
+.qbtn{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
+.qbtn button{min-height:40px}
+.qempty{padding:18px;border:1px dashed #4b4358;border-radius:10px;text-align:center}
+.clue-board{margin:10px 0 18px;padding:12px 14px;border:1px solid #4b4358;border-radius:10px;background:#17151f}
+.clue-board h3{margin:0 0 2px;font:600 18px var(--vtn-title);color:#f0dfb4}
+.clue-slots{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin-top:8px}
+.clue-slot{display:grid;grid-template-columns:26px 1fr;gap:2px 8px;align-items:start;padding:8px;border:1px dashed #4b4358;border-radius:8px;color:#6f677d;font:500 12px/1.4 var(--vtn-ui)}
+.clue-slot b{grid-row:span 2;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#2a2735;font-size:12px}
+.clue-slot.is-found{border:1px solid #e0bf79;color:#f2e7c9;background:#241f16}
+.clue-slot.is-found b{background:#e0bf79;color:#1b1408}
+.clue-slot small{grid-column:2;color:#bdb2a0;font-size:11px}
+.qchoices{display:grid;gap:10px;margin-top:12px}
+.qchoice{display:block;text-align:left;min-height:56px;padding:12px 14px;border:1px solid #6a5a3e;border-radius:10px;background:linear-gradient(#272130,#1b1722);color:#f1e5c6;cursor:pointer}
+.qchoice b{display:block;font:700 14px/1.35 var(--vtn-ui)}
+.qchoice small{display:block;margin-top:3px;color:#cdbfa0;font:400 12px/1.45 var(--vtn-ui)}
+.qchoice em{display:block;margin-top:3px;color:#e08c8f;font:500 11px var(--vtn-ui)}
+.qchoice:hover:not([disabled]){border-color:#e0bf79;background:linear-gradient(#352b22,#231b16)}
+.qchoice[disabled]{opacity:.5;cursor:not-allowed}
+@media (max-width:720px){.qlist{grid-template-columns:1fr}.qtabs button{flex:1 1 44%}}
+/* skill icons */
+.skill-ico{width:36px;height:36px;border-radius:7px;border:1px solid #c6a96a99;box-shadow:0 0 0 1px #0009,0 0 10px var(--skill-color,#8a74c8)55;object-fit:cover;flex:none;image-rendering:auto}
+.battle-skill{position:relative}
+.battle-skill>.skill-ico{position:absolute;top:8px;right:8px;z-index:1}
+.loadout-slot-card,.loadout-learned-card{position:relative}
+.loadout-slot-card>.skill-ico,.loadout-learned-card>.skill-ico{position:absolute;top:10px;right:10px;width:44px;height:44px}
