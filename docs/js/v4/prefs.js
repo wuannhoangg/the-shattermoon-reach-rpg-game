@@ -8,7 +8,7 @@
     difficulty: 'normal',
     textSpeed: 1, battleSpeed: 1,
     vfx: 'full', shake: true, numbers: true,
-    pathSpeed: 'rapid', motion: 'full', layout: 'auto', viewRange: 'far', phoneMode: 'auto', textScale: 1.15, padButtons: true
+    pathSpeed: 'rapid', motion: 'full', layout: 'auto', viewRange: 'far', phoneMode: 'auto', phoneText: 1, padButtons: true
   };
   const DIFFICULTY = {
     easy: {name:'Dễ', audience:'theo dõi cốt truyện', foe:.65, hero:1.25, exp:1, gold:1, capture:.10, goldLoss:0, candleLoss:0, bondLoss:0, permanentBelow:0},

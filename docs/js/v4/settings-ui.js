@@ -26,10 +26,9 @@
         ${check('shake', 'Rung màn hình khi trúng đòn mạnh', p.shake)}
         ${check('numbers', 'Hiện số sát thương nổi', p.numbers)}
       </section>
-      <section class="set-group"><h3>Chế độ điện thoại</h3>
-        <p class="set-note">Bố cục chơi ngang cho điện thoại (ví dụ iPhone 14 Pro): chữ lớn dễ đọc, chạm NPC hoặc vật phẩm là tự đi tới và tương tác, không cần phím E, có nút tương tác và nút phóng to nổi.</p>
-        ${row('Chế độ điện thoại', `<select data-pref="phoneMode">${opt('auto', 'Tự động theo thiết bị', p.phoneMode)}${opt('on', 'Bật · bố cục điện thoại ngang', p.phoneMode)}${opt('off', 'Tắt · bố cục máy tính', p.phoneMode)}</select>`)}
-        ${row('Cỡ chữ khi đọc', `<select data-pref="textScale" data-num="1">${opt(1, 'Vừa', p.textScale)}${opt(1.15, 'Lớn', p.textScale)}${opt(1.3, 'Rất lớn', p.textScale)}${opt(1.5, 'Cực lớn', p.textScale)}</select>`)}
+      <section class="set-group"><h3>Chơi bằng cảm ứng</h3>
+        <p class="set-note">Chế độ điện thoại bật hoặc tắt ở màn hình chính (nút góc trên bên phải). Khi bật, game dùng bố cục ngang, chạm NPC hoặc vật là tự đi tới và tương tác.</p>
+        ${row('Cỡ chữ khi đọc (điện thoại)', `<select data-pref="phoneText" data-num="1">${opt(1, 'Vừa', p.phoneText)}${opt(1.15, 'Lớn', p.phoneText)}${opt(1.3, 'Rất lớn', p.phoneText)}</select>`)}
         ${check('padButtons', 'Hiện nút tương tác và nút phóng to khi chơi bằng cảm ứng', p.padButtons !== false)}
       </section>
       <section class="set-group"><h3>Khám phá và giao diện</h3>
