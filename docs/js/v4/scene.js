@@ -459,7 +459,7 @@ function drawBuilding(ctx,p){
   }
   // names of nearby points
   ctx.font = `600 ${Math.round(13 / Z * 10) / 10}px 'VTN UI',sans-serif`; ctx.textAlign = 'center';
-  for (const p of pts) if (Math.abs((p.renderX ?? p.x) - info.px) + Math.abs((p.renderY ?? p.y) - info.py) < 6) {
+  for (const p of pts) if (Math.abs((p.renderX ?? p.x) - info.px) + Math.abs((p.renderY ?? p.y) - info.py) < (p.npc?.civilian ? 3 : 6)) {   // the crowd of townsfolk is only named when close
     const rx = p.renderX ?? p.x, ry = p.renderY ?? p.y, ly = ry * T + (p.type === 'npc' || p.type === 'rival' ? -6 : -30);
     ctx.fillStyle = '#0a0d0bcc'; ctx.fillText(p.name, rx * T + 16 + 1 / Z, ly + 1 / Z);
     ctx.fillStyle = p.type === 'rival' ? '#c9d4dc' : '#e8dcae'; ctx.fillText(p.name, rx * T + 16, ly);

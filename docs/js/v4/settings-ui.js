@@ -26,11 +26,16 @@
         ${check('shake', 'Rung màn hình khi trúng đòn mạnh', p.shake)}
         ${check('numbers', 'Hiện số sát thương nổi', p.numbers)}
       </section>
+      <section class="set-group"><h3>Chế độ điện thoại</h3>
+        <p class="set-note">Bố cục chơi ngang cho điện thoại (ví dụ iPhone 14 Pro): chữ lớn dễ đọc, chạm NPC hoặc vật phẩm là tự đi tới và tương tác, không cần phím E, có nút tương tác và nút phóng to nổi.</p>
+        ${row('Chế độ điện thoại', `<select data-pref="phoneMode">${opt('auto', 'Tự động theo thiết bị', p.phoneMode)}${opt('on', 'Bật · bố cục điện thoại ngang', p.phoneMode)}${opt('off', 'Tắt · bố cục máy tính', p.phoneMode)}</select>`)}
+        ${row('Cỡ chữ khi đọc', `<select data-pref="textScale" data-num="1">${opt(1, 'Vừa', p.textScale)}${opt(1.15, 'Lớn', p.textScale)}${opt(1.3, 'Rất lớn', p.textScale)}${opt(1.5, 'Cực lớn', p.textScale)}</select>`)}
+        ${check('padButtons', 'Hiện nút tương tác và nút phóng to khi chơi bằng cảm ứng', p.padButtons !== false)}
+      </section>
       <section class="set-group"><h3>Khám phá và giao diện</h3>
         ${row('Tầm nhìn (độ cao camera)', `<select data-pref="viewRange">${opt('near', 'Gần', p.viewRange)}${opt('mid', 'Vừa', p.viewRange)}${opt('far', 'Xa', p.viewRange)}${opt('vfar', 'Rất xa', p.viewRange)}${opt('ultra', 'Siêu xa', p.viewRange)}${opt('whole', 'Toàn cảnh (cả vùng một khung hình)', p.viewRange)}</select>`)}
         ${row('Tốc độ tự tìm đường', `<select data-pref="pathSpeed">${opt('slow', 'Chậm', p.pathSpeed)}${opt('normal', 'Vừa', p.pathSpeed)}${opt('fast', 'Nhanh (bằng đi bộ)', p.pathSpeed)}${opt('rapid', 'Rất nhanh (x1,7)', p.pathSpeed)}${opt('turbo', 'Siêu nhanh (x2,6)', p.pathSpeed)}${opt('blitz', 'Tức tốc (x4)', p.pathSpeed)}</select>`)}
         ${row('Tốc độ chữ hội thoại', `<select data-pref="textSpeed" data-num="1">${[1, 2, 3].map(v => opt(v, 'Nhịp ' + v, p.textSpeed)).join('')}</select>`)}
-        ${row('Bố cục hiển thị', `<select data-pref="layout">${opt('auto', 'Tự động theo màn hình', p.layout)}${opt('desktop', 'Máy tính · bố cục rộng', p.layout)}${opt('phone', 'Điện thoại · bố cục gọn', p.layout)}</select>`, 'Áp dụng trên điện thoại và máy tính bảng. Trên máy tính, bố cục tự đổi theo kích thước cửa sổ trình duyệt.')}${row('Chuyển động nền menu', `<select data-pref="motion">${opt('full', 'Đầy đủ', p.motion)}${opt('reduced', 'Giảm chuyển động', p.motion)}</select>`)}
       </section>
     </div>`;
   }

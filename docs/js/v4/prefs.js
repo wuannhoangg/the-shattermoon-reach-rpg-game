@@ -8,7 +8,7 @@
     difficulty: 'normal',
     textSpeed: 1, battleSpeed: 1,
     vfx: 'full', shake: true, numbers: true,
-    pathSpeed: 'rapid', motion: 'full', layout: 'auto', viewRange: 'far'
+    pathSpeed: 'rapid', motion: 'full', layout: 'auto', viewRange: 'far', phoneMode: 'auto', textScale: 1.15, padButtons: true
   };
   const DIFFICULTY = {
     easy: {name:'Dễ', audience:'theo dõi cốt truyện', foe:.65, hero:1.25, exp:1, gold:1, capture:.10, goldLoss:0, candleLoss:0, bondLoss:0, permanentBelow:0},
@@ -52,7 +52,7 @@
   /* Layout mode: on phones and tablets the viewport width decides which layout the page uses. */
   const VIEWPORT = {auto: 'width=device-width,initial-scale=1,viewport-fit=cover', desktop: 'width=1180,viewport-fit=cover', phone: 'width=640,viewport-fit=cover'};
   function applyLayout() {
-    const mode = VIEWPORT[value.layout] ? value.layout : 'auto', meta = g.document && g.document.querySelector('meta[name=viewport]');
+    const mode = 'auto', meta = g.document && g.document.querySelector('meta[name=viewport]');
     if (meta) meta.setAttribute('content', VIEWPORT[mode]);
     if (g.document && g.document.documentElement) g.document.documentElement.dataset.layout = mode;
   }
@@ -72,7 +72,7 @@
     g.addEventListener('keydown', e => { if (/input|select|textarea/i.test(e.target?.tagName || '') || g.document.getElementById('overlay')?.classList.contains('open')) return; if (e.key === '+' || e.key === '=') stepRange(-1); else if (e.key === '-' || e.key === '_') stepRange(1); });
   }
   g.VTNPrefs = {
-    DEFAULTS, DIFFICULTY, PATH_SPEED,
+    DEFAULTS, DIFFICULTY, PATH_SPEED, stepRange,
     get: () => value,
     set(patch) { value = {...value, ...patch}; save(); if ('layout' in patch) applyLayout(); listeners.forEach(fn => { try { fn(value, patch); } catch (e) { console.error(e); } }); return value; },
     onChange(fn) { listeners.add(fn); return () => listeners.delete(fn); },
