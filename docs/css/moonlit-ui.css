@@ -384,7 +384,8 @@ body[data-screen='battle'] .battle-party-card{display:grid!important;grid-templa
 body[data-screen='battle'] .battle-party-card.is-active{border-color:#d6ae5d!important}
 body[data-screen='battle'] .battle-party-card.is-acting{border-color:#ffe08a!important;box-shadow:0 0 0 2px #7a5a1e,0 0 14px #ffd97899!important;background:#2a2417!important}
 body[data-screen='battle'] .battle-party-portrait{width:48px!important;height:100%!important;max-height:54px;min-height:40px;clip-path:none!important;border:1px solid #66768c;background:#0e131b;overflow:hidden;display:grid;place-items:center}
-body[data-screen='battle'] .battle-party-portrait .battle-portrait-img{width:100%;height:100%;object-fit:cover;object-position:50% 12%;image-rendering:auto}
+body[data-screen='battle'] .battle-party-portrait .battle-portrait-img{width:100%;height:100%;object-fit:cover;object-position:50% 12%;image-rendering:pixelated}
+body[data-screen='battle'] img[src*="/portraits_pixel/"]{image-rendering:pixelated}
 body[data-screen='battle'] .battle-party-portrait canvas{width:100%!important;height:100%!important;max-width:none!important;object-fit:contain}
 body[data-screen='battle'] .battle-party-name strong{font-size:16px;font-family:var(--vtn-title)}
 body[data-screen='battle'] .battle-party-name span{font-size:11px}

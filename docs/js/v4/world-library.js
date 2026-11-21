@@ -1225,7 +1225,11 @@
 
   const forestSilhouettes=['J049','J053','J054','J055'].map(id=>'assets/world/region_01/props/'+id+'.png');
   const markerSprites={portal:'J029',clue:'J082',puzzle:'J081',legendary:'J082',shrine:'J006','abyss-memory':'J083'};
+  // prologue landmarks drawn with the new region_01 kingdom kit instead of the old generic marker: [file, drawn width in px]
+  const flowSprites={tomb_door:['assets/world/kingdom/region_01/s_gate_portcullis.png',104],tomb_exit:['assets/world/kingdom/region_01/p_root_cave_b.png',112],cave_enter:['assets/world/kingdom/region_01/p_root_cave.png',112]};
   function nativeMarker(ctx,point,dx,dy){
+    const fs=point.type==='abyss-flow'?flowSprites[point.flow]:point.type==='portal'&&/^(tomb|ash|bones|core)_/.test(point.id||'')?(/^(ash|core)_/.test(point.id)?flowSprites.cave_enter:flowSprites.tomb_exit):null;   // the stairs/portals of Uyên Khẩu use the same new kit
+    if(fs){const r=imageFor(fs[0]);if(!imageReady(r))return false;const im=r.image,w=fs[1],h=Math.round(im.naturalHeight*w/im.naturalWidth);ctx.drawImage(im,Math.round(dx+16-w/2),dy+34-h,w,h);return true;}
     const id=markerSprites[point.type];if(!id)return false;
     const resource=imageFor('assets/world/region_01/props/'+id+'.png');if(!imageReady(resource))return false;
     const im=resource.image,w=im.naturalWidth,h=im.naturalHeight;

@@ -20,5 +20,5 @@ body.phone .vtn-card-plate{padding:8px 11px 7px}.vtn-card-topline{padding-bottom
 
 /* the card panel lives inside #game-ui (stacking level 1) while the story dialogue is a body-level layer (z 20): lift the whole UI while a card is open */
 body[data-screen='char-cards'] #game-ui{z-index:80!important}
-/* class portraits are busts drawn near the bottom of a tall frame: crop to the figure so the card has no empty top */
-.vtn-card-portrait-img.is-class{width:100%;height:100%;object-fit:cover;object-position:68% 60%}
+/* Keep the face and headgear in view when square class busts fill a tall card. */
+.vtn-card-portrait-img.is-class{width:100%;height:100%;object-fit:cover;object-position:72% 50%;image-rendering:pixelated;filter:none}
