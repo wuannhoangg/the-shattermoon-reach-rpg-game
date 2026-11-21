@@ -25,7 +25,7 @@
     const look = list.find(item => item.key === hero.storyLook && (!hero.gender || item.gender === hero.gender))
       || list.find(item => item.gender === (hero.gender || 'm') && item.age === (hero.age || 'young'))
       || list[0];
-    portrait = look?.front || null;
+    portrait = g.VTN_CLASS_PORTRAITS?.[hero.classId] || look?.front || null;   // the class portrait first (the race sprite is only a fallback)
     return { ...card, name: hero.name || card.name, className: cls?.name || card.className, portrait, inspected: currentFlag(card.id), titleGranted: false };
   }
 
@@ -111,7 +111,7 @@
 
   function portraitMarkup(card, small = false) {
     if (!card.portrait) return `<div class="vtn-card-no-portrait" aria-hidden="true">${esc(card.name.slice(0, 1))}</div>`;
-    return `<img class="vtn-card-portrait-img${small ? ' is-small' : ''}" src="${esc(card.portrait)}" alt="${esc(card.name)}" draggable="false">`;
+    return `<img class="vtn-card-portrait-img${small ? ' is-small' : ''}${/portraits\/class_/.test(card.portrait) ? ' is-class' : ''}" src="${esc(card.portrait)}" alt="${esc(card.name)}" draggable="false">`;
   }
 
   function titleMarkup(card, pending = false) {
